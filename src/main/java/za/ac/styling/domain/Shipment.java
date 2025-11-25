@@ -15,23 +15,19 @@ public class Shipment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long shipmentId;
 
-
     @OneToOne
+    @JoinColumn(name = "order_id")
     private Order order;
-
 
     private String trackingNumber;
     private String carrier;
 
-
     @ManyToOne
     private ShippingMethod shippingMethod;
-
 
     private LocalDateTime shippedDate;
     private LocalDateTime estimatedDelivery;
     private LocalDateTime actualDelivery;
-
 
     @Enumerated(EnumType.STRING)
     private ShipmentStatus status;

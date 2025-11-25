@@ -1,11 +1,11 @@
 package za.ac.styling.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.*;
 import java.util.List;
-
 
 @Entity
 @Data
@@ -36,6 +36,7 @@ public class Product {
 
     @OneToOne
     @JoinColumn(name = "primary_image_id")
+    @JsonIgnore  // Prevents circular reference during JSON serialization
     private ProductImage primaryImage;
 
     private boolean isActive;
