@@ -2,12 +2,13 @@ package za.ac.styling.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class PayPalPayment extends PaymentMethod {
     private String email;
     private String payerId;
