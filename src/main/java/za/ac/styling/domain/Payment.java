@@ -25,7 +25,7 @@ public class Payment {
     private PaymentStatus status;
 
 
-    @OneToOne
+    @ManyToOne
     private PaymentMethod paymentMethod;
 
 

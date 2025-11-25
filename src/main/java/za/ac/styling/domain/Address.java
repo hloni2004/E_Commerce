@@ -28,6 +28,5 @@ public class Address {
     private boolean isDefault;
 
 
-    @ManyToOne
-    private User user;
+
 }

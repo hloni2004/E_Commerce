@@ -43,11 +43,11 @@ public class Order {
     private ShippingMethod shippingMethod;
 
 
-    @OneToOne
+    @ManyToOne
     private Address shippingAddress;
 
 
-    @OneToOne
+    @ManyToOne
     private Address billingAddress;
 
 
