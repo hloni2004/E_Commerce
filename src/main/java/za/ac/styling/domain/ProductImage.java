@@ -8,15 +8,14 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProductImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
-    @OneToOne
-    @JoinColumn(name = "primary_image_id")
-    private ProductImage primaryImage;
-
+    @ManyToOne
+    private Product product;
 
 
 

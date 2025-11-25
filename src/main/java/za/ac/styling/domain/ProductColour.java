@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ProductColour {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

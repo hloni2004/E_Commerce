@@ -9,7 +9,8 @@ import java.time.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-class Shipment {
+@Builder
+public class Shipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long shipmentId;

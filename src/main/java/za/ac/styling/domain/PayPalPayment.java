@@ -7,6 +7,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PayPalPayment extends PaymentMethod {
     private String email;
     private String payerId;
