@@ -20,7 +20,9 @@ public class Payment {
     private String currency;
     private LocalDate paymentDate;
 
-
+    @OneToOne(mappedBy = "payment")
+    private Order order;
+    
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 
