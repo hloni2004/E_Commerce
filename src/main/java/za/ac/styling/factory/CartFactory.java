@@ -15,7 +15,7 @@ public class CartFactory {
      * Creates a new Cart for a user
      */
     public static Cart createCart(User user) {
-        
+
         // Validate input data
         if (user == null) {
             throw new IllegalArgumentException("User is required");
@@ -33,7 +33,7 @@ public class CartFactory {
      * Creates an empty cart without user association (for guest checkout)
      */
     public static Cart createGuestCart() {
-        
+
         return Cart.builder()
                 .items(new ArrayList<>())
                 .createdAt(LocalDateTime.now())
@@ -45,14 +45,14 @@ public class CartFactory {
      * Creates a cart and associates it with the user bidirectionally
      */
     public static Cart createCartWithUserAssociation(User user) {
-        
+
         if (user == null) {
             throw new IllegalArgumentException("User is required");
         }
 
         Cart cart = createCart(user);
         user.setCart(cart);
-        
+
         return cart;
     }
 }

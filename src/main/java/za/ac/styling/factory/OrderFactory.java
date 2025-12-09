@@ -15,9 +15,9 @@ public class OrderFactory {
     /**
      * Creates a new Order with basic information
      */
-    public static Order createOrder(User user, Address shippingAddress, 
-                                   ShippingMethod shippingMethod) {
-        
+    public static Order createOrder(User user, Address shippingAddress,
+            ShippingMethod shippingMethod) {
+
         // Validate input data
         if (user == null) {
             throw new IllegalArgumentException("User is required");
@@ -55,8 +55,8 @@ public class OrderFactory {
      * Creates a new Order with separate billing address
      */
     public static Order createOrder(User user, Address shippingAddress, Address billingAddress,
-                                   ShippingMethod shippingMethod) {
-        
+            ShippingMethod shippingMethod) {
+
         // Validate input data
         if (user == null) {
             throw new IllegalArgumentException("User is required");
@@ -97,16 +97,16 @@ public class OrderFactory {
     /**
      * Creates a new Order with calculated amounts
      */
-    public static Order createOrderWithAmounts(User user, Address shippingAddress, 
-                                              ShippingMethod shippingMethod, 
-                                              double subtotal, double shippingCost, 
-                                              double taxAmount, double discountAmount) {
-        
+    public static Order createOrderWithAmounts(User user, Address shippingAddress,
+            ShippingMethod shippingMethod,
+            double subtotal, double shippingCost,
+            double taxAmount, double discountAmount) {
+
         Order order = createOrder(user, shippingAddress, shippingMethod);
-        
+
         // Validate amounts
         if (!ValidationHelper.isValidPrice(subtotal) || !ValidationHelper.isValidPrice(shippingCost) ||
-            !ValidationHelper.isValidPrice(taxAmount) || !ValidationHelper.isValidPrice(discountAmount)) {
+                !ValidationHelper.isValidPrice(taxAmount) || !ValidationHelper.isValidPrice(discountAmount)) {
             throw new IllegalArgumentException("Invalid price amounts");
         }
 
@@ -115,38 +115,38 @@ public class OrderFactory {
         order.setTaxAmount(taxAmount);
         order.setDiscountAmount(discountAmount);
         order.setTotalAmount(calculateTotalAmount(subtotal, shippingCost, taxAmount, discountAmount));
-        
+
         return order;
     }
 
     /**
      * Creates an order with payment information
      */
-    public static Order createOrderWithPayment(User user, Address shippingAddress, 
-                                              ShippingMethod shippingMethod, 
-                                              Payment payment) {
-        
+    public static Order createOrderWithPayment(User user, Address shippingAddress,
+            ShippingMethod shippingMethod,
+            Payment payment) {
+
         Order order = createOrder(user, shippingAddress, shippingMethod);
-        
+
         if (payment == null) {
             throw new IllegalArgumentException("Payment is required");
         }
 
         order.setPayment(payment);
         order.setStatus(OrderStatus.PROCESSING);
-        
+
         return order;
     }
 
     /**
      * Creates an order with notes
      */
-    public static Order createOrderWithNotes(User user, Address shippingAddress, 
-                                            ShippingMethod shippingMethod, String notes) {
-        
+    public static Order createOrderWithNotes(User user, Address shippingAddress,
+            ShippingMethod shippingMethod, String notes) {
+
         Order order = createOrder(user, shippingAddress, shippingMethod);
         order.setNotes(notes);
-        
+
         return order;
     }
 
@@ -160,8 +160,8 @@ public class OrderFactory {
     /**
      * Calculates total amount from order components
      */
-    private static double calculateTotalAmount(double subtotal, double shippingCost, 
-                                              double taxAmount, double discountAmount) {
+    private static double calculateTotalAmount(double subtotal, double shippingCost,
+            double taxAmount, double discountAmount) {
         return subtotal + shippingCost + taxAmount - discountAmount;
     }
 }
