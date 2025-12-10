@@ -29,8 +29,8 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        testRole = RoleFactory.createRole("CUSTOMER");
-        testRole = roleService.create(testRole);
+        testRole = roleService.findByRoleName("CUSTOMER")
+                .orElseGet(() -> roleService.create(RoleFactory.createRole("CUSTOMER")));
 
         testUser = UserFactory.createUser(
                 "johndoe",

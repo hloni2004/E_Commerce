@@ -34,8 +34,8 @@ class CartServiceTest {
 
     @BeforeEach
     void setUp() {
-        Role role = RoleFactory.createRole("CUSTOMER");
-        role = roleService.create(role);
+        Role role = roleService.findByRoleName("CUSTOMER")
+                .orElseGet(() -> roleService.create(RoleFactory.createRole("CUSTOMER")));
 
         testUser = UserFactory.createUser(
                 "testuser",

@@ -51,8 +51,8 @@ class ShipmentServiceTest {
 
     @BeforeEach
     void setUp() {
-        Role role = RoleFactory.createRole("CUSTOMER");
-        role = roleService.create(role);
+        Role role = roleService.findByRoleName("CUSTOMER")
+                .orElseGet(() -> roleService.create(RoleFactory.createRole("CUSTOMER")));
 
         User user = UserFactory.createUser(
                 "shipmentuser",
@@ -77,7 +77,7 @@ class ShipmentServiceTest {
         address = addressService.create(address);
 
         ShippingMethod shippingMethod = ShippingMethod.builder()
-                .name("Express Shipping")
+                .name("Express_" + System.currentTimeMillis())
                 .description("2-3 business days")
                 .cost(25.00)
                 .estimatedDays(3)

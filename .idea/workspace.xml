@@ -5,10 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="annoation">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/ShipmentFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/ShipmentFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/UserFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/UserFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/AddressServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/AddressServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/CartItemServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/CartItemServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/CartServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/CartServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/OrderServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/OrderServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/PermissionServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/PermissionServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ReviewServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ReviewServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/RoleServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/RoleServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ShipmentServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ShipmentServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/UserServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/UserServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +63,7 @@
     "JUnit.PaymentServiceTest.testCreate.executor": "Run",
     "JUnit.ReviewServiceTest.executor": "Run",
     "JUnit.RoleFactoryTest.executor": "Run",
+    "JUnit.RoleServiceTest.executor": "Run",
     "JUnit.ShipmentServiceTest.executor": "Run",
     "JUnit.ShipmentServiceTest.testCreate.executor": "Run",
     "JUnit.UserFactoryTest.createUser_WithValidData_ShouldCreateUser.executor": "Run",
@@ -203,7 +209,7 @@
       <updated>1764069390787</updated>
       <workItem from="1764069392911" duration="6988000" />
       <workItem from="1765317360282" duration="261000" />
-      <workItem from="1765368089139" duration="6872000" />
+      <workItem from="1765368089139" duration="7180000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -245,7 +251,15 @@
       <option name="project" value="LOCAL" />
       <updated>1764076052520</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="annoation">
+      <option name="closed" value="true" />
+      <created>1765375097586</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1765375097586</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -48,8 +48,8 @@ class OrderServiceTest {
 
     @BeforeEach
     void setUp() {
-        Role role = RoleFactory.createRole("CUSTOMER");
-        role = roleService.create(role);
+        Role role = roleService.findByRoleName("CUSTOMER")
+                .orElseGet(() -> roleService.create(RoleFactory.createRole("CUSTOMER")));
 
         testUser = UserFactory.createUser(
                 "orderuser",
@@ -74,7 +74,7 @@ class OrderServiceTest {
         testAddress = addressService.create(testAddress);
 
         ShippingMethod shippingMethod = ShippingMethod.builder()
-                .name("Standard Shipping")
+                .name("Standard_" + System.currentTimeMillis())
                 .description("5-7 business days")
                 .cost(10.00)
                 .estimatedDays(7)

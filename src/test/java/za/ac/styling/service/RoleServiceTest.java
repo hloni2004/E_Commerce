@@ -29,8 +29,8 @@ class RoleServiceTest {
 
     @BeforeEach
     void setUp() {
-        testRole = RoleFactory.createRole("ADMIN");
-        testPermission = PermissionFactory.createPermission("READ");
+        testRole = RoleFactory.createRole("ADMIN_" + System.currentTimeMillis());
+        testPermission = PermissionFactory.createPermission("READ_" + System.currentTimeMillis());
         testPermission = permissionService.create(testPermission);
     }
 
@@ -39,7 +39,7 @@ class RoleServiceTest {
         Role created = roleService.create(testRole);
         assertNotNull(created);
         assertNotNull(created.getRoleId());
-        assertEquals("ADMIN", created.getRoleName());
+        assertTrue(created.getRoleName().startsWith("ADMIN_"));
     }
 
     @Test
@@ -70,15 +70,15 @@ class RoleServiceTest {
     @Test
     void testFindByRoleName() {
         roleService.create(testRole);
-        Optional<Role> found = roleService.findByRoleName("ADMIN");
+        Optional<Role> found = roleService.findByRoleName(testRole.getRoleName());
         assertTrue(found.isPresent());
-        assertEquals("ADMIN", found.get().getRoleName());
+        assertEquals(testRole.getRoleName(), found.get().getRoleName());
     }
 
     @Test
     void testExistsByRoleName() {
         roleService.create(testRole);
-        assertTrue(roleService.existsByRoleName("ADMIN"));
+        assertTrue(roleService.existsByRoleName(testRole.getRoleName()));
         assertFalse(roleService.existsByRoleName("NONEXISTENT"));
     }
 

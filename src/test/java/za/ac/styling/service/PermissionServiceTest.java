@@ -23,7 +23,7 @@ class PermissionServiceTest {
 
     @BeforeEach
     void setUp() {
-        testPermission = PermissionFactory.createPermission("READ");
+        testPermission = PermissionFactory.createPermission("READ_" + System.currentTimeMillis());
     }
 
     @Test
@@ -31,7 +31,7 @@ class PermissionServiceTest {
         Permission created = permissionService.create(testPermission);
         assertNotNull(created);
         assertNotNull(created.getPermissionId());
-        assertEquals("READ", created.getName());
+        assertTrue(created.getName().startsWith("READ_"));
     }
 
     @Test
@@ -62,15 +62,15 @@ class PermissionServiceTest {
     @Test
     void testFindByName() {
         permissionService.create(testPermission);
-        Optional<Permission> found = permissionService.findByName("READ");
+        Optional<Permission> found = permissionService.findByName(testPermission.getName());
         assertTrue(found.isPresent());
-        assertEquals("READ", found.get().getName());
+        assertEquals(testPermission.getName(), found.get().getName());
     }
 
     @Test
     void testExistsByName() {
         permissionService.create(testPermission);
-        assertTrue(permissionService.existsByName("READ"));
+        assertTrue(permissionService.existsByName(testPermission.getName()));
         assertFalse(permissionService.existsByName("NONEXISTENT"));
     }
 }
