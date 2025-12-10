@@ -5,15 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="annoation">
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/AddressServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/AddressServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/CartItemServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/CartItemServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/CartServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/CartServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/OrderServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/OrderServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/PermissionServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/PermissionServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ReviewServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ReviewServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/RoleServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/RoleServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ShipmentServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ShipmentServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/UserServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/UserServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ProductServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ProductServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,8 +18,9 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Enum" />
-        <option value="Class" />
         <option value="JUnit5 Test Class" />
+        <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -38,12 +33,12 @@
     &quot;assignee&quot;: &quot;hloni2004&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/hloni2004/E_Commerce.git",
-    "accountId": "e319d8a0-3567-4a8a-a17b-95a49f39f88d"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/hloni2004/E_Commerce.git&quot;,
+    &quot;accountId&quot;: &quot;e319d8a0-3567-4a8a-a17b-95a49f39f88d&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -61,6 +56,8 @@
     "JUnit.CartItemFactoryTest.executor": "Run",
     "JUnit.CartItemServiceTest.testCreate.executor": "Run",
     "JUnit.PaymentServiceTest.testCreate.executor": "Run",
+    "JUnit.ProductServiceTest.testCreate.executor": "Run",
+    "JUnit.ProductServiceTest.testCreateWithColourAndSize.executor": "Run",
     "JUnit.ReviewServiceTest.executor": "Run",
     "JUnit.RoleFactoryTest.executor": "Run",
     "JUnit.RoleServiceTest.executor": "Run",
@@ -70,6 +67,7 @@
     "JUnit.UserServiceTest.executor": "Run",
     "JUnit.UserServiceTest.testCreate.executor": "Run",
     "JUnit.UserServiceTest.testRead.executor": "Run",
+    "JUnit.UserServiceTest.testUpdate.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
@@ -99,8 +97,8 @@
       <recent name="za.ac.styling.factory" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.RoleServiceTest">
-    <configuration name="RoleServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="JUnit.ProductServiceTest.testCreateWithColourAndSize">
+    <configuration name="ProductServiceTest.testCreate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="E-Commerce" />
       <extension name="coverage">
         <pattern>
@@ -109,13 +107,14 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="za.ac.styling.service" />
-      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.RoleServiceTest" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.ProductServiceTest" />
+      <option name="METHOD_NAME" value="testCreate" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="ShipmentServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="ProductServiceTest.testCreateWithColourAndSize" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="E-Commerce" />
       <extension name="coverage">
         <pattern>
@@ -124,23 +123,9 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="za.ac.styling.service" />
-      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.ShipmentServiceTest" />
-      <option name="TEST_OBJECT" value="class" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="UserServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="E-Commerce" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="za.ac.styling.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
-      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.UserServiceTest" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.ProductServiceTest" />
+      <option name="METHOD_NAME" value="testCreateWithColourAndSize" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -161,7 +146,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UserServiceTest.testRead" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserServiceTest.testUpdate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="E-Commerce" />
       <extension name="coverage">
         <pattern>
@@ -171,7 +156,7 @@
       </extension>
       <option name="PACKAGE_NAME" value="za.ac.styling.service" />
       <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.UserServiceTest" />
-      <option name="METHOD_NAME" value="testRead" />
+      <option name="METHOD_NAME" value="testUpdate" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -182,13 +167,26 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Main" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <module name="E-Commerce" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="za.ac.styling.Main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.styling.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.RoleServiceTest" />
-        <item itemvalue="JUnit.ShipmentServiceTest" />
+        <item itemvalue="JUnit.ProductServiceTest.testCreateWithColourAndSize" />
+        <item itemvalue="JUnit.ProductServiceTest.testCreate" />
+        <item itemvalue="JUnit.UserServiceTest.testUpdate" />
         <item itemvalue="JUnit.UserServiceTest.testCreate" />
-        <item itemvalue="JUnit.UserServiceTest.testRead" />
-        <item itemvalue="JUnit.UserServiceTest" />
+        <item itemvalue="Spring Boot.Main" />
       </list>
     </recent_temporary>
   </component>

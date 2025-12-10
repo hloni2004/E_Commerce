@@ -1,0 +1,91 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a\" name=\"Changes\" comment=\"annoation\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Enum\" />\r\n        <option value=\"Class\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"GitHubPullRequestSearchHistory\">{\r\n  &quot;lastFilter&quot;: {\r\n    &quot;state&quot;: &quot;OPEN&quot;,\r\n    &quot;assignee&quot;: &quot;hloni2004&quot;\r\n  }\r\n}</component>\r\n  <component name=\"GithubPullRequestsUISettings\"><![CDATA[{\r\n  \"selectedUrlAndAccountId\": {\r\n    \"url\": \"https://github.com/hloni2004/E_Commerce.git\",\r\n    \"accountId\": \"bbc2a023-86a4-483b-81c4-8322ae7f40ad\"\r\n  }\r\n}]]></component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 8\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"35y5IACMlQnymRe2lT7xEaZuQIU\" />\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"ModuleVcsDetector.initialDetectionPerformed\": \"true\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"RunOnceActivity.git.unshallow\": \"true\",\r\n    \"git-widget-placeholder\": \"master\",\r\n    \"junie.onboarding.icon.badge.shown\": \"true\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"onboarding.tips.debug.path\": \"C:/Users/Lehlohonolo.Mokoena/IdeaProjects/E-Commerce/src/main/java/za/ac/styling/Main.java\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.23774.435\" />\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-IU-251.23774.435\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a\" name=\"Changes\" comment=\"\" />\r\n      <created>1764069390787</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1764069390787</updated>\r\n      <workItem from=\"1764069392911\" duration=\"6988000\" />\r\n      <workItem from=\"1765317360282\" duration=\"261000\" />\r\n    </task>\r\n    <task id=\"LOCAL-00001\" summary=\"domain\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1764073722394</created>\r\n      <option name=\"number\" value=\"00001\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00001\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1764073722394</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00002\" summary=\"annoation\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1764074135506</created>\r\n      <option name=\"number\" value=\"00002\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00002\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1764074135506</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00003\" summary=\"annoation\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1764074605754</created>\r\n      <option name=\"number\" value=\"00003\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00003\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1764074605754</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00004\" summary=\"annoation\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1764075034610</created>\r\n      <option name=\"number\" value=\"00004\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00004\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1764075034610</updated>\r\n    </task>\r\n    <task id=\"LOCAL-00005\" summary=\"annoation\">\r\n      <option name=\"closed\" value=\"true\" />\r\n      <created>1764076052520</created>\r\n      <option name=\"number\" value=\"00005\" />\r\n      <option name=\"presentableId\" value=\"LOCAL-00005\" />\r\n      <option name=\"project\" value=\"LOCAL\" />\r\n      <updated>1764076052520</updated>\r\n    </task>\r\n    <option name=\"localTasksCounter\" value=\"6\" />\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"domain\" />\r\n    <MESSAGE value=\"annoation\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"annoation\" />\r\n  </component>\r\n  <component name=\"github-copilot-workspace\">\r\n    <instructionFileLocations>\r\n      <option value=\".github/instructions\" />\r\n    </instructionFileLocations>\r\n    <promptFileLocations>\r\n      <option value=\".github/prompts\" />\r\n    </promptFileLocations>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision d6b5518c6bfa6261315d5d24f1659252634108ef)
++++ b/.idea/workspace.xml	(date 1765320988436)
+@@ -4,7 +4,9 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="annoation" />
++    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="factory and helper">
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+@@ -37,6 +39,9 @@
+   &quot;associatedIndex&quot;: 8
+ }</component>
+   <component name="ProjectId" id="35y5IACMlQnymRe2lT7xEaZuQIU" />
++  <component name="ProjectLevelVcsManager">
++    <ConfirmationsSetting value="1" id="Add" />
++  </component>
+   <component name="ProjectViewState">
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+@@ -46,6 +51,7 @@
+     "ModuleVcsDetector.initialDetectionPerformed": "true",
+     "RunOnceActivity.ShowReadmeOnStart": "true",
+     "RunOnceActivity.git.unshallow": "true",
++    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+     "git-widget-placeholder": "master",
+     "junie.onboarding.icon.badge.shown": "true",
+     "node.js.detected.package.eslint": "true",
+@@ -73,7 +79,7 @@
+       <option name="presentableId" value="Default" />
+       <updated>1764069390787</updated>
+       <workItem from="1764069392911" duration="6988000" />
+-      <workItem from="1765317360282" duration="261000" />
++      <workItem from="1765317360282" duration="2458000" />
+     </task>
+     <task id="LOCAL-00001" summary="domain">
+       <option name="closed" value="true" />
+@@ -115,7 +121,31 @@
+       <option name="project" value="LOCAL" />
+       <updated>1764076052520</updated>
+     </task>
+-    <option name="localTasksCounter" value="6" />
++    <task id="LOCAL-00006" summary="factory and helper">
++      <option name="closed" value="true" />
++      <created>1765317990046</created>
++      <option name="number" value="00006" />
++      <option name="presentableId" value="LOCAL-00006" />
++      <option name="project" value="LOCAL" />
++      <updated>1765317990047</updated>
++    </task>
++    <task id="LOCAL-00007" summary="factory and helper">
++      <option name="closed" value="true" />
++      <created>1765320661258</created>
++      <option name="number" value="00007" />
++      <option name="presentableId" value="LOCAL-00007" />
++      <option name="project" value="LOCAL" />
++      <updated>1765320661259</updated>
++    </task>
++    <task id="LOCAL-00008" summary="factory and helper">
++      <option name="closed" value="true" />
++      <created>1765320775069</created>
++      <option name="number" value="00008" />
++      <option name="presentableId" value="LOCAL-00008" />
++      <option name="project" value="LOCAL" />
++      <updated>1765320775070</updated>
++    </task>
++    <option name="localTasksCounter" value="9" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+@@ -124,7 +154,8 @@
+   <component name="VcsManagerConfiguration">
+     <MESSAGE value="domain" />
+     <MESSAGE value="annoation" />
+-    <option name="LAST_COMMIT_MESSAGE" value="annoation" />
++    <MESSAGE value="factory and helper" />
++    <option name="LAST_COMMIT_MESSAGE" value="factory and helper" />
+   </component>
+   <component name="github-copilot-workspace">
+     <instructionFileLocations>
