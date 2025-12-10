@@ -13,41 +13,7 @@ import java.util.ArrayList;
  */
 public class UserFactory {
 
-    /**
-     * Creates a new User with basic information
-     */
-    public static User createUser(String username, String email, String password,
-                                  String firstName, String lastName) {
 
-        // Validate input data
-        if (!ValidationHelper.isValidUsername(username)) {
-            throw new IllegalArgumentException("Invalid username");
-        }
-
-        if (!ValidationHelper.isValidEmail(email)) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
-
-        if (!ValidationHelper.isValidPassword(password)) {
-            throw new IllegalArgumentException("Password must be at least 8 characters long");
-        }
-
-        if (!ValidationHelper.isValidName(firstName) || !ValidationHelper.isValidName(lastName)) {
-            throw new IllegalArgumentException("Invalid name format");
-        }
-
-        return User.builder()
-                .username(username)
-                .email(email.toLowerCase())
-                .password(password) // Should be hashed in production
-                .firstName(firstName)
-                .lastName(lastName)
-                .isActive(true)
-                .createdAt(LocalDateTime.now())
-                .addresses(new ArrayList<>())
-                .paymentMethods(new ArrayList<>())
-                .build();
-    }
 
     /**
      * Creates a new User with complete information including phone and role

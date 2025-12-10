@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="annoation" />
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="annoation">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/ShipmentFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/ShipmentFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/UserFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/UserFactory.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,6 +20,7 @@
       <list>
         <option value="Enum" />
         <option value="Class" />
+        <option value="JUnit5 Test Class" />
       </list>
     </option>
   </component>
@@ -30,22 +36,44 @@
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/hloni2004/E_Commerce.git",
-    "accountId": "bbc2a023-86a4-483b-81c4-8322ae7f40ad"
+    "accountId": "e319d8a0-3567-4a8a-a17b-95a49f39f88d"
   }
 }]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
   <component name="ProjectId" id="35y5IACMlQnymRe2lT7xEaZuQIU" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "JUnit.AddressFactoryTest.createAddress_WithValidData_ShouldCreateAddress.executor": "Run",
+    "JUnit.CartItemFactoryTest.executor": "Run",
+    "JUnit.CartItemServiceTest.testCreate.executor": "Run",
+    "JUnit.PaymentServiceTest.testCreate.executor": "Run",
+    "JUnit.ReviewServiceTest.executor": "Run",
+    "JUnit.RoleFactoryTest.executor": "Run",
+    "JUnit.ShipmentServiceTest.executor": "Run",
+    "JUnit.ShipmentServiceTest.testCreate.executor": "Run",
+    "JUnit.UserFactoryTest.createUser_WithValidData_ShouldCreateUser.executor": "Run",
+    "JUnit.UserServiceTest.executor": "Run",
+    "JUnit.UserServiceTest.testCreate.executor": "Run",
+    "JUnit.UserServiceTest.testRead.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.Main.executor": "Run",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "git-widget-placeholder": "master",
     "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",
@@ -57,11 +85,112 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="za.ac.styling.factory" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.RoleServiceTest">
+    <configuration name="RoleServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="E-Commerce" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.styling.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.RoleServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ShipmentServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="E-Commerce" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.styling.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.ShipmentServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="E-Commerce" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.styling.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.UserServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceTest.testCreate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="E-Commerce" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.styling.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.UserServiceTest" />
+      <option name="METHOD_NAME" value="testCreate" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="UserServiceTest.testRead" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="E-Commerce" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.styling.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.UserServiceTest" />
+      <option name="METHOD_NAME" value="testRead" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.RoleServiceTest" />
+        <item itemvalue="JUnit.ShipmentServiceTest" />
+        <item itemvalue="JUnit.UserServiceTest.testCreate" />
+        <item itemvalue="JUnit.UserServiceTest.testRead" />
+        <item itemvalue="JUnit.UserServiceTest" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.23774.435" />
-        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-IU-251.23774.435" />
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
       </set>
     </attachedChunks>
   </component>
@@ -74,6 +203,7 @@
       <updated>1764069390787</updated>
       <workItem from="1764069392911" duration="6988000" />
       <workItem from="1765317360282" duration="261000" />
+      <workItem from="1765368089139" duration="6872000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />

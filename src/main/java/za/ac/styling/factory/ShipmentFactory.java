@@ -40,7 +40,7 @@ public class ShipmentFactory {
                 .shippingMethod(shippingMethod)
                 .carrier(carrier)
                 .trackingNumber(trackingNumber)
-                .status(ShipmentStatus.PENDING)
+                .status(ShipmentStatus.CREATED)
                 .build();
     }
 
@@ -71,7 +71,7 @@ public class ShipmentFactory {
                 .shippingMethod(shippingMethod)
                 .carrier(carrier)
                 .trackingNumber(trackingNumber)
-                .status(ShipmentStatus.PENDING)
+                .status(ShipmentStatus.CREATED)
                 .build();
     }
 
@@ -152,13 +152,13 @@ public class ShipmentFactory {
     }
 
     /**
-     * Creates a cancelled shipment
+     * Creates a failed shipment
      */
-    public static Shipment createCancelledShipment(Order order, ShippingMethod shippingMethod,
-            String carrier) {
+    public static Shipment createFailedShipment(Order order, ShippingMethod shippingMethod,
+            String carrier, String trackingNumber) {
 
-        Shipment shipment = createShipment(order, shippingMethod, carrier);
-        shipment.setStatus(ShipmentStatus.CANCELLED);
+        Shipment shipment = createShipmentWithTracking(order, shippingMethod, carrier, trackingNumber);
+        shipment.setStatus(ShipmentStatus.FAILED);
 
         return shipment;
     }
