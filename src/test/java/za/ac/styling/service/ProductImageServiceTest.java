@@ -47,10 +47,10 @@ class ProductImageServiceTest {
         testProduct = productService.create(testProduct);
 
         // Setup product image
-        testProductImage = ProductImageFactory.createProductImage(
+        testProductImage = ProductImageFactory.createSecondaryProductImage(
+                testProduct,
                 "https://example.com/laptop.jpg",
                 "Laptop image",
-                testProduct,
                 1);
     }
 
@@ -109,10 +109,10 @@ class ProductImageServiceTest {
     void testFindByProductOrderByDisplayOrder() {
         productImageService.create(testProductImage);
 
-        ProductImage image2 = ProductImageFactory.createProductImage(
+        ProductImage image2 = ProductImageFactory.createSecondaryProductImage(
+                testProduct,
                 "https://example.com/laptop2.jpg",
                 "Laptop image 2",
-                testProduct,
                 2);
         productImageService.create(image2);
 
@@ -123,11 +123,10 @@ class ProductImageServiceTest {
 
     @Test
     void testFindPrimaryImageByProduct() {
-        ProductImage primary = ProductImageFactory.createProductImage(
-                "https://example.com/primary.jpg",
-                "Primary image",
+        ProductImage primary = ProductImageFactory.createPrimaryProductImage(
                 testProduct,
-                1);
+                "https://example.com/primary.jpg",
+                "Primary image");
         primary.setPrimary(true);
         productImageService.create(primary);
 
@@ -138,18 +137,16 @@ class ProductImageServiceTest {
 
     @Test
     void testFindSecondaryImagesByProduct() {
-        ProductImage primary = ProductImageFactory.createProductImage(
-                "https://example.com/primary.jpg",
-                "Primary image",
+        ProductImage primary = ProductImageFactory.createPrimaryProductImage(
                 testProduct,
-                1);
-        primary.setPrimary(true);
+                "https://example.com/primary.jpg",
+                "Primary image");
         productImageService.create(primary);
 
-        ProductImage secondary = ProductImageFactory.createProductImage(
+        ProductImage secondary = ProductImageFactory.createSecondaryProductImage(
+                testProduct,
                 "https://example.com/secondary.jpg",
                 "Secondary image",
-                testProduct,
                 2);
         secondary.setPrimary(false);
         productImageService.create(secondary);
@@ -178,10 +175,10 @@ class ProductImageServiceTest {
     void testCreateMultipleImagesForProduct() {
         ProductImage image1 = productImageService.create(testProductImage);
 
-        ProductImage image2 = ProductImageFactory.createProductImage(
+        ProductImage image2 = ProductImageFactory.createSecondaryProductImage(
+                testProduct,
                 "https://example.com/laptop2.jpg",
                 "Laptop image 2",
-                testProduct,
                 2);
         ProductImage created2 = productImageService.create(image2);
 
@@ -204,10 +201,10 @@ class ProductImageServiceTest {
 
     @Test
     void testImageValidation() {
-        ProductImage validImage = ProductImageFactory.createProductImage(
+        ProductImage validImage = ProductImageFactory.createSecondaryProductImage(
+                testProduct,
                 "https://example.com/valid.jpg",
                 "Valid image",
-                testProduct,
                 1);
         ProductImage created = productImageService.create(validImage);
         assertNotNull(created);

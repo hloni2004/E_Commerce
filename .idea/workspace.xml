@@ -7,6 +7,8 @@
     <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="annoation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/OrderItemServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/OrderItemServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ProductImageServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ProductImageServiceTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ProductServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/ProductServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -56,7 +58,9 @@
     "JUnit.CartItemFactoryTest.executor": "Run",
     "JUnit.CartItemServiceTest.testCreate.executor": "Run",
     "JUnit.PaymentServiceTest.testCreate.executor": "Run",
+    "JUnit.ProductServiceTest.testCompleteProductWithStockManagement.executor": "Run",
     "JUnit.ProductServiceTest.testCreate.executor": "Run",
+    "JUnit.ProductServiceTest.testCreateCompleteProductWithAllAspects.executor": "Run",
     "JUnit.ProductServiceTest.testCreateWithColourAndSize.executor": "Run",
     "JUnit.ReviewServiceTest.executor": "Run",
     "JUnit.RoleFactoryTest.executor": "Run",
@@ -97,7 +101,23 @@
       <recent name="za.ac.styling.factory" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.ProductServiceTest.testCreateWithColourAndSize">
+  <component name="RunManager" selected="JUnit.ProductServiceTest.testCompleteProductWithStockManagement">
+    <configuration name="ProductServiceTest.testCompleteProductWithStockManagement" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="E-Commerce" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.styling.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.ProductServiceTest" />
+      <option name="METHOD_NAME" value="testCompleteProductWithStockManagement" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ProductServiceTest.testCreate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="E-Commerce" />
       <extension name="coverage">
@@ -114,6 +134,22 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="ProductServiceTest.testCreateCompleteProductWithAllAspects" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="E-Commerce" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.styling.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.ProductServiceTest" />
+      <option name="METHOD_NAME" value="testCreateCompleteProductWithAllAspects" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="ProductServiceTest.testCreateWithColourAndSize" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="E-Commerce" />
       <extension name="coverage">
@@ -125,38 +161,6 @@
       <option name="PACKAGE_NAME" value="za.ac.styling.service" />
       <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.ProductServiceTest" />
       <option name="METHOD_NAME" value="testCreateWithColourAndSize" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="UserServiceTest.testCreate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="E-Commerce" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="za.ac.styling.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
-      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.UserServiceTest" />
-      <option name="METHOD_NAME" value="testCreate" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="UserServiceTest.testUpdate" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="E-Commerce" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="za.ac.styling.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="za.ac.styling.service" />
-      <option name="MAIN_CLASS_NAME" value="za.ac.styling.service.UserServiceTest" />
-      <option name="METHOD_NAME" value="testUpdate" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -182,11 +186,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.ProductServiceTest.testCompleteProductWithStockManagement" />
+        <item itemvalue="JUnit.ProductServiceTest.testCreateCompleteProductWithAllAspects" />
+        <item itemvalue="Spring Boot.Main" />
         <item itemvalue="JUnit.ProductServiceTest.testCreateWithColourAndSize" />
         <item itemvalue="JUnit.ProductServiceTest.testCreate" />
-        <item itemvalue="JUnit.UserServiceTest.testUpdate" />
-        <item itemvalue="JUnit.UserServiceTest.testCreate" />
-        <item itemvalue="Spring Boot.Main" />
       </list>
     </recent_temporary>
   </component>

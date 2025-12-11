@@ -71,7 +71,7 @@ class OrderItemServiceTest {
 
         // Setup shipping method
         ShippingMethod shippingMethod = ShippingMethod.builder()
-                .methodName("Standard")
+                .name("Standard")
                 .cost(50.0)
                 .isActive(true)
                 .build();
