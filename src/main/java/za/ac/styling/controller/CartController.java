@@ -99,4 +99,51 @@ public class CartController {
                 .body(Map.of("success", false, "message", "Error retrieving cart: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/add-item")
+    public ResponseEntity<?> addItemToCart(@RequestBody Map<String, Object> request) {
+        try {
+            Integer userId = (Integer) request.get("userId");
+            Integer productId = (Integer) request.get("productId");
+            Integer colourId = (Integer) request.get("colourId");
+            Integer sizeId = (Integer) request.get("sizeId");
+            Integer quantity = (Integer) request.get("quantity");
+
+            // Get or create cart for user
+            Cart cart = cartService.findByUserId(userId).orElse(null);
+            if (cart == null) {
+                // Create new cart for user
+                cart = Cart.builder()
+                        .user(za.ac.styling.domain.User.builder().userId(userId).build())
+                        .createdAt(java.time.LocalDateTime.now())
+                        .updatedAt(java.time.LocalDateTime.now())
+                        .build();
+                cart = cartService.create(cart);
+            }
+
+            // Create cart item
+            za.ac.styling.domain.CartItem cartItem = za.ac.styling.domain.CartItem.builder()
+                    .cart(cart)
+                    .product(za.ac.styling.domain.Product.builder().productId(productId).build())
+                    .colour(za.ac.styling.domain.ProductColour.builder().colourId(colourId).build())
+                    .size(za.ac.styling.domain.ProductColourSize.builder().sizeId(sizeId).build())
+                    .quantity(quantity)
+                    .build();
+
+            // Note: You'll need to add a CartItemRepository and save method
+            // For now, we'll update the cart's items list
+            if (cart.getItems() == null) {
+                cart.setItems(new java.util.ArrayList<>());
+            }
+            cart.getItems().add(cartItem);
+            cart.setUpdatedAt(java.time.LocalDateTime.now());
+            cartService.update(cart);
+
+            return ResponseEntity.ok(Map.of("success", true, "message", "Item added to cart"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error adding item to cart: " + e.getMessage()));
+        }
+    }
 }

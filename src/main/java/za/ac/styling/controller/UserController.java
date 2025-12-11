@@ -4,9 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import za.ac.styling.domain.Role;
 import za.ac.styling.domain.User;
+import za.ac.styling.dto.LoginRequest;
+import za.ac.styling.dto.RegisterRequest;
+import za.ac.styling.dto.UserResponse;
 import za.ac.styling.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +27,9 @@ public class UserController {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
+    @Autowired
+    private za.ac.styling.service.RoleService roleService;
 
     @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
@@ -86,29 +94,127 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         Map<String, Object> response = new HashMap<>();
         try {
-            User user = userService.findByEmail(email)
+            if (loginRequest.getEmail() == null || loginRequest.getPassword() == null) {
+                response.put("success", false);
+                response.put("message", "Email and password are required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            User user = userService.findByEmail(loginRequest.getEmail())
                 .orElse(null);
             if (user == null) {
                 response.put("success", false);
-                response.put("message", "User not found");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-            // Note: In production, use proper password encryption/hashing
-            if (!user.getPassword().equals(password)) {
-                response.put("success", false);
-                response.put("message", "Invalid password");
+                response.put("message", "Invalid email or password");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
-            response.put("success", true);
-            response.put("message", "Login successful");
-            response.put("data", user);
-            return ResponseEntity.ok(response);
+
+            if (!user.isActive()) {
+                response.put("success", false);
+                response.put("message", "Account is inactive. Please contact support.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+
+            // Note: In production, use proper password encryption/hashing (BCrypt)
+            if (!user.getPassword().equals(loginRequest.getPassword())) {
+                response.put("success", false);
+                response.put("message", "Invalid email or password");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            // Convert to UserResponse DTO
+            UserResponse userResponse = UserResponse.builder()
+                .userId(user.getUserId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phone(user.getPhone())
+                .roleName(user.getRole() != null ? user.getRole().getRoleName() : "CUSTOMER")
+                .isActive(user.isActive())
+                .build();
+
+            return ResponseEntity.ok(userResponse);
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Login error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // Validate input
+            if (registerRequest.getEmail() == null || registerRequest.getPassword() == null) {
+                response.put("success", false);
+                response.put("message", "Email and password are required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Check if user already exists
+            if (userService.findByEmail(registerRequest.getEmail()).isPresent()) {
+                response.put("success", false);
+                response.put("message", "User with this email already exists");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+
+            if (registerRequest.getUsername() != null && 
+                userService.findByUsername(registerRequest.getUsername()).isPresent()) {
+                response.put("success", false);
+                response.put("message", "Username already taken");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
+
+            // Fetch or create default role (CUSTOMER role)
+            Role defaultRole = roleService.findByRoleName("CUSTOMER")
+                .orElseGet(() -> {
+                    // Create CUSTOMER role if it doesn't exist
+                    Role newRole = Role.builder()
+                        .roleName("CUSTOMER")
+                        .build();
+                    return roleService.create(newRole);
+                });
+
+            // Create new user
+            User newUser = User.builder()
+                .email(registerRequest.getEmail())
+                .password(registerRequest.getPassword())  // In production, hash this!
+                .firstName(registerRequest.getFirstName())
+                .lastName(registerRequest.getLastName())
+                .username(registerRequest.getUsername())
+                .phone(registerRequest.getPhone())
+                .role(defaultRole)
+                .isActive(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+            User created = userService.create(newUser);
+            if (created == null) {
+                response.put("success", false);
+                response.put("message", "Failed to create user");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            }
+
+            // Convert to UserResponse DTO
+            UserResponse userResponse = UserResponse.builder()
+                .userId(created.getUserId())
+                .username(created.getUsername())
+                .email(created.getEmail())
+                .firstName(created.getFirstName())
+                .lastName(created.getLastName())
+                .phone(created.getPhone())
+                .roleName(created.getRole() != null ? created.getRole().getRoleName() : "CUSTOMER")
+                .isActive(created.isActive())
+                .build();
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Registration error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

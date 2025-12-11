@@ -1,10 +1,10 @@
 package za.ac.styling.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
-import za.ac.styling.domain.Cart;
-import za.ac.styling.domain.CartItem;
-import za.ac.styling.domain.Product;
+import org.springframework.transaction.annotation.Transactional;
+import za.ac.styling.domain.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +34,27 @@ public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
      * Delete all items in a cart
      */
     void deleteByCart(Cart cart);
+
+    /**
+     * Delete cart items by product
+     */
+    @Transactional
+    @Modifying
+    void deleteByProduct(Product product);
+
+    /**
+     * Delete cart items by colour
+     */
+    @Transactional
+    @Modifying
+    void deleteByColour(ProductColour colour);
+
+    /**
+     * Delete cart items by size
+     */
+    @Transactional
+    @Modifying
+    void deleteBySize(ProductColourSize size);
 
     /**
      * Count items in a cart

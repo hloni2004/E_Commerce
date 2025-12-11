@@ -13,17 +13,19 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long addressId;
 
-    private String street;
+    private String fullName;
+    private String phone;
+    private String addressLine1;
+    private String addressLine2;
     private String city;
-    private String state;
-    private String zipCode;
+    private String province;
+    private String postalCode;
     private String country;
 
     @Enumerated(EnumType.STRING)
     private AddressType addressType;
 
     private boolean isDefault;
-
 
     @ManyToOne
     @JoinColumn(name = "user_id")

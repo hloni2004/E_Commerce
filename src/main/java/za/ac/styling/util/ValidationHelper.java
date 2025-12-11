@@ -286,7 +286,7 @@ public class ValidationHelper {
             return false;
         }
         try {
-            new java.net.URL(url);
+            new java.net.URI(url).toURL();
             return true;
         } catch (Exception e) {
             return false;

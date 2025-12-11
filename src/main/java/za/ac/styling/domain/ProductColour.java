@@ -1,5 +1,6 @@
 package za.ac.styling.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,15 +16,13 @@ public class ProductColour {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer colourId;
 
-
     private String name;
     private String hexCode;
 
-
     @ManyToOne
+    @JsonIgnore  // Prevent circular reference
     private Product product;
 
-
-    @OneToMany(mappedBy = "colour", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "colour", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductColourSize> sizes;
 }

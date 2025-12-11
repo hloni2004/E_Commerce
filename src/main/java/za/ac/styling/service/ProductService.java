@@ -1,6 +1,7 @@
 package za.ac.styling.service;
 
 import za.ac.styling.domain.Product;
+import za.ac.styling.domain.ProductImage;
 import za.ac.styling.domain.Category;
 
 import java.util.List;
@@ -75,4 +76,9 @@ public interface ProductService extends IService<Product, Integer> {
      * Deactivate product
      */
     Product deactivateProduct(Integer productId);
+
+    /**
+     * Get product image by ID
+     */
+    ProductImage getImageById(Long imageId);
 }

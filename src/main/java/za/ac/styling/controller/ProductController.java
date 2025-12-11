@@ -2,13 +2,20 @@ package za.ac.styling.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import za.ac.styling.domain.Product;
+import za.ac.styling.domain.*;
+import za.ac.styling.dto.ProductCreateRequest;
+import za.ac.styling.dto.ProductColourRequest;
+import za.ac.styling.dto.ProductSizeRequest;
 import za.ac.styling.service.ProductService;
+import za.ac.styling.service.CategoryService;
+import za.ac.styling.repository.CartItemRepository;
 
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @CrossOrigin("*")
 @RestController
@@ -18,17 +25,156 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
+    private CategoryService categoryService;
+
+    @Autowired
     public void setProductService(ProductService productService) {
         this.productService = productService;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<?> createProduct(@RequestBody ProductCreateRequest request) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            Product created = productService.create(product);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+            // Validate category exists
+            Category category = categoryService.read(request.getCategoryId());
+            if (category == null) {
+                response.put("success", false);
+                response.put("message", "Category not found");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Create Product
+            Product product = Product.builder()
+                    .name(request.getName())
+                    .description(request.getDescription())
+                    .basePrice(request.getBasePrice())
+                    .comparePrice(request.getComparePrice() != null ? request.getComparePrice() : 0.0)
+                    .sku(request.getSku())
+                    .weight(request.getWeight() != null ? request.getWeight() : 0.0)
+                    .category(category)
+                    .isActive(request.isActive())
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDate.now())
+                    .build();
+
+            // Save product first to get ID
+            Product savedProduct = productService.create(product);
+
+            // Create and save images with proper FK
+            if (request.getImageBase64List() != null && !request.getImageBase64List().isEmpty()) {
+                List<ProductImage> images = new ArrayList<>();
+                for (int i = 0; i < request.getImageBase64List().size(); i++) {
+                    String base64Data = request.getImageBase64List().get(i);
+                    
+                    // Remove data URL prefix if present (e.g., "data:image/png;base64,")
+                    String base64Image = base64Data;
+                    String contentType = "image/jpeg";
+                    
+                    if (base64Data.contains(",")) {
+                        String[] parts = base64Data.split(",");
+                        base64Image = parts[1];
+                        
+                        // Extract content type
+                        if (parts[0].contains("image/")) {
+                            String typeSection = parts[0];
+                            if (typeSection.contains("image/png")) contentType = "image/png";
+                            else if (typeSection.contains("image/jpeg") || typeSection.contains("image/jpg")) contentType = "image/jpeg";
+                            else if (typeSection.contains("image/webp")) contentType = "image/webp";
+                        }
+                    }
+                    
+                    byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+                    
+                    ProductImage image = ProductImage.builder()
+                            .product(savedProduct)
+                            .imageData(imageBytes)
+                            .contentType(contentType)
+                            .altText(savedProduct.getName())
+                            .displayOrder(i)
+                            .isPrimary(i == 0)
+                            .build();
+                    
+                    images.add(image);
+                }
+                savedProduct.setImages(images);
+                
+                // Set primary image
+                if (!images.isEmpty()) {
+                    savedProduct.setPrimaryImage(images.get(0));
+                }
+            }
+
+            // Create and save colours with sizes with proper FK
+            if (request.getColours() != null && !request.getColours().isEmpty()) {
+                List<ProductColour> colours = new ArrayList<>();
+                
+                for (ProductColourRequest colourReq : request.getColours()) {
+                    ProductColour colour = ProductColour.builder()
+                            .name(colourReq.getName())
+                            .hexCode(colourReq.getHexCode())
+                            .product(savedProduct)
+                            .build();
+                    
+                    // Create sizes with proper FK
+                    if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
+                        List<ProductColourSize> sizes = new ArrayList<>();
+                        
+                        for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
+                            ProductColourSize size = ProductColourSize.builder()
+                                    .sizeName(sizeReq.getSizeName())
+                                    .stockQuantity(sizeReq.getStockQuantity())
+                                    .reservedQuantity(0)
+                                    .reorderLevel(5)
+                                    .colour(colour)
+                                    .build();
+                            sizes.add(size);
+                        }
+                        colour.setSizes(sizes);
+                    }
+                    
+                    colours.add(colour);
+                }
+                savedProduct.setColours(colours);
+            }
+
+            // Update product with all relationships
+            Product finalProduct = productService.update(savedProduct);
+
+            response.put("success", true);
+            response.put("message", "Product created successfully");
+            response.put("data", finalProduct);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error creating product: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/image/{imageId}")
+    public ResponseEntity<byte[]> getProductImage(@PathVariable Long imageId) {
+        try {
+            // You'll need to create a method in ProductService to get image by ID
+            ProductImage image = productService.getImageById(imageId);
+            if (image == null || image.getImageData() == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            MediaType mediaType = MediaType.IMAGE_JPEG;
+            if ("image/png".equals(image.getContentType())) {
+                mediaType = MediaType.IMAGE_PNG;
+            } else if ("image/webp".equals(image.getContentType())) {
+                mediaType = MediaType.parseMediaType("image/webp");
+            }
+            
+            return ResponseEntity.ok()
+                    .contentType(mediaType)
+                    .body(image.getImageData());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -48,17 +194,155 @@ public class ProductController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> update(@RequestBody Product product) {
+    public ResponseEntity<?> update(@RequestBody ProductCreateRequest request) {
+        Map<String, Object> response = new HashMap<>();
         try {
-            Product updated = productService.update(product);
-            if (updated == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Product not found"));
+            // Get existing product
+            Product existingProduct = productService.read(request.getProductId());
+            if (existingProduct == null) {
+                response.put("success", false);
+                response.put("message", "Product not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
-            return ResponseEntity.ok(Map.of("success", true, "data", updated));
+
+            // Validate category exists
+            Category category = categoryService.read(request.getCategoryId());
+            if (category == null) {
+                response.put("success", false);
+                response.put("message", "Category not found");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Update basic product fields
+            existingProduct.setName(request.getName());
+            existingProduct.setDescription(request.getDescription());
+            existingProduct.setBasePrice(request.getBasePrice());
+            existingProduct.setComparePrice(request.getComparePrice() != null ? request.getComparePrice() : 0.0);
+            existingProduct.setSku(request.getSku());
+            existingProduct.setWeight(request.getWeight() != null ? request.getWeight() : 0.0);
+            existingProduct.setCategory(category);
+            existingProduct.setActive(request.isActive());
+            existingProduct.setUpdatedAt(LocalDate.now());
+
+            // Handle new images if provided
+            if (request.getImageBase64List() != null && !request.getImageBase64List().isEmpty()) {
+                List<ProductImage> newImages = new ArrayList<>();
+                
+                // Keep existing images that are in the existingImageIds list
+                if (request.getExistingImageIds() != null) {
+                    for (ProductImage img : existingProduct.getImages()) {
+                        if (request.getExistingImageIds().contains(img.getImageId())) {
+                            newImages.add(img);
+                        }
+                    }
+                }
+                
+                // Add new images
+                for (int i = 0; i < request.getImageBase64List().size(); i++) {
+                    String base64Data = request.getImageBase64List().get(i);
+                    String base64Image = base64Data;
+                    String contentType = "image/jpeg";
+                    
+                    if (base64Data.contains(",")) {
+                        String[] parts = base64Data.split(",");
+                        base64Image = parts[1];
+                        if (parts[0].contains("image/png")) contentType = "image/png";
+                        else if (parts[0].contains("image/webp")) contentType = "image/webp";
+                    }
+                    
+                    byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+                    
+                    ProductImage image = ProductImage.builder()
+                            .product(existingProduct)
+                            .imageData(imageBytes)
+                            .contentType(contentType)
+                            .altText(existingProduct.getName())
+                            .displayOrder(newImages.size() + i)
+                            .isPrimary(newImages.isEmpty() && i == 0)
+                            .build();
+                    
+                    newImages.add(image);
+                }
+                
+                existingProduct.setImages(newImages);
+                if (!newImages.isEmpty()) {
+                    existingProduct.setPrimaryImage(newImages.get(0));
+                }
+            }
+
+            // Update colours and sizes
+            if (request.getColours() != null && !request.getColours().isEmpty()) {
+                List<ProductColour> updatedColours = new ArrayList<>();
+                
+                for (ProductColourRequest colourReq : request.getColours()) {
+                    ProductColour colour;
+                    
+                    // Check if colour already exists
+                    if (colourReq.getColourId() != null) {
+                        colour = existingProduct.getColours().stream()
+                            .filter(c -> c.getColourId().equals(colourReq.getColourId()))
+                            .findFirst()
+                            .orElse(ProductColour.builder()
+                                .product(existingProduct)
+                                .build());
+                    } else {
+                        colour = ProductColour.builder()
+                                .product(existingProduct)
+                                .build();
+                    }
+                    
+                    colour.setName(colourReq.getName());
+                    colour.setHexCode(colourReq.getHexCode());
+                    
+                    // Update sizes
+                    if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
+                        List<ProductColourSize> updatedSizes = new ArrayList<>();
+                        
+                        for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
+                            ProductColourSize size;
+                            
+                            if (sizeReq.getSizeId() != null && colour.getSizes() != null) {
+                                size = colour.getSizes().stream()
+                                    .filter(s -> s.getSizeId().equals(sizeReq.getSizeId()))
+                                    .findFirst()
+                                    .orElse(ProductColourSize.builder()
+                                        .colour(colour)
+                                        .build());
+                            } else {
+                                size = ProductColourSize.builder()
+                                        .colour(colour)
+                                        .build();
+                            }
+                            
+                            size.setSizeName(sizeReq.getSizeName());
+                            size.setStockQuantity(sizeReq.getStockQuantity());
+                            size.setReservedQuantity(0);
+                            size.setReorderLevel(5);
+                            
+                            updatedSizes.add(size);
+                        }
+                        colour.setSizes(updatedSizes);
+                    }
+                    
+                    updatedColours.add(colour);
+                }
+                
+                existingProduct.setColours(updatedColours);
+            }
+
+            // Save updated product
+            Product updatedProduct = productService.update(existingProduct);
+
+            response.put("success", true);
+            response.put("message", "Product updated successfully");
+            response.put("data", updatedProduct);
+            return ResponseEntity.ok(response);
+            
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error updating product: " + e.getMessage()));
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error updating product: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -73,12 +357,42 @@ public class ProductController {
         }
     }
 
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
         try {
+            Product product = productService.read(id);
+            if (product == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Product not found"));
+            }
+            
+            // First, delete all cart items that reference this product's colours/sizes
+            // This prevents FK constraint violations
+            if (product.getColours() != null) {
+                for (ProductColour colour : product.getColours()) {
+                    if (colour.getSizes() != null) {
+                        for (ProductColourSize size : colour.getSizes()) {
+                            cartItemRepository.deleteBySize(size);
+                        }
+                    }
+                    cartItemRepository.deleteByColour(colour);
+                }
+            }
+            cartItemRepository.deleteByProduct(product);
+            
+            // Remove primaryImage reference to avoid FK constraint issues
+            product.setPrimaryImage(null);
+            productService.update(product);
+            
+            // Now delete the product (cascade will handle images, colours, sizes)
             productService.delete(id);
+            
             return ResponseEntity.ok(Map.of("success", true, "message", "Product deleted successfully"));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error deleting product: " + e.getMessage()));
         }

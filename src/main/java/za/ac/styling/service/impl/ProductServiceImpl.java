@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import za.ac.styling.domain.Category;
 import za.ac.styling.domain.Product;
+import za.ac.styling.domain.ProductImage;
 import za.ac.styling.repository.ProductRepository;
+import za.ac.styling.repository.ProductImageRepository;
 import za.ac.styling.service.ProductService;
 
 import java.util.List;
@@ -17,6 +19,9 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
 
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductImageRepository productImageRepository;
 
     @Autowired
     public ProductServiceImpl(ProductRepository productRepository) {
@@ -116,6 +121,11 @@ public class ProductServiceImpl implements ProductService {
             return update(product);
         }
         return null;
+    }
+
+    @Override
+    public ProductImage getImageById(Long imageId) {
+        return productImageRepository.findById(imageId).orElse(null);
     }
 
     @Override
