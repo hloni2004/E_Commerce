@@ -88,4 +88,9 @@ public class ShipmentServiceImpl implements ShipmentService {
         }
         return null;
     }
+
+    @Override
+    public void delete(Long id) {
+        shipmentRepository.deleteById(id);
+    }
 }

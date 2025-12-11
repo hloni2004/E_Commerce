@@ -117,4 +117,9 @@ public class ProductServiceImpl implements ProductService {
         }
         return null;
     }
+
+    @Override
+    public void delete(Integer id) {
+        productRepository.deleteById(id);
+    }
 }

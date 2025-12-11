@@ -91,4 +91,9 @@ public class UserServiceImpl implements UserService {
         }
         return null;
     }
+
+    @Override
+    public void delete(Integer id) {
+        userRepository.deleteById(id);
+    }
 }

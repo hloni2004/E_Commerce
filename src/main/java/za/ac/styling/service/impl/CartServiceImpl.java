@@ -93,4 +93,9 @@ public class CartServiceImpl implements CartService {
                 .mapToDouble(item -> item.getProduct().getBasePrice() * item.getQuantity())
                 .sum();
     }
+
+    @Override
+    public void delete(Integer id) {
+        cartRepository.deleteById(id);
+    }
 }

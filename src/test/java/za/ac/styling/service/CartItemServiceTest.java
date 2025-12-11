@@ -33,6 +33,12 @@ class CartItemServiceTest {
     @Autowired
     private RoleService roleService;
 
+    @Autowired
+    private ProductColourService productColourService;
+
+    @Autowired
+    private ProductColourSizeService productColourSizeService;
+
     private Cart testCart;
     private Product testProduct;
     private CartItem testCartItem;
@@ -69,7 +75,10 @@ class CartItemServiceTest {
         testProduct = productService.create(testProduct);
 
         ProductColour colour = ProductColourFactory.createProductColour("Black", "#000000", testProduct);
+        colour = productColourService.create(colour);
+
         ProductColourSize size = ProductColourSizeFactory.createProductColourSize("M", 100, 10, colour);
+        size = productColourSizeService.create(size);
 
         testCartItem = CartItemFactory.createCartItem(testCart, testProduct, colour, size, 2);
     }

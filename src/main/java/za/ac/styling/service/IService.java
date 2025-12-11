@@ -28,4 +28,9 @@ public interface IService<T, ID> {
      * Get all entities
      */
     List<T> getAll();
+
+    /**
+     * Delete entity by ID
+     */
+    void delete(ID id);
 }

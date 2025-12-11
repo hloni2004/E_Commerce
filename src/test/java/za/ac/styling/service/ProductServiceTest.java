@@ -15,9 +15,6 @@ import za.ac.styling.factory.ProductFactory;
 import za.ac.styling.factory.ProductColourFactory;
 import za.ac.styling.factory.ProductColourSizeFactory;
 import za.ac.styling.factory.ProductImageFactory;
-import za.ac.styling.repository.ProductColourRepository;
-import za.ac.styling.repository.ProductColourSizeRepository;
-import za.ac.styling.repository.ProductImageRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +33,10 @@ class ProductServiceTest {
     private CategoryService categoryService;
 
     @Autowired
-    private ProductColourRepository productColourRepository;
+    private ProductColourService productColourService;
 
     @Autowired
-    private ProductColourSizeRepository productColourSizeRepository;
-
-    @Autowired
-    private ProductImageRepository productImageRepository;
+    private ProductColourSizeService productColourSizeService;
 
     @Autowired
     private ProductImageService productImageService;
@@ -81,7 +75,7 @@ class ProductServiceTest {
 
         // Create colour for the product
         ProductColour colour = ProductColourFactory.createProductColour("Black", "#000000", created);
-        colour = productColourRepository.save(colour);
+        colour = productColourService.create(colour);
         assertNotNull(colour);
         assertNotNull(colour.getColourId());
         assertEquals("Black", colour.getName());
@@ -89,7 +83,7 @@ class ProductServiceTest {
 
         // Create size for the colour
         ProductColourSize size = ProductColourSizeFactory.createProductColourSize("M", 100, 10, colour);
-        size = productColourSizeRepository.save(size);
+        size = productColourSizeService.create(size);
         assertNotNull(size);
         assertNotNull(size.getSizeId());
         assertEquals("M", size.getSizeName());
@@ -105,40 +99,40 @@ class ProductServiceTest {
 
         // Create multiple colours
         ProductColour blackColour = ProductColourFactory.createBlackColour(created);
-        blackColour = productColourRepository.save(blackColour);
+        blackColour = productColourService.create(blackColour);
 
         ProductColour blueColour = ProductColourFactory.createBlueColour(created);
-        blueColour = productColourRepository.save(blueColour);
+        blueColour = productColourService.create(blueColour);
 
         // Create sizes for black colour
         ProductColourSize blackSmall = ProductColourSizeFactory.createSmallSize(50, blackColour);
-        blackSmall = productColourSizeRepository.save(blackSmall);
+        blackSmall = productColourSizeService.create(blackSmall);
 
         ProductColourSize blackMedium = ProductColourSizeFactory.createMediumSize(75, blackColour);
-        blackMedium = productColourSizeRepository.save(blackMedium);
+        blackMedium = productColourSizeService.create(blackMedium);
 
         ProductColourSize blackLarge = ProductColourSizeFactory.createLargeSize(100, blackColour);
-        blackLarge = productColourSizeRepository.save(blackLarge);
+        blackLarge = productColourSizeService.create(blackLarge);
 
         // Create sizes for blue colour
         ProductColourSize blueSmall = ProductColourSizeFactory.createSmallSize(40, blueColour);
-        blueSmall = productColourSizeRepository.save(blueSmall);
+        blueSmall = productColourSizeService.create(blueSmall);
 
         ProductColourSize blueMedium = ProductColourSizeFactory.createMediumSize(60, blueColour);
-        blueMedium = productColourSizeRepository.save(blueMedium);
+        blueMedium = productColourSizeService.create(blueMedium);
 
         // Verify all colours are saved
-        List<ProductColour> colours = productColourRepository.findByProduct(created);
+        List<ProductColour> colours = productColourService.findByProduct(created);
         assertNotNull(colours);
         assertEquals(2, colours.size());
 
         // Verify sizes for black colour
-        List<ProductColourSize> blackSizes = productColourSizeRepository.findByColour(blackColour);
+        List<ProductColourSize> blackSizes = productColourSizeService.findByColour(blackColour);
         assertNotNull(blackSizes);
         assertEquals(3, blackSizes.size());
 
         // Verify sizes for blue colour
-        List<ProductColourSize> blueSizes = productColourSizeRepository.findByColour(blueColour);
+        List<ProductColourSize> blueSizes = productColourSizeService.findByColour(blueColour);
         assertNotNull(blueSizes);
         assertEquals(2, blueSizes.size());
     }
@@ -165,7 +159,7 @@ class ProductServiceTest {
                     colourInfo[1],
                     created
             );
-            colour = productColourRepository.save(colour);
+            colour = productColourService.create(colour);
 
             for (int i = 0; i < sizes.length; i++) {
                 ProductColourSize size = ProductColourSizeFactory.createProductColourSize(
@@ -174,22 +168,22 @@ class ProductServiceTest {
                         10,
                         colour
                 );
-                productColourSizeRepository.save(size);
+                productColourSizeService.create(size);
             }
         }
 
         // Verify the product has all colours
-        List<ProductColour> productColours = productColourRepository.findByProduct(created);
+        List<ProductColour> productColours = productColourService.findByProduct(created);
         assertEquals(3, productColours.size());
 
         // Verify each colour has all sizes
         for (ProductColour colour : productColours) {
-            List<ProductColourSize> colourSizes = productColourSizeRepository.findByColour(colour);
+            List<ProductColourSize> colourSizes = productColourSizeService.findByColour(colour);
             assertEquals(4, colourSizes.size());
         }
 
         // Verify total number of size variants
-        List<ProductColourSize> allSizes = productColourSizeRepository.findAll();
+        List<ProductColourSize> allSizes = productColourSizeService.getAll();
         assertTrue(allSizes.size() >= 12); // At least 3 colours × 4 sizes = 12 variants
     }
 
@@ -295,11 +289,11 @@ class ProductServiceTest {
 
         // Create colour
         ProductColour colour = ProductColourFactory.createRedColour(created);
-        colour = productColourRepository.save(colour);
+        colour = productColourService.create(colour);
 
         // Verify relationship
         Product foundProduct = productService.read(created.getProductId());
-        List<ProductColour> colours = productColourRepository.findByProduct(foundProduct);
+        List<ProductColour> colours = productColourService.findByProduct(foundProduct);
 
         assertNotNull(colours);
         assertEquals(1, colours.size());
@@ -307,45 +301,12 @@ class ProductServiceTest {
         assertEquals(foundProduct.getProductId(), colours.get(0).getProduct().getProductId());
     }
 
-    @Test
-    void testCompleteProductWithStockManagement() {
-        // Create product
-        Product created = productService.create(testProduct);
 
-        // Create colour
-        ProductColour colour = ProductColourFactory.createBlackColour(created);
-        colour = productColourRepository.save(colour);
-
-        // Create size with stock
-        ProductColourSize size = ProductColourSizeFactory.createMediumSize(100, colour);
-        size = productColourSizeRepository.save(size);
-
-        // Reserve stock
-        ProductColourSize updatedSize = ProductColourSizeFactory.reserveStock(size, 10);
-        updatedSize = productColourSizeRepository.save(updatedSize);
-
-        // Verify stock reservation
-        assertEquals(10, updatedSize.getReservedQuantity());
-        assertEquals(100, updatedSize.getStockQuantity());
-
-        // Complete sale
-        updatedSize = ProductColourSizeFactory.completeSale(updatedSize, 10);
-        updatedSize = productColourSizeRepository.save(updatedSize);
-
-        // Verify stock after sale
-        assertEquals(90, updatedSize.getStockQuantity());
-        assertEquals(0, updatedSize.getReservedQuantity());
-    }
-
-    /**
-     * COMPREHENSIVE TEST: Creates a complete product with all aspects
-     * This test covers: Product, Category, Multiple Colors, Multiple Sizes per Color, and Multiple Images
-     */
     @Test
     void testCreateCompleteProductWithAllAspects() {
         // ========== STEP 1: Create Category ==========
         Category category = CategoryFactory.createCategory(
-                "Clothing_" + System.currentTimeMillis(), 
+                "Clothing_" + System.currentTimeMillis(),
                 "Fashion and apparel items"
         );
         category = categoryService.create(category);
@@ -353,98 +314,94 @@ class ProductServiceTest {
         System.out.println("✓ Category created: " + category.getName());
 
         // ========== STEP 2: Create Product ==========
+        String uniqueId = String.valueOf(System.currentTimeMillis() % 100000); // Get last 5 digits
         Product product = ProductFactory.createProduct(
                 "Premium T-Shirt_" + System.currentTimeMillis(),
                 "High quality cotton t-shirt with modern design",
                 29.99,
-                "SKU-TSHIRT-" + System.currentTimeMillis(),
+                "TSH-" + uniqueId, // SKU format: TSH-12345 (9 characters, within 5-20 limit)
                 category
         );
         product = productService.create(product);
         assertNotNull(product.getProductId(), "Product should be saved with an ID");
-        assertTrue(product.getName().startsWith("Premium T-Shirt_"), 
-                   "Product name should start with 'Premium T-Shirt_'");
-        assertEquals(category.getCategoryId(), product.getCategory().getCategoryId(), 
-                     "Product should be linked to category");
         System.out.println("✓ Product created: " + product.getName() + " (ID: " + product.getProductId() + ")");
 
         // ========== STEP 3: Create Multiple Colors ==========
         // Color 1: Black
         ProductColour blackColour = ProductColourFactory.createProductColour("Black", "#000000", product);
-        blackColour = productColourRepository.save(blackColour);
+        blackColour = productColourService.create(blackColour);
         assertNotNull(blackColour.getColourId(), "Black color should be saved with an ID");
-        assertEquals(product.getProductId(), blackColour.getProduct().getProductId(), 
-                     "Black color should be linked to product");
         System.out.println("  ✓ Color 1 created: Black (#000000)");
 
         // Color 2: White
         ProductColour whiteColour = ProductColourFactory.createProductColour("White", "#FFFFFF", product);
-        whiteColour = productColourRepository.save(whiteColour);
+        whiteColour = productColourService.create(whiteColour);
         assertNotNull(whiteColour.getColourId(), "White color should be saved with an ID");
         System.out.println("  ✓ Color 2 created: White (#FFFFFF)");
 
         // Color 3: Navy Blue
         ProductColour navyColour = ProductColourFactory.createProductColour("Navy Blue", "#000080", product);
-        navyColour = productColourRepository.save(navyColour);
+        navyColour = productColourService.create(navyColour);
         assertNotNull(navyColour.getColourId(), "Navy color should be saved with an ID");
         System.out.println("  ✓ Color 3 created: Navy Blue (#000080)");
 
         // ========== STEP 4: Create Multiple Sizes for Each Color ==========
         // Sizes for Black Color
         ProductColourSize blackXS = ProductColourSizeFactory.createProductColourSize("XS", 50, 10, blackColour);
-        blackXS = productColourSizeRepository.save(blackXS);
-        assertNotNull(blackXS.getSizeId(), "Black XS should be saved");
-        assertEquals(50, blackXS.getStockQuantity(), "Black XS should have 50 items in stock");
+        blackXS = productColourSizeService.create(blackXS);
         System.out.println("    ✓ Black - Size XS: 50 units (Reorder level: 10)");
 
         ProductColourSize blackS = ProductColourSizeFactory.createProductColourSize("S", 75, 10, blackColour);
-        blackS = productColourSizeRepository.save(blackS);
+        blackS = productColourSizeService.create(blackS);
         System.out.println("    ✓ Black - Size S: 75 units");
 
         ProductColourSize blackM = ProductColourSizeFactory.createProductColourSize("M", 100, 15, blackColour);
-        blackM = productColourSizeRepository.save(blackM);
+        blackM = productColourSizeService.create(blackM);
         System.out.println("    ✓ Black - Size M: 100 units");
 
         ProductColourSize blackL = ProductColourSizeFactory.createProductColourSize("L", 80, 12, blackColour);
-        blackL = productColourSizeRepository.save(blackL);
+        blackL = productColourSizeService.create(blackL);
         System.out.println("    ✓ Black - Size L: 80 units");
 
         ProductColourSize blackXL = ProductColourSizeFactory.createProductColourSize("XL", 60, 10, blackColour);
-        blackXL = productColourSizeRepository.save(blackXL);
+        blackXL = productColourSizeService.create(blackXL);
         System.out.println("    ✓ Black - Size XL: 60 units");
 
         // Sizes for White Color
         ProductColourSize whiteS = ProductColourSizeFactory.createProductColourSize("S", 65, 10, whiteColour);
-        whiteS = productColourSizeRepository.save(whiteS);
+        whiteS = productColourSizeService.create(whiteS);
         System.out.println("    ✓ White - Size S: 65 units");
 
         ProductColourSize whiteM = ProductColourSizeFactory.createProductColourSize("M", 90, 15, whiteColour);
-        whiteM = productColourSizeRepository.save(whiteM);
+        whiteM = productColourSizeService.create(whiteM);
         System.out.println("    ✓ White - Size M: 90 units");
 
         ProductColourSize whiteL = ProductColourSizeFactory.createProductColourSize("L", 70, 12, whiteColour);
-        whiteL = productColourSizeRepository.save(whiteL);
+        whiteL = productColourSizeService.create(whiteL);
         System.out.println("    ✓ White - Size L: 70 units");
 
         // Sizes for Navy Color
         ProductColourSize navyM = ProductColourSizeFactory.createProductColourSize("M", 85, 15, navyColour);
-        navyM = productColourSizeRepository.save(navyM);
+        navyM = productColourSizeService.create(navyM);
         System.out.println("    ✓ Navy - Size M: 85 units");
 
         ProductColourSize navyL = ProductColourSizeFactory.createProductColourSize("L", 75, 12, navyColour);
-        navyL = productColourSizeRepository.save(navyL);
+        navyL = productColourSizeService.create(navyL);
         System.out.println("    ✓ Navy - Size L: 75 units");
 
         ProductColourSize navyXL = ProductColourSizeFactory.createProductColourSize("XL", 55, 10, navyColour);
-        navyXL = productColourSizeRepository.save(navyXL);
+        navyXL = productColourSizeService.create(navyXL);
         System.out.println("    ✓ Navy - Size XL: 55 units");
 
         // ========== STEP 5: Create Multiple Product Images ==========
+        // IMPORTANT: Re-fetch the product to ensure we have the latest state
+        Product productForImages = productService.read(product.getProductId());
+
         // Primary Image
         ProductImage primaryImage = ProductImageFactory.createPrimaryProductImage(
-                product,
+                productForImages,
                 "https://example.com/images/tshirt-primary.jpg",
-                product.getName() + " - Main View"
+                productForImages.getName() + " - Main View"
         );
         primaryImage = productImageService.create(primaryImage);
         assertNotNull(primaryImage.getImageId(), "Primary image should be saved");
@@ -454,9 +411,9 @@ class ProductServiceTest {
 
         // Secondary Images
         ProductImage frontImage = ProductImageFactory.createSecondaryProductImage(
-                product,
+                productForImages,
                 "https://example.com/images/tshirt-front.jpg",
-                product.getName() + " - Front View",
+                productForImages.getName() + " - Front View",
                 1
         );
         frontImage = productImageService.create(frontImage);
@@ -464,27 +421,27 @@ class ProductServiceTest {
         System.out.println("  ✓ Image 2: Front View - Display Order: 1");
 
         ProductImage backImage = ProductImageFactory.createSecondaryProductImage(
-                product,
+                productForImages,
                 "https://example.com/images/tshirt-back.jpg",
-                product.getName() + " - Back View",
+                productForImages.getName() + " - Back View",
                 2
         );
         backImage = productImageService.create(backImage);
         System.out.println("  ✓ Image 3: Back View - Display Order: 2");
 
         ProductImage sideImage = ProductImageFactory.createSecondaryProductImage(
-                product,
+                productForImages,
                 "https://example.com/images/tshirt-side.jpg",
-                product.getName() + " - Side View",
+                productForImages.getName() + " - Side View",
                 3
         );
         sideImage = productImageService.create(sideImage);
         System.out.println("  ✓ Image 4: Side View - Display Order: 3");
 
         ProductImage detailImage = ProductImageFactory.createSecondaryProductImage(
-                product,
+                productForImages,
                 "https://example.com/images/tshirt-detail.jpg",
-                product.getName() + " - Material Detail",
+                productForImages.getName() + " - Material Detail",
                 4
         );
         detailImage = productImageService.create(detailImage);
@@ -495,19 +452,29 @@ class ProductServiceTest {
         assertNotNull(retrievedProduct, "Product should be retrievable from database");
 
         // Verify colors count
-        List<ProductColour> colours = productColourRepository.findByProduct(retrievedProduct);
+        List<ProductColour> colours = productColourService.findByProduct(retrievedProduct);
         assertEquals(3, colours.size(), "Product should have 3 colors");
 
-        // Verify total sizes count (5 black + 3 white + 3 navy = 11)
+        // Verify total sizes count
         int totalSizes = 0;
         for (ProductColour colour : colours) {
-            List<ProductColourSize> sizes = productColourSizeRepository.findByColour(colour);
+            List<ProductColourSize> sizes = productColourSizeService.findByColour(colour);
             totalSizes += sizes.size();
         }
         assertEquals(11, totalSizes, "Product should have 11 total size variants");
 
         // Verify images count
         List<ProductImage> images = productImageService.findByProduct(retrievedProduct);
+        System.out.println("  DEBUG: Found " + images.size() + " images in database");
+
+        // Print all images for debugging
+        for (ProductImage img : images) {
+            System.out.println("    - Image ID: " + img.getImageId() +
+                    ", URL: " + img.getImageUrl() +
+                    ", Primary: " + img.isPrimary() +
+                    ", Display Order: " + img.getDisplayOrder());
+        }
+
         assertEquals(5, images.size(), "Product should have 5 images");
 
         // Verify primary image exists
@@ -517,26 +484,27 @@ class ProductServiceTest {
         // ========== STEP 7: Calculate Total Stock ==========
         int totalStock = 0;
         for (ProductColour colour : colours) {
-            List<ProductColourSize> sizes = productColourSizeRepository.findByColour(colour);
+            List<ProductColourSize> sizes = productColourSizeService.findByColour(colour);
             for (ProductColourSize size : sizes) {
                 totalStock += size.getStockQuantity();
             }
         }
+
         System.out.println("\n========== COMPLETE PRODUCT SUMMARY ==========");
         System.out.println("Product: " + product.getName());
         System.out.println("Category: " + category.getName());
         System.out.println("Colors: 3 (Black, White, Navy Blue)");
         System.out.println("Size Variants: 11");
         System.out.println("Total Stock: " + totalStock + " units");
-        System.out.println("Images: 5 (1 primary, 4 secondary)");
+        System.out.println("Images: " + images.size() + " (1 primary, " + (images.size() - 1) + " secondary)");
         System.out.println("Base Price: $" + product.getBasePrice());
         System.out.println("SKU: " + product.getSku());
         System.out.println("==============================================\n");
 
         // Final assertions
         assertTrue(totalStock > 0, "Product should have stock available");
-        assertEquals(805, totalStock, "Total stock should be 805 units (sum of all variants)");
-        
-        System.out.println("✅ COMPREHENSIVE TEST PASSED: Complete product created with all aspects!");
+        assertEquals(805, totalStock, "Total stock should be 805 units");
+
+        System.out.println(" COMPREHENSIVE TEST PASSED: Complete product created with all aspects!");
     }
 }

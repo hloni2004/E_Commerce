@@ -84,4 +84,9 @@ public class RoleServiceImpl implements RoleService {
         Role role = read(roleId);
         return (role != null && role.getPermissions() != null) ? role.getPermissions() : new ArrayList<>();
     }
+
+    @Override
+    public void delete(Integer id) {
+        roleRepository.deleteById(id);
+    }
 }

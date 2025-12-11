@@ -51,4 +51,9 @@ public class PermissionServiceImpl implements PermissionService {
     public boolean existsByName(String name) {
         return permissionRepository.existsByName(name);
     }
+
+    @Override
+    public void delete(Long id) {
+        permissionRepository.deleteById(id);
+    }
 }

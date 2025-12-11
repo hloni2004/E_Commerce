@@ -95,4 +95,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = read(orderId);
         return order != null ? order.getTotalAmount() : 0.0;
     }
+
+    @Override
+    public void delete(Integer id) {
+        orderRepository.deleteById(id);
+    }
 }

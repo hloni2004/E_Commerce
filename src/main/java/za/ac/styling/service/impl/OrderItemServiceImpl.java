@@ -68,4 +68,9 @@ public class OrderItemServiceImpl implements OrderItemService {
         OrderItem orderItem = read(orderItemId);
         return orderItem != null ? orderItem.getTotalPrice() : 0.0;
     }
+
+    @Override
+    public void delete(Integer id) {
+        orderItemRepository.deleteById(id);
+    }
 }

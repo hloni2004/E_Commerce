@@ -91,4 +91,9 @@ public class ShippingMethodServiceImpl implements ShippingMethodService {
         }
         return null;
     }
+
+    @Override
+    public void delete(Long id) {
+        shippingMethodRepository.deleteById(id);
+    }
 }

@@ -62,4 +62,9 @@ public class ProductColourServiceImpl implements ProductColourService {
         List<ProductColour> colours = findByProductAndName(product, colourName);
         return !colours.isEmpty();
     }
+
+    @Override
+    public void delete(Integer id) {
+        productColourRepository.deleteById(id);
+    }
 }

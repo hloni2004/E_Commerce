@@ -96,4 +96,9 @@ public class ProductImageServiceImpl implements ProductImageService {
         }
         return null;
     }
+
+    @Override
+    public void delete(Long id) {
+        productImageRepository.deleteById(id);
+    }
 }

@@ -119,4 +119,9 @@ public class ProductColourSizeServiceImpl implements ProductColourSizeService {
         ProductColourSize size = read(sizeId);
         return ProductColourSizeFactory.needsReordering(size);
     }
+
+    @Override
+    public void delete(Integer id) {
+        productColourSizeRepository.deleteById(id);
+    }
 }

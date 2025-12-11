@@ -59,6 +59,11 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    public List<Review> findByUserId(Integer userId) {
+        return reviewRepository.findByUserUserId(userId);
+    }
+
+    @Override
     public List<Review> findByRating(int rating) {
         return reviewRepository.findByRating(rating);
     }
@@ -84,5 +89,10 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public long countByProduct(Product product) {
         return reviewRepository.countByProduct(product);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        reviewRepository.deleteById(id);
     }
 }
