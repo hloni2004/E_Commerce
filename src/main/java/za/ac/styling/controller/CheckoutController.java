@@ -139,9 +139,8 @@ public class CheckoutController {
                 }
             });
             
-            // Clear cart
-            cart.getItems().clear();
-            cartRepository.save(cart);
+            // Delete cart and cart items completely after successful order
+            cartRepository.delete(cart);
             
             Map<String, Object> response = new HashMap<>();
             response.put("orderId", savedOrder.getOrderId());

@@ -12,7 +12,7 @@ import java.util.Map;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/api/carts")
+@RequestMapping({"/api/carts", "/api/cart"})
 public class CartController {
 
     private CartService cartService;
@@ -202,6 +202,26 @@ public class CartController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error adding item to cart: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/clear/{userId}")
+    public ResponseEntity<?> clearCart(@PathVariable Integer userId) {
+        try {
+            // Get cart for user
+            Cart cart = cartService.findByUserId(userId).orElse(null);
+            if (cart == null) {
+                return ResponseEntity.ok(Map.of("success", true, "message", "No cart found for user"));
+            }
+
+            // Delete the entire cart (cascade will delete all cart items due to orphanRemoval = true)
+            cartService.delete(cart.getCartId());
+
+            return ResponseEntity.ok(Map.of("success", true, "message", "Cart and cart items deleted successfully"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error clearing cart: " + e.getMessage()));
         }
     }
 }

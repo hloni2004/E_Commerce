@@ -226,18 +226,23 @@ public class ProductController {
 
             // Handle new images if provided
             if (request.getImageBase64List() != null && !request.getImageBase64List().isEmpty()) {
-                List<ProductImage> newImages = new ArrayList<>();
+                // Initialize images collection if null
+                if (existingProduct.getImages() == null) {
+                    existingProduct.setImages(new ArrayList<>());
+                }
                 
-                // Keep existing images that are in the existingImageIds list
+                // Remove images that are not in the existingImageIds list
                 if (request.getExistingImageIds() != null) {
-                    for (ProductImage img : existingProduct.getImages()) {
-                        if (request.getExistingImageIds().contains(img.getImageId())) {
-                            newImages.add(img);
-                        }
-                    }
+                    existingProduct.getImages().removeIf(img -> 
+                        !request.getExistingImageIds().contains(img.getImageId())
+                    );
+                } else {
+                    // Clear all existing images if no existing IDs provided
+                    existingProduct.getImages().clear();
                 }
                 
                 // Add new images
+                int currentSize = existingProduct.getImages().size();
                 for (int i = 0; i < request.getImageBase64List().size(); i++) {
                     String base64Data = request.getImageBase64List().get(i);
                     String base64Image = base64Data;
@@ -257,77 +262,59 @@ public class ProductController {
                             .imageData(imageBytes)
                             .contentType(contentType)
                             .altText(existingProduct.getName())
-                            .displayOrder(newImages.size() + i)
-                            .isPrimary(newImages.isEmpty() && i == 0)
+                            .displayOrder(currentSize + i)
+                            .isPrimary(existingProduct.getImages().isEmpty() && i == 0)
                             .build();
                     
-                    newImages.add(image);
+                    existingProduct.getImages().add(image);
                 }
                 
-                existingProduct.setImages(newImages);
-                if (!newImages.isEmpty()) {
-                    existingProduct.setPrimaryImage(newImages.get(0));
+                // Set primary image
+                if (!existingProduct.getImages().isEmpty()) {
+                    existingProduct.setPrimaryImage(existingProduct.getImages().stream()
+                        .filter(ProductImage::isPrimary)
+                        .findFirst()
+                        .orElse(existingProduct.getImages().get(0)));
                 }
             }
 
             // Update colours and sizes
             if (request.getColours() != null && !request.getColours().isEmpty()) {
-                List<ProductColour> updatedColours = new ArrayList<>();
-                
-                for (ProductColourRequest colourReq : request.getColours()) {
-                    ProductColour colour;
-                    
-                    // Check if colour already exists
-                    if (colourReq.getColourId() != null) {
-                        colour = existingProduct.getColours().stream()
-                            .filter(c -> c.getColourId().equals(colourReq.getColourId()))
-                            .findFirst()
-                            .orElse(ProductColour.builder()
-                                .product(existingProduct)
-                                .build());
-                    } else {
-                        colour = ProductColour.builder()
-                                .product(existingProduct)
-                                .build();
-                    }
-                    
-                    colour.setName(colourReq.getName());
-                    colour.setHexCode(colourReq.getHexCode());
-                    
-                    // Update sizes
-                    if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
-                        List<ProductColourSize> updatedSizes = new ArrayList<>();
-                        
-                        for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
-                            ProductColourSize size;
-                            
-                            if (sizeReq.getSizeId() != null && colour.getSizes() != null) {
-                                size = colour.getSizes().stream()
-                                    .filter(s -> s.getSizeId().equals(sizeReq.getSizeId()))
-                                    .findFirst()
-                                    .orElse(ProductColourSize.builder()
-                                        .colour(colour)
-                                        .build());
-                            } else {
-                                size = ProductColourSize.builder()
-                                        .colour(colour)
-                                        .build();
-                            }
-                            
-                            size.setSizeName(sizeReq.getSizeName());
-                            size.setStockQuantity(sizeReq.getStockQuantity());
-                            size.setReservedQuantity(0);
-                            size.setReorderLevel(5);
-                            
-                            updatedSizes.add(size);
-                        }
-                        colour.setSizes(updatedSizes);
-                    }
-                    
-                    updatedColours.add(colour);
+                // Clear existing colours properly to avoid orphan removal issue
+                if (existingProduct.getColours() != null) {
+                    existingProduct.getColours().clear();
+                } else {
+                    existingProduct.setColours(new ArrayList<>());
                 }
                 
-                existingProduct.setColours(updatedColours);
+                for (ProductColourRequest colourReq : request.getColours()) {
+                    ProductColour colour = ProductColour.builder()
+                            .product(existingProduct)
+                            .name(colourReq.getName())
+                            .hexCode(colourReq.getHexCode())
+                            .build();
+                    
+                    // Add sizes
+                    if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
+                        List<ProductColourSize> sizes = new ArrayList<>();
+                        
+                        for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
+                            ProductColourSize size = ProductColourSize.builder()
+                                    .colour(colour)
+                                    .sizeName(sizeReq.getSizeName())
+                                    .stockQuantity(sizeReq.getStockQuantity())
+                                    .reservedQuantity(0)
+                                    .reorderLevel(5)
+                                    .build();
+                            
+                            sizes.add(size);
+                        }
+                        colour.setSizes(sizes);
+                    }
+                    
+                    // Add to existing collection instead of replacing
+                    existingProduct.getColours().add(colour);
+                }
             }
 
             // Save updated product
@@ -406,6 +393,21 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error retrieving products: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchProducts(@RequestParam(required = false) String query) {
+        try {
+            if (query == null || query.trim().isEmpty()) {
+                return ResponseEntity.ok(Map.of("success", true, "data", Collections.emptyList()));
+            }
+            
+            List<Product> products = productService.searchByName(query.trim());
+            return ResponseEntity.ok(Map.of("success", true, "data", products));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error searching products: " + e.getMessage()));
         }
     }
 }

@@ -91,8 +91,37 @@ public class OrderController {
     public ResponseEntity<?> getOrdersByUser(@PathVariable Integer userId) {
         try {
             List<Order> orders = orderService.findByUserId(userId);
+            
+            // Force load lazy relationships to avoid serialization issues
+            orders.forEach(order -> {
+                if (order.getItems() != null) {
+                    order.getItems().size(); // Force load items
+                    order.getItems().forEach(item -> {
+                        if (item.getProduct() != null) {
+                            item.getProduct().getName(); // Force load product
+                            if (item.getProduct().getPrimaryImage() != null) {
+                                item.getProduct().getPrimaryImage().getImageId(); // Force load image
+                            }
+                        }
+                        if (item.getColour() != null) {
+                            item.getColour().getName(); // Force load colour
+                        }
+                        if (item.getColourSize() != null) {
+                            item.getColourSize().getSizeName(); // Force load size
+                        }
+                    });
+                }
+                if (order.getShippingMethod() != null) {
+                    order.getShippingMethod().getName(); // Force load shipping method
+                }
+                if (order.getShippingAddress() != null) {
+                    order.getShippingAddress().getFullName(); // Force load address
+                }
+            });
+            
             return ResponseEntity.ok(Map.of("success", true, "data", orders));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error retrieving orders: " + e.getMessage()));
         }
