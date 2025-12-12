@@ -497,7 +497,7 @@ class ProductServiceTest {
         System.out.println("Size Variants: 11");
         System.out.println("Total Stock: " + totalStock + " units");
         System.out.println("Images: " + images.size() + " (1 primary, " + (images.size() - 1) + " secondary)");
-        System.out.println("Base Price: $" + product.getBasePrice());
+        System.out.println("Base Price: R" + product.getBasePrice());
         System.out.println("SKU: " + product.getSku());
         System.out.println("==============================================\n");
 

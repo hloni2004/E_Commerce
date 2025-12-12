@@ -47,10 +47,10 @@ public class AddressFactory {
         }
 
         return Address.builder()
-                .street(street)
+                .addressLine1(street)
                 .city(city)
-                .state(state)
-                .zipCode(zipCode)
+                .province(state)
+                .postalCode(zipCode)
                 .country(country)
                 .addressType(addressType)
                 .user(user)

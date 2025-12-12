@@ -24,7 +24,7 @@ class PaymentServiceTest {
 
     @BeforeEach
     void setUp() {
-        testPayment = PaymentFactory.createPayment(500.00, "USD", null);
+        testPayment = PaymentFactory.createPayment(500.00, "ZAR", null);
     }
 
     @Test

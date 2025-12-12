@@ -10,6 +10,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = {"parentCategory", "subCategory"})
+@ToString(exclude = {"parentCategory", "subCategory"})
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

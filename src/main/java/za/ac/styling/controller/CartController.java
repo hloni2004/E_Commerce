@@ -16,6 +16,21 @@ import java.util.Map;
 public class CartController {
 
     private CartService cartService;
+    
+    @Autowired
+    private za.ac.styling.repository.CartItemRepository cartItemRepository;
+    
+    @Autowired
+    private za.ac.styling.repository.UserRepository userRepository;
+    
+    @Autowired
+    private za.ac.styling.repository.ProductRepository productRepository;
+    
+    @Autowired
+    private za.ac.styling.repository.ProductColourRepository productColourRepository;
+    
+    @Autowired
+    private za.ac.styling.repository.ProductColourSizeRepository productColourSizeRepository;
 
     @Autowired
     public void setCartService(CartService cartService) {
@@ -109,33 +124,76 @@ public class CartController {
             Integer sizeId = (Integer) request.get("sizeId");
             Integer quantity = (Integer) request.get("quantity");
 
+            // Get user
+            za.ac.styling.domain.User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
             // Get or create cart for user
             Cart cart = cartService.findByUserId(userId).orElse(null);
             if (cart == null) {
-                // Create new cart for user
                 cart = Cart.builder()
-                        .user(za.ac.styling.domain.User.builder().userId(userId).build())
+                        .user(user)
                         .createdAt(java.time.LocalDateTime.now())
                         .updatedAt(java.time.LocalDateTime.now())
                         .build();
                 cart = cartService.create(cart);
             }
 
-            // Create cart item
-            za.ac.styling.domain.CartItem cartItem = za.ac.styling.domain.CartItem.builder()
-                    .cart(cart)
-                    .product(za.ac.styling.domain.Product.builder().productId(productId).build())
-                    .colour(za.ac.styling.domain.ProductColour.builder().colourId(colourId).build())
-                    .size(za.ac.styling.domain.ProductColourSize.builder().sizeId(sizeId).build())
-                    .quantity(quantity)
-                    .build();
+            // Load full entities
+            za.ac.styling.domain.Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+            za.ac.styling.domain.ProductColour colour = productColourRepository.findById(colourId)
+                .orElseThrow(() -> new RuntimeException("Colour not found"));
+            za.ac.styling.domain.ProductColourSize size = productColourSizeRepository.findById(sizeId)
+                .orElseThrow(() -> new RuntimeException("Size not found"));
 
-            // Note: You'll need to add a CartItemRepository and save method
-            // For now, we'll update the cart's items list
-            if (cart.getItems() == null) {
-                cart.setItems(new java.util.ArrayList<>());
+            // Calculate available stock (total stock - reserved stock)
+            int availableStock = size.getStockQuantity() - size.getReservedQuantity();
+
+            // Check if item already exists in cart
+            za.ac.styling.domain.CartItem existingItem = cart.getItems() != null ? 
+                cart.getItems().stream()
+                    .filter(item -> item.getProduct().getProductId().equals(productId) 
+                                 && item.getColour().getColourId().equals(colourId)
+                                 && item.getSize().getSizeId().equals(sizeId))
+                    .findFirst()
+                    .orElse(null) : null;
+
+            if (existingItem != null) {
+                // Check if new total quantity exceeds available stock
+                int newQuantity = existingItem.getQuantity() + quantity;
+                if (newQuantity > availableStock) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of(
+                            "success", false, 
+                            "message", "Insufficient stock. Only " + availableStock + " items available.",
+                            "availableStock", availableStock
+                        ));
+                }
+                // Update quantity
+                existingItem.setQuantity(newQuantity);
+                cartItemRepository.save(existingItem);
+            } else {
+                // Check if quantity exceeds available stock
+                if (quantity > availableStock) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of(
+                            "success", false, 
+                            "message", "Insufficient stock. Only " + availableStock + " items available.",
+                            "availableStock", availableStock
+                        ));
+                }
+                // Create new cart item
+                za.ac.styling.domain.CartItem cartItem = za.ac.styling.domain.CartItem.builder()
+                        .cart(cart)
+                        .product(product)
+                        .colour(colour)
+                        .size(size)
+                        .quantity(quantity)
+                        .build();
+                cartItemRepository.save(cartItem);
             }
-            cart.getItems().add(cartItem);
+
             cart.setUpdatedAt(java.time.LocalDateTime.now());
             cartService.update(cart);
 

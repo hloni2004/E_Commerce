@@ -16,6 +16,9 @@ import java.util.Map;
 public class OrderController {
 
     private OrderService orderService;
+    
+    @Autowired
+    private za.ac.styling.service.InventoryService inventoryService;
 
     @Autowired
     public void setOrderService(OrderService orderService) {
@@ -92,6 +95,183 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error retrieving orders: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reorder/{orderId}")
+    public ResponseEntity<?> reorderItems(@PathVariable Integer orderId) {
+        try {
+            Order originalOrder = orderService.read(orderId);
+            if (originalOrder == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Order not found"));
+            }
+
+            // Return order items for reordering - frontend will add them to cart
+            return ResponseEntity.ok(Map.of(
+                "success", true, 
+                "data", originalOrder.getItems(),
+                "message", "Items ready to add to cart"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error reordering: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Update order status in real-time
+     */
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<?> updateOrderStatus(
+            @PathVariable Integer orderId,
+            @RequestBody Map<String, String> request) {
+        try {
+            String newStatus = request.get("status");
+            Order order = orderService.read(orderId);
+            
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Order not found"));
+            }
+            
+            za.ac.styling.domain.OrderStatus oldStatus = order.getStatus();
+            za.ac.styling.domain.OrderStatus status = za.ac.styling.domain.OrderStatus.valueOf(newStatus);
+            order.setStatus(status);
+            
+            // Handle inventory for cancelled orders
+            if (status == za.ac.styling.domain.OrderStatus.CANCELLED && 
+                (oldStatus == za.ac.styling.domain.OrderStatus.PENDING || 
+                 oldStatus == za.ac.styling.domain.OrderStatus.PROCESSING)) {
+                // Release reserved stock when order is cancelled
+                inventoryService.releaseStock(order.getItems());
+            }
+            
+            Order updated = orderService.update(order);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", updated,
+                "message", "Order status updated to " + status + " in real-time"
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(Map.of("success", false, "message", "Invalid order status"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error updating order status: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Cancel order and restore inventory
+     */
+    @PostMapping("/{orderId}/cancel")
+    public ResponseEntity<?> cancelOrder(@PathVariable Integer orderId) {
+        try {
+            Order order = orderService.read(orderId);
+            
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Order not found"));
+            }
+            
+            if (order.getStatus() == za.ac.styling.domain.OrderStatus.DELIVERED ||
+                order.getStatus() == za.ac.styling.domain.OrderStatus.CANCELLED) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Cannot cancel " + order.getStatus() + " orders"));
+            }
+            
+            // Update status to cancelled
+            order.setStatus(za.ac.styling.domain.OrderStatus.CANCELLED);
+            
+            // Release stock back to inventory
+            inventoryService.releaseStock(order.getItems());
+            
+            Order updated = orderService.update(order);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", updated,
+                "message", "Order cancelled and inventory restored in real-time"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error cancelling order: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Process return and restore inventory
+     */
+    @PostMapping("/{orderId}/return")
+    public ResponseEntity<?> returnOrder(@PathVariable Integer orderId) {
+        try {
+            Order order = orderService.read(orderId);
+            
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Order not found"));
+            }
+            
+            if (order.getStatus() != za.ac.styling.domain.OrderStatus.DELIVERED) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "Only delivered orders can be returned"));
+            }
+            
+            // Update status to returned
+            order.setStatus(za.ac.styling.domain.OrderStatus.RETURNED);
+            
+            // Return stock to inventory
+            inventoryService.returnStock(order.getItems());
+            
+            Order updated = orderService.update(order);
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "data", updated,
+                "message", "Order returned and inventory updated in real-time"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error processing return: " + e.getMessage()));
+        }
+    }
+    
+    /**
+     * Get real-time inventory status for order items
+     */
+    @GetMapping("/{orderId}/inventory-status")
+    public ResponseEntity<?> getOrderInventoryStatus(@PathVariable Integer orderId) {
+        try {
+            Order order = orderService.read(orderId);
+            
+            if (order == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("success", false, "message", "Order not found"));
+            }
+            
+            List<Map<String, Object>> inventoryStatus = order.getItems().stream()
+                .map(item -> {
+                    int availableStock = inventoryService.getAvailableStock(item.getColourSize().getSizeId());
+                    Map<String, Object> itemStatus = new java.util.HashMap<>();
+                    itemStatus.put("productName", item.getProduct().getName());
+                    itemStatus.put("size", item.getColourSize().getSizeName());
+                    itemStatus.put("orderedQuantity", item.getQuantity());
+                    itemStatus.put("currentAvailableStock", availableStock);
+                    itemStatus.put("inStock", availableStock > 0);
+                    return itemStatus;
+                })
+                .toList();
+            
+            Map<String, Object> result = new java.util.HashMap<>();
+            result.put("success", true);
+            result.put("data", inventoryStatus);
+            result.put("message", "Real-time inventory status retrieved");
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error getting inventory status: " + e.getMessage()));
         }
     }
 }

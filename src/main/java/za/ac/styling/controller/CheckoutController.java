@@ -22,6 +22,8 @@ public class CheckoutController {
     private final ShippingMethodRepository shippingMethodRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final za.ac.styling.service.EmailService emailService;
+    private final za.ac.styling.service.InventoryService inventoryService;
 
     @GetMapping("/shipping-methods")
     public ResponseEntity<?> getActiveShippingMethods() {
@@ -54,7 +56,7 @@ public class CheckoutController {
             
             // Calculate totals
             double subtotal = cart.getItems().stream()
-                    .mapToDouble(item -> item.getQuantity() * item.getColourSize().getPrice())
+                    .mapToDouble(item -> item.getQuantity() * item.getProduct().getBasePrice())
                     .sum();
             
             double shippingCost = shippingMethod.getCost();
@@ -84,17 +86,58 @@ public class CheckoutController {
                             .order(order)
                             .product(cartItem.getProduct())
                             .colour(cartItem.getColour())
-                            .colourSize(cartItem.getColourSize())
+                            .colourSize(cartItem.getSize())
                             .quantity(cartItem.getQuantity())
-                            .price(cartItem.getColourSize().getPrice())
-                            .subtotal(cartItem.getQuantity() * cartItem.getColourSize().getPrice())
+                            .price(cartItem.getProduct().getBasePrice())
+                            .subtotal(cartItem.getQuantity() * cartItem.getProduct().getBasePrice())
                             .build())
                     .toList();
             
             order.setItems(orderItems);
             
+            // Check stock availability before creating order
+            if (!inventoryService.checkStockAvailability(orderItems)) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Some items in your cart are out of stock or have insufficient quantity",
+                    "errorType", "INSUFFICIENT_STOCK"
+                ));
+            }
+            
+            // Reserve stock for the order
+            try {
+                inventoryService.reserveStock(orderItems);
+            } catch (za.ac.styling.service.InventoryService.InsufficientStockException e) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", e.getMessage(),
+                    "errorType", "INSUFFICIENT_STOCK"
+                ));
+            }
+            
             // Save order
             Order savedOrder = orderRepository.save(order);
+            
+            // Commit stock (convert reserved to sold)
+            inventoryService.commitStock(orderItems);
+            
+            // Send order confirmation email asynchronously (loosely coupled)
+            // This ensures the order is saved even if email fails
+            final Order finalOrder = savedOrder;
+            java.util.concurrent.CompletableFuture.runAsync(() -> {
+                try {
+                    // Ensure all relationships are loaded before sending email
+                    finalOrder.getItems().size(); // Force load items
+                    finalOrder.getItems().forEach(item -> {
+                        item.getProduct().getName(); // Force load product
+                        item.getColour().getName(); // Force load colour
+                        item.getColourSize().getSizeName(); // Force load size
+                    });
+                    
+                    emailService.sendOrderConfirmationEmail(finalOrder);
+                } catch (Exception e) {
+                    System.err.println("Failed to send confirmation email asynchronously: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            });
             
             // Clear cart
             cart.getItems().clear();
@@ -105,12 +148,21 @@ public class CheckoutController {
             response.put("orderNumber", savedOrder.getOrderNumber());
             response.put("totalAmount", savedOrder.getTotalAmount());
             response.put("status", savedOrder.getStatus());
+            response.put("message", "Order placed successfully! Check your email for confirmation.");
             
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
+            System.err.println("=== ORDER CREATION ERROR ===");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error class: " + e.getClass().getName());
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            System.err.println("============================");
+            
+            return ResponseEntity.status(500).body(Map.of(
+                "error", e.getMessage() != null ? e.getMessage() : "Unknown error occurred",
+                "errorType", e.getClass().getSimpleName()
+            ));
         }
     }
 
@@ -143,6 +195,51 @@ public class CheckoutController {
     public ResponseEntity<?> getUserAddresses(@PathVariable Integer userId) {
         List<Address> addresses = addressRepository.findByUserUserId(userId);
         return ResponseEntity.ok(addresses);
+    }
+
+    @PutMapping("/addresses/{addressId}")
+    public ResponseEntity<?> updateAddress(@PathVariable Long addressId, @RequestBody Address address) {
+        try {
+            Address existing = addressRepository.findById(addressId)
+                    .orElseThrow(() -> new RuntimeException("Address not found"));
+            
+            existing.setFullName(address.getFullName());
+            existing.setPhone(address.getPhone());
+            existing.setAddressLine1(address.getAddressLine1());
+            existing.setAddressLine2(address.getAddressLine2());
+            existing.setCity(address.getCity());
+            existing.setProvince(address.getProvince());
+            existing.setPostalCode(address.getPostalCode());
+            existing.setCountry(address.getCountry());
+            
+            // If setting as default, unset other defaults
+            if (address.isDefault() && !existing.isDefault()) {
+                List<Address> userAddresses = addressRepository.findByUserUserId(existing.getUser().getUserId());
+                userAddresses.forEach(addr -> {
+                    if (!addr.getAddressId().equals(addressId)) {
+                        addr.setDefault(false);
+                        addressRepository.save(addr);
+                    }
+                });
+            }
+            existing.setDefault(address.isDefault());
+            
+            Address updated = addressRepository.save(existing);
+            return ResponseEntity.ok(updated);
+            
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/addresses/{addressId}")
+    public ResponseEntity<?> deleteAddress(@PathVariable Long addressId) {
+        try {
+            addressRepository.deleteById(addressId);
+            return ResponseEntity.ok(Map.of("success", true, "message", "Address deleted"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping("/cart/{userId}")

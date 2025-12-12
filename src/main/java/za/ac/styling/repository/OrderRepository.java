@@ -60,4 +60,13 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
      * Find all pending orders
      */
     List<Order> findByStatusOrderByOrderDateDesc(OrderStatus status);
+    
+    /**
+     * Check if user has purchased a specific product (completed orders only)
+     */
+    @org.springframework.data.jpa.repository.Query("SELECT CASE WHEN COUNT(oi) > 0 THEN true ELSE false END FROM Order o " +
+            "JOIN o.items oi WHERE o.user.userId = :userId AND oi.product.productId = :productId " +
+            "AND o.status IN ('DELIVERED', 'COMPLETED')")
+    boolean hasUserPurchasedProduct(@org.springframework.data.repository.query.Param("userId") Integer userId, 
+                                   @org.springframework.data.repository.query.Param("productId") Integer productId);
 }

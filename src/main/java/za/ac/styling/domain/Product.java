@@ -12,6 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = {"colours", "images", "primaryImage", "category"})
+@ToString(exclude = {"colours", "images", "primaryImage"})
 public class Product {
 
     @Id
@@ -36,7 +38,6 @@ public class Product {
 
     @OneToOne
     @JoinColumn(name = "primary_image_id")
-    @JsonIgnore  // Prevents circular reference during JSON serialization
     private ProductImage primaryImage;
 
     private boolean isActive;

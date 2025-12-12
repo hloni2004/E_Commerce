@@ -49,11 +49,10 @@ public class OrderItemFactory {
                 .order(order)
                 .product(product)
                 .colour(colour)
-                .size(size)
+                .colourSize(size)
                 .quantity(quantity)
-                .unitPrice(unitPrice)
-                .priceAtPurchase(unitPrice)
-                .totalPrice(totalPrice)
+                .price(unitPrice)
+                .subtotal(totalPrice)
                 .build();
     }
 
@@ -91,8 +90,8 @@ public class OrderItemFactory {
             throw new IllegalArgumentException("OrderItem cannot be null");
         }
 
-        double totalPrice = orderItem.getUnitPrice() * orderItem.getQuantity();
-        orderItem.setTotalPrice(totalPrice);
+        double totalPrice = orderItem.getPrice() * orderItem.getQuantity();
+        orderItem.setSubtotal(totalPrice);
         return orderItem;
     }
 }

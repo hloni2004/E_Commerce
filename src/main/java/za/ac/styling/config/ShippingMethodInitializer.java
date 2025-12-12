@@ -58,6 +58,6 @@ public class ShippingMethodInitializer implements CommandLineRunner {
         shippingMethodRepository.save(overnight);
         shippingMethodRepository.save(pickup);
 
-        System.out.println("✅ Initialized 4 shipping methods");
+        System.out.println(" Initialized 4 shipping methods");
     }
 }

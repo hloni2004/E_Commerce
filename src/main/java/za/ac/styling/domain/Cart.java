@@ -1,5 +1,7 @@
 package za.ac.styling.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,6 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = {"user", "items"})
+@ToString(exclude = {"user", "items"})
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,11 +23,13 @@ public class Cart {
 
     @OneToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
 
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL ,  orphanRemoval = true)
+    @JsonManagedReference
     private List<CartItem> items;
 
 

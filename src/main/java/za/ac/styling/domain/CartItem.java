@@ -1,5 +1,6 @@
 package za.ac.styling.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +16,7 @@ public class CartItem {
 
 
     @ManyToOne
+    @JsonBackReference
     private Cart cart;
 
 

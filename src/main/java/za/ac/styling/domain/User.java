@@ -1,5 +1,6 @@
 package za.ac.styling.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.Table;
 import lombok.*;
@@ -13,6 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(name = "users")
+@EqualsAndHashCode(exclude = {"cart", "addresses", "paymentMethods"})
+@ToString(exclude = {"cart", "addresses", "paymentMethods"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,9 +34,11 @@ public class User {
     private Role role;
 
     @OneToOne(mappedBy = "user")
+    @JsonIgnore
     private Cart cart;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Address> addresses;
 
 

@@ -31,6 +31,9 @@ public class UserController {
     @Autowired
     private za.ac.styling.service.RoleService roleService;
 
+    @Autowired
+    private za.ac.styling.repository.AddressRepository addressRepository;
+
     @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         try {
@@ -199,6 +202,25 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
 
+            // Create default address if provided
+            if (registerRequest.getAddressLine1() != null && !registerRequest.getAddressLine1().isEmpty()) {
+                za.ac.styling.domain.Address address = za.ac.styling.domain.Address.builder()
+                    .fullName(registerRequest.getFirstName() + " " + registerRequest.getLastName())
+                    .phone(registerRequest.getPhone())
+                    .addressLine1(registerRequest.getAddressLine1())
+                    .addressLine2(registerRequest.getAddressLine2())
+                    .city(registerRequest.getCity())
+                    .province(registerRequest.getProvince())
+                    .postalCode(registerRequest.getPostalCode())
+                    .country(registerRequest.getCountry() != null ? registerRequest.getCountry() : "South Africa")
+                    .addressType(za.ac.styling.domain.AddressType.SHIPPING)
+                    .isDefault(true)
+                    .user(created)
+                    .build();
+                
+                addressRepository.save(address);
+            }
+
             // Convert to UserResponse DTO
             UserResponse userResponse = UserResponse.builder()
                 .userId(created.getUserId())
@@ -232,6 +254,95 @@ public class UserController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error retrieving user: " + e.getMessage()));
+        }
+    }
+
+    @PutMapping("/profile/{userId}")
+    public ResponseEntity<?> updateProfile(@PathVariable Integer userId, @RequestBody Map<String, Object> updates) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = userService.read(userId);
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            // Update allowed fields
+            if (updates.containsKey("firstName")) {
+                user.setFirstName((String) updates.get("firstName"));
+            }
+            if (updates.containsKey("lastName")) {
+                user.setLastName((String) updates.get("lastName"));
+            }
+            if (updates.containsKey("phone")) {
+                user.setPhone((String) updates.get("phone"));
+            }
+            if (updates.containsKey("email")) {
+                String newEmail = (String) updates.get("email");
+                // Check if email is already taken by another user
+                if (!user.getEmail().equals(newEmail) && 
+                    userService.findByEmail(newEmail).isPresent()) {
+                    response.put("success", false);
+                    response.put("message", "Email already in use");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+                }
+                user.setEmail(newEmail);
+            }
+
+            User updated = userService.update(user);
+            
+            UserResponse userResponse = UserResponse.builder()
+                .userId(updated.getUserId())
+                .username(updated.getUsername())
+                .email(updated.getEmail())
+                .firstName(updated.getFirstName())
+                .lastName(updated.getLastName())
+                .phone(updated.getPhone())
+                .roleName(updated.getRole() != null ? updated.getRole().getRoleName() : "CUSTOMER")
+                .isActive(updated.isActive())
+                .build();
+
+            response.put("success", true);
+            response.put("data", userResponse);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error updating profile: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PutMapping("/change-password/{userId}")
+    public ResponseEntity<?> changePassword(@PathVariable Integer userId, @RequestBody Map<String, String> passwords) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            User user = userService.read(userId);
+            if (user == null) {
+                response.put("success", false);
+                response.put("message", "User not found");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+            String currentPassword = passwords.get("currentPassword");
+            String newPassword = passwords.get("newPassword");
+
+            if (!user.getPassword().equals(currentPassword)) {
+                response.put("success", false);
+                response.put("message", "Current password is incorrect");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+            }
+
+            user.setPassword(newPassword);
+            userService.update(user);
+
+            response.put("success", true);
+            response.put("message", "Password changed successfully");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error changing password: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 }

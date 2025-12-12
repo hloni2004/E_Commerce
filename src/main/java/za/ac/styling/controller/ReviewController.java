@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import za.ac.styling.domain.Review;
+import za.ac.styling.repository.OrderRepository;
 import za.ac.styling.service.ReviewService;
 
 import java.util.HashMap;
@@ -17,6 +18,9 @@ import java.util.Map;
 public class ReviewController {
 
     private ReviewService reviewService;
+    
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Autowired
     public void setReviewService(ReviewService reviewService) {
@@ -24,12 +28,45 @@ public class ReviewController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Review> createReview(@RequestBody Review review) {
+    public ResponseEntity<?> createReview(@RequestBody Review review) {
         try {
+            // Validate that user has purchased the product
+            if (review.getUser() == null || review.getProduct() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "message", "User and Product are required"));
+            }
+            
+            boolean hasPurchased = orderRepository.hasUserPurchasedProduct(
+                review.getUser().getUserId(), 
+                review.getProduct().getProductId()
+            );
+            
+            if (!hasPurchased) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("success", false, "message", "You can only review products you have purchased"));
+            }
+            
             Review created = reviewService.create(review);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("success", true, "data", created));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error creating review: " + e.getMessage()));
+        }
+    }
+    
+    @GetMapping("/can-review/{userId}/{productId}")
+    public ResponseEntity<?> canUserReview(@PathVariable Integer userId, @PathVariable Integer productId) {
+        try {
+            boolean hasPurchased = orderRepository.hasUserPurchasedProduct(userId, productId);
+            return ResponseEntity.ok(Map.of(
+                "success", true, 
+                "canReview", hasPurchased,
+                "message", hasPurchased ? "You can review this product" : "You must purchase this product before reviewing"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("success", false, "message", "Error checking review eligibility: " + e.getMessage()));
         }
     }
 

@@ -66,7 +66,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     @Override
     public double calculateItemTotal(Integer orderItemId) {
         OrderItem orderItem = read(orderItemId);
-        return orderItem != null ? orderItem.getTotalPrice() : 0.0;
+        return orderItem != null ? orderItem.getSubtotal() : 0.0;
     }
 
     @Override
