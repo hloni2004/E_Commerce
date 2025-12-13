@@ -2,6 +2,7 @@ package za.ac.styling.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.Date;
 import java.util.List;
@@ -17,14 +18,12 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orderId;
 
-
     @ManyToOne
     private User user;
 
-
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<OrderItem> items;
-
 
     private String orderNumber;
     private double totalAmount;
@@ -34,28 +33,21 @@ public class Order {
     private double discountAmount;
     private Date orderDate;
 
-
     @OneToOne
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
-
-
     @ManyToOne
     private ShippingMethod shippingMethod;
-
 
     @ManyToOne
     private Address shippingAddress;
 
-
     @ManyToOne
     private Address billingAddress;
 
-
     private boolean invoiceEmailSent;
     private String notes;
-
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;

@@ -31,6 +31,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         initializeRoles();
+        cleanupOldCategories();
         initializeCategories();
         initializeAdminUser();
     }
@@ -42,6 +43,21 @@ public class DataInitializer implements CommandLineRunner {
         createRoleIfNotExists("ADMIN");
         createRoleIfNotExists("CUSTOMER");
         System.out.println("✓ Roles initialized successfully");
+    }
+
+    /**
+     * Removes old categories that are no longer needed
+     */
+    private void cleanupOldCategories() {
+        try {
+            // Remove "Luxury" category if it exists
+            categoryService.findByName("Luxury").ifPresent(category -> {
+                categoryService.delete(category.getCategoryId());
+                System.out.println("✓ Removed old category: Luxury");
+            });
+        } catch (Exception e) {
+            System.out.println("  No old categories to clean up");
+        }
     }
 
     private void createRoleIfNotExists(String roleName) {
@@ -59,11 +75,14 @@ public class DataInitializer implements CommandLineRunner {
      * Creates default categories if they don't exist
      */
     private void initializeCategories() {
-        createCategoryIfNotExists("Men's Clothing", "Fashion for men", "https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=400");
-        createCategoryIfNotExists("Women's Clothing", "Fashion for women", "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400");
-        createCategoryIfNotExists("Accessories", "Bags, watches, jewelry", "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=400");
-        createCategoryIfNotExists("Footwear", "Shoes and sneakers", "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=400");
-        createCategoryIfNotExists("Luxury", "Premium and designer items", "https://images.unsplash.com/photo-1591348278863-96b5e6c379db?w=400");
+        createCategoryIfNotExists("Men's Clothing", "Fashion for men",
+                "https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=400");
+        createCategoryIfNotExists("Women's Clothing", "Fashion for women",
+                "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400");
+        createCategoryIfNotExists("Accessories", "Bags, watches, jewelry",
+                "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93?w=400");
+        createCategoryIfNotExists("Footwear", "Shoes and sneakers",
+                "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=400");
         System.out.println("✓ Categories initialized successfully");
     }
 
@@ -94,12 +113,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // Check if admin user already exists
         Optional<User> existingAdmin = userService.findByEmail("admin@maison-luxe.com");
-        
+
         if (existingAdmin.isEmpty()) {
             // Create default admin user
             User adminUser = User.builder()
                     .email("admin@maison-luxe.com")
-                    .password("Admin@123")  // TODO: In production, this should be hashed
+                    .password("Admin@123") // TODO: In production, this should be hashed
                     .firstName("Admin")
                     .lastName("User")
                     .username("admin")
@@ -109,7 +128,7 @@ public class DataInitializer implements CommandLineRunner {
                     .build();
 
             userService.create(adminUser);
-            
+
             System.out.println("═══════════════════════════════════════════════");
             System.out.println("✓ DEFAULT ADMIN USER CREATED");
             System.out.println("═══════════════════════════════════════════════");

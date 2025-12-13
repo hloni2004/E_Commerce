@@ -2,6 +2,7 @@ package za.ac.styling.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Data
@@ -15,6 +16,7 @@ public class OrderItem {
 
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonBackReference
     private Order order;
 
     @ManyToOne
@@ -30,6 +32,13 @@ public class OrderItem {
     private ProductColourSize colourSize;
 
     private int quantity;
+
+    @Column(name = "price_at_purchase", nullable = false)
     private double price; // Price per unit at time of purchase
+
+    @Column(name = "subtotal")
     private double subtotal; // quantity * price
+
+    @Column(name = "total_price", nullable = false)
+    private double totalPrice; // Total price for this item (same as subtotal)
 }

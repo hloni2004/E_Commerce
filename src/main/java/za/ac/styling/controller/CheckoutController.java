@@ -82,15 +82,21 @@ public class CheckoutController {
             
             // Create order items from cart items
             List<OrderItem> orderItems = cart.getItems().stream()
-                    .map(cartItem -> OrderItem.builder()
-                            .order(order)
-                            .product(cartItem.getProduct())
-                            .colour(cartItem.getColour())
-                            .colourSize(cartItem.getSize())
-                            .quantity(cartItem.getQuantity())
-                            .price(cartItem.getProduct().getBasePrice())
-                            .subtotal(cartItem.getQuantity() * cartItem.getProduct().getBasePrice())
-                            .build())
+                    .map(cartItem -> {
+                        double itemPrice = cartItem.getProduct().getBasePrice();
+                        int itemQuantity = cartItem.getQuantity();
+                        double itemTotal = itemQuantity * itemPrice;
+                        return OrderItem.builder()
+                                .order(order)
+                                .product(cartItem.getProduct())
+                                .colour(cartItem.getColour())
+                                .colourSize(cartItem.getSize())
+                                .quantity(itemQuantity)
+                                .price(itemPrice)
+                                .subtotal(itemTotal)
+                                .totalPrice(itemTotal)
+                                .build();
+                    })
                     .toList();
             
             order.setItems(orderItems);
