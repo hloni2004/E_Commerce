@@ -12,8 +12,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"colours", "images", "primaryImage", "category"})
-@ToString(exclude = {"colours", "images", "primaryImage"})
+@EqualsAndHashCode(exclude = { "colours", "images", "primaryImage", "category" })
+@ToString(exclude = { "colours", "images", "primaryImage" })
 public class Product {
 
     @Id
@@ -26,6 +26,7 @@ public class Product {
     private double comparePrice;
     private String sku;
     private double weight;
+    private int reorderLevel; // Stock level that triggers low inventory notification
 
     @ManyToOne
     private Category category;
