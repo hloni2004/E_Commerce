@@ -112,12 +112,12 @@ public class DataInitializer implements CommandLineRunner {
                 .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
 
         // Check if admin user already exists
-        Optional<User> existingAdmin = userService.findByEmail("admin@maison-luxe.com");
+        Optional<User> existingAdmin = userService.findByEmail("alexnhlanhla62@gmail.com");
 
         if (existingAdmin.isEmpty()) {
             // Create default admin user
             User adminUser = User.builder()
-                    .email("admin@maison-luxe.com")
+                    .email("alexnhlanhla62@gmail.com")
                     .password("Admin@123") // TODO: In production, this should be hashed
                     .firstName("Admin")
                     .lastName("User")

@@ -66,26 +66,29 @@ public class ProductController {
                 List<ProductImage> images = new ArrayList<>();
                 for (int i = 0; i < request.getImageBase64List().size(); i++) {
                     String base64Data = request.getImageBase64List().get(i);
-                    
+
                     // Remove data URL prefix if present (e.g., "data:image/png;base64,")
                     String base64Image = base64Data;
                     String contentType = "image/jpeg";
-                    
+
                     if (base64Data.contains(",")) {
                         String[] parts = base64Data.split(",");
                         base64Image = parts[1];
-                        
+
                         // Extract content type
                         if (parts[0].contains("image/")) {
                             String typeSection = parts[0];
-                            if (typeSection.contains("image/png")) contentType = "image/png";
-                            else if (typeSection.contains("image/jpeg") || typeSection.contains("image/jpg")) contentType = "image/jpeg";
-                            else if (typeSection.contains("image/webp")) contentType = "image/webp";
+                            if (typeSection.contains("image/png"))
+                                contentType = "image/png";
+                            else if (typeSection.contains("image/jpeg") || typeSection.contains("image/jpg"))
+                                contentType = "image/jpeg";
+                            else if (typeSection.contains("image/webp"))
+                                contentType = "image/webp";
                         }
                     }
-                    
+
                     byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-                    
+
                     ProductImage image = ProductImage.builder()
                             .product(savedProduct)
                             .imageData(imageBytes)
@@ -94,11 +97,11 @@ public class ProductController {
                             .displayOrder(i)
                             .isPrimary(i == 0)
                             .build();
-                    
+
                     images.add(image);
                 }
                 savedProduct.setImages(images);
-                
+
                 // Set primary image
                 if (!images.isEmpty()) {
                     savedProduct.setPrimaryImage(images.get(0));
@@ -108,18 +111,18 @@ public class ProductController {
             // Create and save colours with sizes with proper FK
             if (request.getColours() != null && !request.getColours().isEmpty()) {
                 List<ProductColour> colours = new ArrayList<>();
-                
+
                 for (ProductColourRequest colourReq : request.getColours()) {
                     ProductColour colour = ProductColour.builder()
                             .name(colourReq.getName())
                             .hexCode(colourReq.getHexCode())
                             .product(savedProduct)
                             .build();
-                    
+
                     // Create sizes with proper FK
                     if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
                         List<ProductColourSize> sizes = new ArrayList<>();
-                        
+
                         for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
                             ProductColourSize size = ProductColourSize.builder()
                                     .sizeName(sizeReq.getSizeName())
@@ -132,7 +135,7 @@ public class ProductController {
                         }
                         colour.setSizes(sizes);
                     }
-                    
+
                     colours.add(colour);
                 }
                 savedProduct.setColours(colours);
@@ -145,7 +148,7 @@ public class ProductController {
             response.put("message", "Product created successfully");
             response.put("data", finalProduct);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
@@ -162,14 +165,14 @@ public class ProductController {
             if (image == null || image.getImageData() == null) {
                 return ResponseEntity.notFound().build();
             }
-            
+
             MediaType mediaType = MediaType.IMAGE_JPEG;
             if ("image/png".equals(image.getContentType())) {
                 mediaType = MediaType.IMAGE_PNG;
             } else if ("image/webp".equals(image.getContentType())) {
                 mediaType = MediaType.parseMediaType("image/webp");
             }
-            
+
             return ResponseEntity.ok()
                     .contentType(mediaType)
                     .body(image.getImageData());
@@ -184,12 +187,12 @@ public class ProductController {
             Product product = productService.read(id);
             if (product == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Product not found"));
+                        .body(Map.of("success", false, "message", "Product not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", product));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving product: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving product: " + e.getMessage()));
         }
     }
 
@@ -230,33 +233,34 @@ public class ProductController {
                 if (existingProduct.getImages() == null) {
                     existingProduct.setImages(new ArrayList<>());
                 }
-                
+
                 // Remove images that are not in the existingImageIds list
                 if (request.getExistingImageIds() != null) {
-                    existingProduct.getImages().removeIf(img -> 
-                        !request.getExistingImageIds().contains(img.getImageId())
-                    );
+                    existingProduct.getImages()
+                            .removeIf(img -> !request.getExistingImageIds().contains(img.getImageId()));
                 } else {
                     // Clear all existing images if no existing IDs provided
                     existingProduct.getImages().clear();
                 }
-                
+
                 // Add new images
                 int currentSize = existingProduct.getImages().size();
                 for (int i = 0; i < request.getImageBase64List().size(); i++) {
                     String base64Data = request.getImageBase64List().get(i);
                     String base64Image = base64Data;
                     String contentType = "image/jpeg";
-                    
+
                     if (base64Data.contains(",")) {
                         String[] parts = base64Data.split(",");
                         base64Image = parts[1];
-                        if (parts[0].contains("image/png")) contentType = "image/png";
-                        else if (parts[0].contains("image/webp")) contentType = "image/webp";
+                        if (parts[0].contains("image/png"))
+                            contentType = "image/png";
+                        else if (parts[0].contains("image/webp"))
+                            contentType = "image/webp";
                     }
-                    
+
                     byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-                    
+
                     ProductImage image = ProductImage.builder()
                             .product(existingProduct)
                             .imageData(imageBytes)
@@ -265,16 +269,16 @@ public class ProductController {
                             .displayOrder(currentSize + i)
                             .isPrimary(existingProduct.getImages().isEmpty() && i == 0)
                             .build();
-                    
+
                     existingProduct.getImages().add(image);
                 }
-                
+
                 // Set primary image
                 if (!existingProduct.getImages().isEmpty()) {
                     existingProduct.setPrimaryImage(existingProduct.getImages().stream()
-                        .filter(ProductImage::isPrimary)
-                        .findFirst()
-                        .orElse(existingProduct.getImages().get(0)));
+                            .filter(ProductImage::isPrimary)
+                            .findFirst()
+                            .orElse(existingProduct.getImages().get(0)));
                 }
             }
 
@@ -286,18 +290,18 @@ public class ProductController {
                 } else {
                     existingProduct.setColours(new ArrayList<>());
                 }
-                
+
                 for (ProductColourRequest colourReq : request.getColours()) {
                     ProductColour colour = ProductColour.builder()
                             .product(existingProduct)
                             .name(colourReq.getName())
                             .hexCode(colourReq.getHexCode())
                             .build();
-                    
+
                     // Add sizes
                     if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
                         List<ProductColourSize> sizes = new ArrayList<>();
-                        
+
                         for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
                             ProductColourSize size = ProductColourSize.builder()
                                     .colour(colour)
@@ -306,12 +310,12 @@ public class ProductController {
                                     .reservedQuantity(0)
                                     .reorderLevel(5)
                                     .build();
-                            
+
                             sizes.add(size);
                         }
                         colour.setSizes(sizes);
                     }
-                    
+
                     // Add to existing collection instead of replacing
                     existingProduct.getColours().add(colour);
                 }
@@ -324,7 +328,7 @@ public class ProductController {
             response.put("message", "Product updated successfully");
             response.put("data", updatedProduct);
             return ResponseEntity.ok(response);
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             response.put("success", false);
@@ -340,7 +344,7 @@ public class ProductController {
             return ResponseEntity.ok(Map.of("success", true, "data", products));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving products: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving products: " + e.getMessage()));
         }
     }
 
@@ -353,9 +357,9 @@ public class ProductController {
             Product product = productService.read(id);
             if (product == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Product not found"));
+                        .body(Map.of("success", false, "message", "Product not found"));
             }
-            
+
             // First, delete all cart items that reference this product's colours/sizes
             // This prevents FK constraint violations
             if (product.getColours() != null) {
@@ -369,19 +373,19 @@ public class ProductController {
                 }
             }
             cartItemRepository.deleteByProduct(product);
-            
+
             // Remove primaryImage reference to avoid FK constraint issues
             product.setPrimaryImage(null);
             productService.update(product);
-            
+
             // Now delete the product (cascade will handle images, colours, sizes)
             productService.delete(id);
-            
+
             return ResponseEntity.ok(Map.of("success", true, "message", "Product deleted successfully"));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error deleting product: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error deleting product: " + e.getMessage()));
         }
     }
 
@@ -392,7 +396,7 @@ public class ProductController {
             return ResponseEntity.ok(Map.of("success", true, "data", products));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving products: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving products: " + e.getMessage()));
         }
     }
 
@@ -402,12 +406,58 @@ public class ProductController {
             if (query == null || query.trim().isEmpty()) {
                 return ResponseEntity.ok(Map.of("success", true, "data", Collections.emptyList()));
             }
-            
+
             List<Product> products = productService.searchByName(query.trim());
             return ResponseEntity.ok(Map.of("success", true, "data", products));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error searching products: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error searching products: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/low-stock")
+    public ResponseEntity<?> getLowStockProducts() {
+        try {
+            List<Product> allProducts = productService.getAll();
+            List<Map<String, Object>> lowStockAlerts = new ArrayList<>();
+
+            if (allProducts != null) {
+                for (Product product : allProducts) {
+                    if (product.getColours() != null && !product.getColours().isEmpty()) {
+                        for (ProductColour colour : product.getColours()) {
+                            if (colour.getSizes() != null && !colour.getSizes().isEmpty()) {
+                                for (ProductColourSize size : colour.getSizes()) {
+                                    // Check if stock is below reorder level
+                                    int reorderLevel = size.getReorderLevel() > 0 ? size.getReorderLevel() : 20;
+                                    int currentStock = size.getStockQuantity();
+
+                                    if (currentStock < reorderLevel) {
+                                        Map<String, Object> alert = new HashMap<>();
+                                        alert.put("id",
+                                                product.getProductId() * 10000
+                                                        + (colour.getColourId() != null ? colour.getColourId() : 0)
+                                                                * 100
+                                                        + (size.getSizeId() != null ? size.getSizeId() : 0));
+                                        alert.put("name", product.getName());
+                                        alert.put("sku", product.getSku());
+                                        alert.put("currentStock", currentStock);
+                                        alert.put("reorderLevel", reorderLevel);
+                                        alert.put("color", colour.getName());
+                                        alert.put("size", size.getSizeName());
+                                        lowStockAlerts.add(alert);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ResponseEntity.ok(Map.of("success", true, "data", lowStockAlerts));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Error fetching low stock alerts: " + e.getMessage()));
         }
     }
 }
