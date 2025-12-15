@@ -62,6 +62,11 @@ public class ReviewServiceImpl implements ReviewService {
     public List<Review> findByUserId(Integer userId) {
         return reviewRepository.findByUserUserId(userId);
     }
+    
+    @Override
+    public List<Review> findByUserIdAndProductId(Integer userId, Integer productId) {
+        return reviewRepository.findByUserUserIdAndProductProductId(userId, productId);
+    }
 
     @Override
     public List<Review> findByRating(int rating) {

@@ -1,5 +1,6 @@
 package za.ac.styling.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,10 +25,12 @@ public class Category {
 
 
     @ManyToOne
+    @JsonIgnore
     private Category parentCategory;
 
 
     @OneToMany(mappedBy = "parentCategory", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Category> subCategory;
 
 

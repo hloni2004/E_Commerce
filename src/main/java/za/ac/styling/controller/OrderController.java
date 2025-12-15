@@ -11,7 +11,6 @@ import za.ac.styling.service.EmailService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -33,22 +32,6 @@ public class OrderController {
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         try {
             Order created = orderService.create(order);
-
-            // Check for low stock items and send alerts
-            if (created.getItems() != null) {
-                for (var item : created.getItems()) {
-                    int currentStock = inventoryService.getAvailableStock(item.getColourSize().getSizeId());
-                    int reorderLevel = item.getColourSize().getReorderLevel();
-
-                    if (currentStock <= reorderLevel) {
-                        emailService.sendLowStockAlert(
-                                item.getProduct(),
-                                item.getColourSize(),
-                                currentStock,
-                                reorderLevel);
-                    }
-                }
-            }
 
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (Exception e) {

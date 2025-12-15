@@ -4,15 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import za.ac.styling.domain.Review;
+import za.ac.styling.domain.ReviewImage;
+import za.ac.styling.domain.Product;
+import za.ac.styling.domain.User;
 import za.ac.styling.repository.OrderRepository;
+import za.ac.styling.repository.ProductRepository;
+import za.ac.styling.repository.UserRepository;
 import za.ac.styling.service.ReviewService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/reviews")
 public class ReviewController {
@@ -21,6 +24,12 @@ public class ReviewController {
     
     @Autowired
     private OrderRepository orderRepository;
+    
+    @Autowired
+    private ProductRepository productRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     public void setReviewService(ReviewService reviewService) {
@@ -28,28 +37,76 @@ public class ReviewController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createReview(@RequestBody Review review) {
+    public ResponseEntity<?> createReview(
+            @RequestParam("userId") Integer userId,
+            @RequestParam("productId") Integer productId,
+            @RequestParam("rating") int rating,
+            @RequestParam("comment") String comment,
+            @RequestParam(value = "images", required = false) MultipartFile[] images) {
         try {
-            // Validate that user has purchased the product
-            if (review.getUser() == null || review.getProduct() == null) {
+            // Validate rating
+            if (rating < 1 || rating > 5) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("success", false, "message", "User and Product are required"));
+                    .body(Map.of("success", false, "message", "Rating must be between 1 and 5"));
             }
             
-            boolean hasPurchased = orderRepository.hasUserPurchasedProduct(
-                review.getUser().getUserId(), 
-                review.getProduct().getProductId()
-            );
+            // Fetch user and product
+            User user = userRepository.findById(userId).orElse(null);
+            Product product = productRepository.findById(productId).orElse(null);
+            
+            if (user == null || product == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "message", "Invalid user or product"));
+            }
+            
+            // Validate that user has purchased the product
+            boolean hasPurchased = orderRepository.hasUserPurchasedProduct(userId, productId);
             
             if (!hasPurchased) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("success", false, "message", "You can only review products you have purchased"));
             }
             
+            // Check if user already reviewed this product
+            List<Review> existingReviews = reviewService.findByUserIdAndProductId(userId, productId);
+            if (!existingReviews.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("success", false, "message", "You have already reviewed this product"));
+            }
+            
+            // Create review
+            Review review = Review.builder()
+                .user(user)
+                .product(product)
+                .productId(productId)
+                .rating(rating)
+                .comment(comment)
+                .reviewDate(new Date())
+                .verified(true)
+                .helpfulCount(0)
+                .build();
+            
+            // Add images if provided
+            if (images != null && images.length > 0) {
+                List<ReviewImage> reviewImages = new ArrayList<>();
+                for (MultipartFile file : images) {
+                    if (!file.isEmpty()) {
+                        ReviewImage reviewImage = ReviewImage.builder()
+                            .review(review)
+                            .imageData(file.getBytes())
+                            .contentType(file.getContentType())
+                            .build();
+                        reviewImages.add(reviewImage);
+                    }
+                }
+                review.setImages(reviewImages);
+            }
+            
             Review created = reviewService.create(review);
             return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("success", true, "data", created));
+                .body(Map.of("success", true, "data", created, "message", "Review submitted successfully"));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error creating review: " + e.getMessage()));
         }

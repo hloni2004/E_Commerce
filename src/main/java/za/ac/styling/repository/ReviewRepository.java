@@ -33,6 +33,11 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
      * Find all reviews by a user by user ID
      */
     List<Review> findByUserUserId(Integer userId);
+    
+    /**
+     * Find reviews by user and product
+     */
+    List<Review> findByUserUserIdAndProductProductId(Integer userId, Integer productId);
 
     /**
      * Find reviews by rating

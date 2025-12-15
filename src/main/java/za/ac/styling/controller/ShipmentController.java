@@ -10,7 +10,6 @@ import za.ac.styling.service.ShipmentService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/shipments")
 public class ShipmentController {

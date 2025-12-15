@@ -14,7 +14,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/checkout")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class CheckoutController {
 
     private final CartRepository cartRepository;

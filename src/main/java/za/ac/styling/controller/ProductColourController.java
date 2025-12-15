@@ -10,7 +10,6 @@ import za.ac.styling.service.ProductColourService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/product-colours")
 public class ProductColourController {

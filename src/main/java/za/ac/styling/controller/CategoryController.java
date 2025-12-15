@@ -10,7 +10,6 @@ import za.ac.styling.service.CategoryService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/categories")
 public class CategoryController {
@@ -66,8 +65,13 @@ public class CategoryController {
     public ResponseEntity<?> getAll() {
         try {
             List<Category> categories = categoryService.getAll();
+            System.out.println("Fetched " + categories.size() + " categories");
+            for (Category cat : categories) {
+                System.out.println("Category: " + cat.getName() + ", ID: " + cat.getCategoryId() + ", Active: " + cat.isActive());
+            }
             return ResponseEntity.ok(Map.of("success", true, "data", categories));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error retrieving categories: " + e.getMessage()));
         }

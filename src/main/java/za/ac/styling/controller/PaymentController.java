@@ -10,7 +10,6 @@ import za.ac.styling.service.PaymentService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {

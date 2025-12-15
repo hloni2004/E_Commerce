@@ -10,7 +10,6 @@ import za.ac.styling.service.ProductImageService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/product-images")
 public class ProductImageController {

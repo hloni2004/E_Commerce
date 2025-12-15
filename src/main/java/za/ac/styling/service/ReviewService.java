@@ -30,6 +30,11 @@ public interface ReviewService extends IService<Review, Integer> {
      * Find all reviews by a user ID
      */
     List<Review> findByUserId(Integer userId);
+    
+    /**
+     * Find reviews by user and product
+     */
+    List<Review> findByUserIdAndProductId(Integer userId, Integer productId);
 
     /**
      * Find reviews by rating

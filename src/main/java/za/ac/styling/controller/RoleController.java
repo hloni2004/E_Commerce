@@ -10,7 +10,6 @@ import za.ac.styling.service.RoleService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/roles")
 public class RoleController {

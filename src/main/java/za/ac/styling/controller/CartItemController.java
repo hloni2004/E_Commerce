@@ -10,7 +10,6 @@ import za.ac.styling.service.CartItemService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/cart-items")
 public class CartItemController {

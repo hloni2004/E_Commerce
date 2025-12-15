@@ -10,7 +10,6 @@ import za.ac.styling.service.ProductColourSizeService;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/product-colour-sizes")
 public class ProductColourSizeController {
