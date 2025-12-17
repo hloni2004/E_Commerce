@@ -13,6 +13,7 @@ import za.ac.styling.repository.OrderRepository;
 import za.ac.styling.repository.ProductRepository;
 import za.ac.styling.repository.UserRepository;
 import za.ac.styling.service.ReviewService;
+import za.ac.styling.service.SupabaseStorageService;
 
 import java.util.*;
 
@@ -30,6 +31,9 @@ public class ReviewController {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private SupabaseStorageService supabaseStorageService;
 
     @Autowired
     public void setReviewService(ReviewService reviewService) {
@@ -86,23 +90,39 @@ public class ReviewController {
                 .helpfulCount(0)
                 .build();
             
-            // Add images if provided
+            // Save review first to get the ID
+            Review created = reviewService.create(review);
+            
+            // Add images if provided (upload to Supabase)
             if (images != null && images.length > 0) {
                 List<ReviewImage> reviewImages = new ArrayList<>();
                 for (MultipartFile file : images) {
                     if (!file.isEmpty()) {
-                        ReviewImage reviewImage = ReviewImage.builder()
-                            .review(review)
-                            .imageData(file.getBytes())
-                            .contentType(file.getContentType())
-                            .build();
-                        reviewImages.add(reviewImage);
+                        try {
+                            // Upload to Supabase
+                            Integer reviewIdInt = created.getReviewId();
+                            Long reviewId = reviewIdInt != null ? reviewIdInt.longValue() : 0L;
+                            SupabaseStorageService.UploadResult uploadResult = 
+                                supabaseStorageService.uploadReviewImage(file, reviewId);
+                            
+                            ReviewImage reviewImage = ReviewImage.builder()
+                                .review(created)
+                                .supabaseUrl(uploadResult.getUrl())
+                                .bucketPath(uploadResult.getPath())
+                                .contentType(file.getContentType())
+                                .build();
+                            reviewImages.add(reviewImage);
+                        } catch (Exception e) {
+                            System.err.println("Failed to upload review image: " + e.getMessage());
+                            // Continue with other images even if one fails
+                        }
                     }
                 }
-                review.setImages(reviewImages);
+                created.setImages(reviewImages);
+                // Update review with images
+                created = reviewService.update(created);
             }
             
-            Review created = reviewService.create(review);
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("success", true, "data", created, "message", "Review submitted successfully"));
         } catch (Exception e) {

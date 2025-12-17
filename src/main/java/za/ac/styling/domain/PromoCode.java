@@ -34,11 +34,13 @@ public class PromoCode {
 
     private Integer usageLimit; // Max number of times the promo can be used (null = unlimited)
     
+    @Builder.Default
     @Column(nullable = false)
     private Integer currentUsage = 0; // Track how many times it has been used
 
     private Double minPurchaseAmount; // Minimum cart total required (null = no minimum)
 
+    @Builder.Default
     @Column(nullable = false)
     private boolean isActive = true; // Admin can enable/disable
 

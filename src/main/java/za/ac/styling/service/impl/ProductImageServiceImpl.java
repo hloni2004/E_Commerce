@@ -96,6 +96,15 @@ public class ProductImageServiceImpl implements ProductImageService {
         }
         return null;
     }
+    
+    @Override
+    public int getMaxDisplayOrder(Integer productId) {
+        List<ProductImage> images = findByProductId(productId);
+        return images.stream()
+            .mapToInt(ProductImage::getDisplayOrder)
+            .max()
+            .orElse(0);
+    }
 
     @Override
     public void delete(Long id) {

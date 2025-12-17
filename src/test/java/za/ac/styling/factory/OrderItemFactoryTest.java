@@ -75,10 +75,9 @@ class OrderItemFactoryTest {
         assertEquals(testOrder, orderItem.getOrder());
         assertEquals(testProduct, orderItem.getProduct());
         assertEquals(testColour, orderItem.getColour());
-        assertEquals(testSize, orderItem.getSize());
+        assertEquals(testSize, orderItem.getColourSize());
         assertEquals(2, orderItem.getQuantity());
-        assertEquals(29.99, orderItem.getUnitPrice());
-        assertEquals(29.99, orderItem.getPriceAtPurchase());
+        assertEquals(29.99, orderItem.getPrice());
         assertEquals(59.98, orderItem.getTotalPrice(), 0.01);
     }
 
@@ -129,8 +128,7 @@ class OrderItemFactoryTest {
                 testColour, testSize, 2);
 
         // Assert
-        assertEquals(testProduct.getBasePrice(), orderItem.getUnitPrice());
-        assertEquals(testProduct.getBasePrice(), orderItem.getPriceAtPurchase());
+        assertEquals(testProduct.getBasePrice(), orderItem.getPrice());
     }
 
     @Test
@@ -143,9 +141,9 @@ class OrderItemFactoryTest {
         assertEquals(testOrder, orderItem.getOrder());
         assertEquals(testCartItem.getProduct(), orderItem.getProduct());
         assertEquals(testCartItem.getColour(), orderItem.getColour());
-        assertEquals(testCartItem.getSize(), orderItem.getSize());
+        assertEquals(testCartItem.getSize(), orderItem.getColourSize());
         assertEquals(testCartItem.getQuantity(), orderItem.getQuantity());
-        assertEquals(testProduct.getBasePrice(), orderItem.getUnitPrice());
+        assertEquals(testProduct.getBasePrice(), orderItem.getPrice());
     }
 
     @Test

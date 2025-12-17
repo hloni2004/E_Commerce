@@ -1,11 +1,9 @@
 package za.ac.styling.domain;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.*;
-import java.util.Base64;
 
 @Entity
 @Data
@@ -13,7 +11,7 @@ import java.util.Base64;
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode(exclude = {"product"})
-@ToString(exclude = {"product", "imageData"})
+@ToString(exclude = {"product"})
 public class ProductImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,22 +22,43 @@ public class ProductImage {
     @JsonIgnore  // Prevent circular reference
     private Product product;
 
+    // SUPABASE STORAGE FIELDS
+    @Column(length = 500)
+    private String supabaseUrl;  // Full public URL to image in Supabase
+    
+    @Column(length = 300)
+    private String bucketPath;   // Path in Supabase bucket (for deletion)
+    
+    // LEGACY BLOB SUPPORT (for backward compatibility during migration)
     @Lob
-    @Column(columnDefinition = "LONGBLOB")
-    @JsonIgnore  // Don't serialize blob data directly
-    private byte[] imageData;
+    @JsonIgnore
+    private byte[] imageData;    // Will be phased out - PostgreSQL uses BYTEA
     
-    @JsonGetter("imageData")
-    public String getImageDataAsBase64() {
-        if (imageData != null && imageData.length > 0) {
-            return "data:" + (contentType != null ? contentType : "image/jpeg") + ";base64," + Base64.getEncoder().encodeToString(imageData);
-        }
-        return null;
-    }
-    
-    private String imageUrl;  // Keep for backward compatibility
+    // COMMON FIELDS
+    private String imageUrl;     // Computed property: returns supabaseUrl or legacy URL
     private String contentType;  // e.g., "image/jpeg", "image/png"
     private String altText;
     private int displayOrder;
     private boolean isPrimary;
+    
+    /**
+     * Get the image URL (prioritizes Supabase URL)
+     */
+    public String getImageUrl() {
+        return supabaseUrl != null ? supabaseUrl : imageUrl;
+    }
+    
+    /**
+     * Check if this image is stored in Supabase
+     */
+    public boolean isSupabaseImage() {
+        return supabaseUrl != null && !supabaseUrl.isEmpty();
+    }
+    
+    /**
+     * Check if this image is stored as BLOB (legacy)
+     */
+    public boolean isBlobImage() {
+        return imageData != null && imageData.length > 0;
+    }
 }

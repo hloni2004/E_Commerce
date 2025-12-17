@@ -38,7 +38,7 @@ public class Product {
     private List<ProductImage> images;
 
     @OneToOne
-    @JoinColumn(name = "primary_image_id")
+    @JoinColumn(name = "primary_image_id", nullable = true)
     private ProductImage primaryImage;
 
     private boolean isActive;

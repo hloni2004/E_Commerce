@@ -50,12 +50,19 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- MySQL driver (optional) -->
+        <!-- PostgreSQL driver for Supabase -->
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <!-- MySQL driver (optional - only if migrating from MySQL) -->
+        <!-- <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <scope>runtime</scope>
-        </dependency>
+        </dependency> -->
 
         <!-- LOMBOK FOR AUTO GETTERS/SETTERS -->
         <dependency>
@@ -74,6 +81,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <!-- SUPABASE STORAGE - HTTP CLIENT -->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.12.0</version>
         </dependency>
 
         <!-- TESTING -->

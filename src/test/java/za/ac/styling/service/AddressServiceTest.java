@@ -65,7 +65,7 @@ class AddressServiceTest {
         Address created = addressService.create(testAddress);
         assertNotNull(created);
         assertNotNull(created.getAddressId());
-        assertEquals("123 Main St", created.getStreet());
+        assertEquals("123 Main St", created.getAddressLine1());
     }
 
     @Test

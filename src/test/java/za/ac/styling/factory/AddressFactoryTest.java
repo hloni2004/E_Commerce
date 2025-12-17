@@ -45,10 +45,10 @@ class AddressFactoryTest {
 
         // Assert
         assertNotNull(address);
-        assertEquals(street, address.getStreet());
+        assertEquals(street, address.getAddressLine1());
         assertEquals(city, address.getCity());
-        assertEquals(state, address.getState());
-        assertEquals(zipCode, address.getZipCode());
+        assertEquals(state, address.getProvince());
+        assertEquals(zipCode, address.getPostalCode());
         assertEquals(country, address.getCountry());
         assertEquals(AddressType.SHIPPING, address.getAddressType());
         assertEquals(testUser, address.getUser());

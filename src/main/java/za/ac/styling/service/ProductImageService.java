@@ -45,4 +45,9 @@ public interface ProductImageService extends IService<ProductImage, Long> {
      * Update display order
      */
     ProductImage updateDisplayOrder(Long imageId, int newDisplayOrder);
+    
+    /**
+     * Get maximum display order for a product
+     */
+    int getMaxDisplayOrder(Integer productId);
 }

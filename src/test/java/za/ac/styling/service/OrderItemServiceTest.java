@@ -98,8 +98,7 @@ class OrderItemServiceTest {
                 .order(testOrder)
                 .product(testProduct)
                 .quantity(2)
-                .unitPrice(999.99)
-                .priceAtPurchase(999.99)
+                .price(999.99)
                 .totalPrice(1999.98)
                 .build();
     }
@@ -187,8 +186,7 @@ class OrderItemServiceTest {
                 .order(testOrder)
                 .product(testProduct)
                 .quantity(1)
-                .unitPrice(50.0)
-                .priceAtPurchase(50.0)
+                .price(50.0)
                 .totalPrice(50.0)
                 .build();
         OrderItem created2 = orderItemService.create(item2);
