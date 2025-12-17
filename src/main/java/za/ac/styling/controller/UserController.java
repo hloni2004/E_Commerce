@@ -1,6 +1,7 @@
 package za.ac.styling.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import za.ac.styling.dto.LoginRequest;
 import za.ac.styling.dto.RegisterRequest;
 import za.ac.styling.dto.UserResponse;
 import za.ac.styling.service.UserService;
+import za.ac.styling.service.PasswordResetService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -32,6 +34,12 @@ public class UserController {
 
     @Autowired
     private za.ac.styling.repository.AddressRepository addressRepository;
+
+    @Autowired
+    private PasswordResetService passwordResetService;
+
+    @Value("${app.frontend.url:http://localhost:5173}")
+    private String frontendUrl;
 
     @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
@@ -344,4 +352,128 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String email = request.get("email");
+            
+            if (email == null || email.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Email is required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Create and send password reset token
+            String token = passwordResetService.createPasswordResetToken(email, frontendUrl);
+
+            // Always return success to prevent email enumeration
+            response.put("success", true);
+            response.put("message", "If an account exists with this email, a password reset link has been sent. Check the server console for the reset link.");
+            
+            // FOR DEVELOPMENT: Include token in response
+            if (token != null) {
+                response.put("token", token);
+            }
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error processing password reset request: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @GetMapping("/validate-reset-token/{token}")
+    public ResponseEntity<?> validateResetToken(@PathVariable String token) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            boolean isValid = passwordResetService.validateToken(token);
+            
+            if (isValid) {
+                response.put("success", true);
+                response.put("message", "Token is valid");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Invalid or expired reset token");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error validating token");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String token = request.get("token");
+            String newPassword = request.get("newPassword");
+            
+            if (token == null || newPassword == null) {
+                response.put("success", false);
+                response.put("message", "Token and new password are required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            if (newPassword.length() < 8) {
+                response.put("success", false);
+                response.put("message", "Password must be at least 8 characters");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            boolean success = passwordResetService.resetPassword(token, newPassword);
+            
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Password has been reset successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Invalid or expired reset token, or OTP not verified");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error resetting password: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<?> verifyResetOTP(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String token = request.get("token");
+            String otpCode = request.get("otpCode");
+            
+            if (token == null || otpCode == null) {
+                response.put("success", false);
+                response.put("message", "Token and OTP code are required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            boolean verified = passwordResetService.verifyOTP(token, otpCode);
+            
+            if (verified) {
+                response.put("success", true);
+                response.put("message", "OTP verified successfully");
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Invalid or expired OTP code");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Error verifying OTP: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 }
+

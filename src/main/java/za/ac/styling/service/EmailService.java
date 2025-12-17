@@ -419,4 +419,245 @@ public class EmailService {
 
         return html.toString();
     }
+
+    /**
+     * Send password reset email with OTP
+     */
+    public void sendPasswordResetEmailWithOTP(String to, String resetLink, String userName, String otpCode) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom("hloniyacho@gmail.com", "MAISON LUXE");
+            helper.setReplyTo("hloniyacho@gmail.com");
+            helper.setTo(to);
+            helper.setSubject("Password Reset Request - MAISON LUXE");
+            helper.setText(buildPasswordResetEmailWithOTP(resetLink, userName, otpCode), true);
+            
+            mailSender.send(message);
+            System.out.println("Password reset email with OTP sent successfully to: " + to);
+        } catch (Exception e) {
+            System.err.println("Failed to send password reset email: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send password reset email", e);
+        }
+    }
+
+    private String buildPasswordResetEmailWithOTP(String resetLink, String userName, String otpCode) {
+        StringBuilder html = new StringBuilder();
+        
+        html.append("<!DOCTYPE html>");
+        html.append("<html>");
+        html.append("<head>");
+        html.append("<style>");
+        html.append("body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }");
+        html.append(".container { max-width: 600px; margin: 0 auto; padding: 20px; }");
+        html.append(".header { background-color: #000; color: #fff; padding: 20px; text-align: center; }");
+        html.append(".header h1 { margin: 0; font-size: 24px; letter-spacing: 0.2em; }");
+        html.append(".content { padding: 30px; background-color: #f9f9f9; }");
+        html.append(".otp-box { ");
+        html.append("  background-color: #000; ");
+        html.append("  color: #fff; ");
+        html.append("  font-size: 32px; ");
+        html.append("  font-weight: bold; ");
+        html.append("  padding: 20px; ");
+        html.append("  text-align: center; ");
+        html.append("  letter-spacing: 8px; ");
+        html.append("  border-radius: 8px; ");
+        html.append("  margin: 20px 0; ");
+        html.append("}");
+        html.append(".button { ");
+        html.append("  display: inline-block; ");
+        html.append("  padding: 14px 40px; ");
+        html.append("  background-color: #000; ");
+        html.append("  color: #fff; ");
+        html.append("  text-decoration: none; ");
+        html.append("  border-radius: 4px; ");
+        html.append("  margin: 20px 0; ");
+        html.append("  font-weight: bold; ");
+        html.append("}");
+        html.append(".button:hover { background-color: #333; }");
+        html.append(".footer { ");
+        html.append("  padding: 20px; ");
+        html.append("  text-align: center; ");
+        html.append("  font-size: 12px; ");
+        html.append("  color: #666; ");
+        html.append("  border-top: 1px solid #ddd; ");
+        html.append("}");
+        html.append(".warning { ");
+        html.append("  background-color: #fff3cd; ");
+        html.append("  border-left: 4px solid #ffc107; ");
+        html.append("  padding: 12px; ");
+        html.append("  margin: 20px 0; ");
+        html.append("}");
+        html.append(".info { ");
+        html.append("  background-color: #d1ecf1; ");
+        html.append("  border-left: 4px solid #0c5460; ");
+        html.append("  padding: 12px; ");
+        html.append("  margin: 20px 0; ");
+        html.append("}");
+        html.append("</style>");
+        html.append("</head>");
+        html.append("<body>");
+        html.append("<div class='container'>");
+        
+        // Header
+        html.append("<div class='header'>");
+        html.append("<h1>MAISON LUXE</h1>");
+        html.append("</div>");
+        
+        // Content
+        html.append("<div class='content'>");
+        html.append("<h2 style='color: #000;'>Password Reset Request</h2>");
+        html.append("<p>Hello ").append(userName).append(",</p>");
+        html.append("<p>We received a request to reset your password for your MAISON LUXE account.</p>");
+        
+        // OTP Code
+        html.append("<div class='info'>");
+        html.append("<strong>🔐 Your Verification Code:</strong>");
+        html.append("</div>");
+        html.append("<div class='otp-box'>");
+        html.append(otpCode);
+        html.append("</div>");
+        html.append("<p style='text-align: center; font-size: 14px; color: #666;'>");
+        html.append("Enter this code on the password reset page to verify your identity");
+        html.append("</p>");
+        
+        html.append("<p>Click the button below to open the password reset page:</p>");
+        html.append("<p style='text-align: center;'>");
+        html.append("<a href='").append(resetLink).append("' class='button'>Reset Password</a>");
+        html.append("</p>");
+        html.append("<p>Or copy and paste this link into your browser:</p>");
+        html.append("<p style='word-break: break-all; color: #666; font-size: 12px; background: #fff; padding: 10px; border-radius: 4px;'>");
+        html.append(resetLink);
+        html.append("</p>");
+        
+        // Warning
+        html.append("<div class='warning'>");
+        html.append("<strong>⏱️ This code and link will expire in 1 hour.</strong>");
+        html.append("</div>");
+        
+        html.append("<p><strong>Security Note:</strong> Never share this verification code with anyone. MAISON LUXE will never ask you for this code.</p>");
+        html.append("<p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>");
+        html.append("<p style='margin-top: 30px;'>Best regards,<br><strong>The MAISON LUXE Team</strong></p>");
+        html.append("</div>");
+        
+        // Footer
+        html.append("<div class='footer'>");
+        html.append("<p>This is an automated email. Please do not reply to this message.</p>");
+        html.append("<p>&copy; 2025 MAISON LUXE. All rights reserved.</p>");
+        html.append("</div>");
+        
+        html.append("</div>");
+        html.append("</body>");
+        html.append("</html>");
+        
+        return html.toString();
+    }
+
+    /**
+     * Send password reset email
+     */
+    public void sendPasswordResetEmail(String to, String resetLink, String userName) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom("hloniyacho@gmail.com", "MAISON LUXE");
+            helper.setReplyTo("hloniyacho@gmail.com");
+            helper.setTo(to);
+            helper.setSubject("Password Reset Request - MAISON LUXE");
+            helper.setText(buildPasswordResetEmail(resetLink, userName), true);
+            
+            mailSender.send(message);
+            System.out.println("Password reset email sent successfully to: " + to);
+        } catch (Exception e) {
+            System.err.println("Failed to send password reset email: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send password reset email", e);
+        }
+    }
+
+    private String buildPasswordResetEmail(String resetLink, String userName) {
+        StringBuilder html = new StringBuilder();
+        
+        html.append("<!DOCTYPE html>");
+        html.append("<html>");
+        html.append("<head>");
+        html.append("<style>");
+        html.append("body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }");
+        html.append(".container { max-width: 600px; margin: 0 auto; padding: 20px; }");
+        html.append(".header { background-color: #000; color: #fff; padding: 20px; text-align: center; }");
+        html.append(".header h1 { margin: 0; font-size: 24px; letter-spacing: 0.2em; }");
+        html.append(".content { padding: 30px; background-color: #f9f9f9; }");
+        html.append(".button { ");
+        html.append("  display: inline-block; ");
+        html.append("  padding: 14px 40px; ");
+        html.append("  background-color: #000; ");
+        html.append("  color: #fff; ");
+        html.append("  text-decoration: none; ");
+        html.append("  border-radius: 4px; ");
+        html.append("  margin: 20px 0; ");
+        html.append("  font-weight: bold; ");
+        html.append("}");
+        html.append(".button:hover { background-color: #333; }");
+        html.append(".footer { ");
+        html.append("  padding: 20px; ");
+        html.append("  text-align: center; ");
+        html.append("  font-size: 12px; ");
+        html.append("  color: #666; ");
+        html.append("  border-top: 1px solid #ddd; ");
+        html.append("}");
+        html.append(".warning { ");
+        html.append("  background-color: #fff3cd; ");
+        html.append("  border-left: 4px solid #ffc107; ");
+        html.append("  padding: 12px; ");
+        html.append("  margin: 20px 0; ");
+        html.append("}");
+        html.append("</style>");
+        html.append("</head>");
+        html.append("<body>");
+        html.append("<div class='container'>");
+        
+        // Header
+        html.append("<div class='header'>");
+        html.append("<h1>MAISON LUXE</h1>");
+        html.append("</div>");
+        
+        // Content
+        html.append("<div class='content'>");
+        html.append("<h2 style='color: #000;'>Password Reset Request</h2>");
+        html.append("<p>Hello ").append(userName).append(",</p>");
+        html.append("<p>We received a request to reset your password for your MAISON LUXE account.</p>");
+        html.append("<p>Click the button below to create a new password:</p>");
+        html.append("<p style='text-align: center;'>");
+        html.append("<a href='").append(resetLink).append("' class='button'>Reset Password</a>");
+        html.append("</p>");
+        html.append("<p>Or copy and paste this link into your browser:</p>");
+        html.append("<p style='word-break: break-all; color: #666; font-size: 12px; background: #fff; padding: 10px; border-radius: 4px;'>");
+        html.append(resetLink);
+        html.append("</p>");
+        
+        // Warning
+        html.append("<div class='warning'>");
+        html.append("<strong>⏱️ This link will expire in 1 hour.</strong>");
+        html.append("</div>");
+        
+        html.append("<p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>");
+        html.append("<p style='margin-top: 30px;'>Best regards,<br><strong>The MAISON LUXE Team</strong></p>");
+        html.append("</div>");
+        
+        // Footer
+        html.append("<div class='footer'>");
+        html.append("<p>This is an automated email. Please do not reply to this message.</p>");
+        html.append("<p>&copy; 2025 MAISON LUXE. All rights reserved.</p>");
+        html.append("</div>");
+        
+        html.append("</div>");
+        html.append("</body>");
+        html.append("</html>");
+        
+        return html.toString();
+    }
 }
+
