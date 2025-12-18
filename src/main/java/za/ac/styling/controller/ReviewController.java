@@ -22,6 +22,9 @@ import java.util.*;
 public class ReviewController {
 
     private ReviewService reviewService;
+    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+    private static final int MAX_IMAGES = 5;
+    private static final List<String> ALLOWED_CONTENT_TYPES = List.of("image/jpeg", "image/png", "image/webp");
     
     @Autowired
     private OrderRepository orderRepository;
@@ -95,32 +98,53 @@ public class ReviewController {
             
             // Add images if provided (upload to Supabase)
             if (images != null && images.length > 0) {
+                // Basic validation
+                if (images.length > MAX_IMAGES) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("success", false, "message", "Maximum " + MAX_IMAGES + " images allowed"));
+                }
+
                 List<ReviewImage> reviewImages = new ArrayList<>();
                 for (MultipartFile file : images) {
-                    if (!file.isEmpty()) {
-                        try {
-                            // Upload to Supabase
-                            Integer reviewIdInt = created.getReviewId();
-                            Long reviewId = reviewIdInt != null ? reviewIdInt.longValue() : 0L;
-                            SupabaseStorageService.UploadResult uploadResult = 
-                                supabaseStorageService.uploadReviewImage(file, reviewId);
-                            
-                            ReviewImage reviewImage = ReviewImage.builder()
-                                .review(created)
-                                .supabaseUrl(uploadResult.getUrl())
-                                .bucketPath(uploadResult.getPath())
-                                .contentType(file.getContentType())
-                                .build();
-                            reviewImages.add(reviewImage);
-                        } catch (Exception e) {
-                            System.err.println("Failed to upload review image: " + e.getMessage());
-                            // Continue with other images even if one fails
-                        }
+                    if (file.isEmpty()) continue;
+
+                    // Check size
+                    if (file.getSize() > MAX_IMAGE_SIZE) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(Map.of("success", false, "message", "Image size must be <= 5 MB"));
+                    }
+
+                    // Check content type
+                    String ct = file.getContentType();
+                    if (ct == null || !ALLOWED_CONTENT_TYPES.contains(ct.toLowerCase())) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                            .body(Map.of("success", false, "message", "Unsupported image type: " + ct));
+                    }
+
+                    try {
+                        // Upload to Supabase
+                        Integer reviewIdInt = created.getReviewId();
+                        Long reviewId = reviewIdInt != null ? reviewIdInt.longValue() : 0L;
+                        SupabaseStorageService.UploadResult uploadResult = 
+                            supabaseStorageService.uploadReviewImage(file, reviewId);
+                        
+                        ReviewImage reviewImage = ReviewImage.builder()
+                            .review(created)
+                            .supabaseUrl(uploadResult.getUrl())
+                            .bucketPath(uploadResult.getPath())
+                            .contentType(ct)
+                            .build();
+                        reviewImages.add(reviewImage);
+                    } catch (Exception e) {
+                        System.err.println("Failed to upload review image: " + e.getMessage());
+                        // Continue with other images even if one fails
                     }
                 }
-                created.setImages(reviewImages);
-                // Update review with images
-                created = reviewService.update(created);
+                if (!reviewImages.isEmpty()) {
+                    created.setImages(reviewImages);
+                    // Update review with images
+                    created = reviewService.update(created);
+                }
             }
             
             return ResponseEntity.status(HttpStatus.CREATED)

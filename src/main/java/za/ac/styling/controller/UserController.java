@@ -38,6 +38,9 @@ public class UserController {
     @Autowired
     private PasswordResetService passwordResetService;
 
+    @Autowired
+    private za.ac.styling.security.JwtUtil jwtUtil;
+
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
@@ -146,7 +149,28 @@ public class UserController {
                 .isActive(user.isActive())
                 .build();
 
-            return ResponseEntity.ok(userResponse);
+            // Generate tokens and set HttpOnly cookies
+            String subject = String.valueOf(user.getUserId());
+            String accessToken = jwtUtil.generateAccessToken(subject);
+            String refreshToken = jwtUtil.generateRefreshToken(subject);
+
+            var accessCookie = org.springframework.http.ResponseCookie.from("access_token", accessToken)
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(900) // 15 minutes
+                .sameSite("Lax")
+                .build();
+
+            var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", refreshToken)
+                .httpOnly(true)
+                .secure(false)
+                .path("/api/users/refresh")
+                .maxAge(7 * 24 * 60 * 60) // 7 days
+                .sameSite("Lax")
+                .build();
+
+            return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString()).header("Set-Cookie", refreshCookie.toString()).body(userResponse);
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Login error: " + e.getMessage());
@@ -246,6 +270,43 @@ public class UserController {
             response.put("message", "Registration error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
+        if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "Invalid refresh token"));
+        }
+        String subject = jwtUtil.getSubject(refreshToken);
+        String newAccess = jwtUtil.generateAccessToken(subject);
+        String newRefresh = jwtUtil.generateRefreshToken(subject); // rotation - in production also revoke old
+
+        var accessCookie = org.springframework.http.ResponseCookie.from("access_token", newAccess)
+            .httpOnly(true)
+            .secure(false)
+            .path("/")
+            .maxAge(900) // 15 minutes
+            .sameSite("Lax")
+            .build();
+
+        var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", newRefresh)
+            .httpOnly(true)
+            .secure(false)
+            .path("/api/users/refresh")
+            .maxAge(7 * 24 * 60 * 60)
+            .sameSite("Lax")
+            .build();
+
+        return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString()).header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        var accessCookie = org.springframework.http.ResponseCookie.from("access_token", "")
+            .httpOnly(true).secure(false).path("/").maxAge(0).sameSite("Lax").build();
+        var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", "")
+            .httpOnly(true).secure(false).path("/api/users/refresh").maxAge(0).sameSite("Lax").build();
+        return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString()).header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true, "message", "Logged out"));
     }
 
     @GetMapping("/email/{email}")
