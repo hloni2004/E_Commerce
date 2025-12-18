@@ -24,10 +24,6 @@ public class ReviewImage {
     
     @Column(length = 300)
     private String bucketPath;   // Path in Supabase bucket (for deletion)
-    
-    // LEGACY BLOB SUPPORT (for backward compatibility during migration)
-    @Lob
-    private byte[] imageData;    // Will be phased out - PostgreSQL uses BYTEA
 
     private String contentType;  // image/jpeg, image/png, etc.
     

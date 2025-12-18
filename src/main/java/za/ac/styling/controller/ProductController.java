@@ -86,18 +86,20 @@ public class ProductController {
                         }
                     }
 
-                    byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-
+                    // TODO: Upload to Supabase Storage instead of storing as BLOB
+                    // For now, skip BLOB storage - images should be uploaded via multipart/form-data
+                    System.out.println("⚠️ Warning: Base64 image upload detected. Please use multipart file upload to Supabase Storage.");
+                    
                     ProductImage image = ProductImage.builder()
                             .product(savedProduct)
-                            .imageData(imageBytes)
                             .contentType(contentType)
                             .altText(savedProduct.getName())
                             .displayOrder(i)
                             .isPrimary(i == 0)
                             .build();
-
-                    images.add(image);
+                    
+                    // Skip adding this image since we don't have Supabase URL
+                    continue;
                 }
                 savedProduct.setImages(images);
 
@@ -157,26 +159,26 @@ public class ProductController {
     }
 
     @GetMapping("/image/{imageId}")
-    public ResponseEntity<byte[]> getProductImage(@PathVariable Long imageId) {
+    public ResponseEntity<?> getProductImage(@PathVariable Long imageId) {
         try {
-            // You'll need to create a method in ProductService to get image by ID
+            // Return Supabase URL instead of BLOB data
             ProductImage image = productService.getImageById(imageId);
-            if (image == null || image.getImageData() == null) {
+            if (image == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            MediaType mediaType = MediaType.IMAGE_JPEG;
-            if ("image/png".equals(image.getContentType())) {
-                mediaType = MediaType.IMAGE_PNG;
-            } else if ("image/webp".equals(image.getContentType())) {
-                mediaType = MediaType.parseMediaType("image/webp");
+            // Images are stored in Supabase Storage - return the URL
+            if (image.getSupabaseUrl() != null) {
+                return ResponseEntity.ok(Map.of(
+                    "imageUrl", image.getSupabaseUrl(),
+                    "contentType", image.getContentType() != null ? image.getContentType() : "image/jpeg"
+                ));
             }
-
-            return ResponseEntity.ok()
-                    .contentType(mediaType)
-                    .body(image.getImageData());
+            
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -258,18 +260,20 @@ public class ProductController {
                             contentType = "image/webp";
                     }
 
-                    byte[] imageBytes = Base64.getDecoder().decode(base64Image);
-
+                    // TODO: Upload to Supabase Storage instead of storing as BLOB
+                    // For now, skip BLOB storage - images should be uploaded via multipart/form-data
+                    System.out.println("⚠️ Warning: Base64 image upload detected. Please use multipart file upload to Supabase Storage.");
+                    
                     ProductImage image = ProductImage.builder()
                             .product(existingProduct)
-                            .imageData(imageBytes)
                             .contentType(contentType)
                             .altText(existingProduct.getName())
                             .displayOrder(currentSize + i)
                             .isPrimary(existingProduct.getImages().isEmpty() && i == 0)
                             .build();
-
-                    existingProduct.getImages().add(image);
+                    
+                    // Skip adding this image since we don't have Supabase URL
+                    continue;
                 }
 
                 // Set primary image

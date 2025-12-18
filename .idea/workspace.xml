@@ -4,23 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="forget password">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="superbase">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_10_2025_9_26_PM_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_12_10_2025_9_26_PM__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ReviewController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ReviewController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/BankTransferPayment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/BankTransferPayment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Category.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CartController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CartController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ProductImageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ProductImageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductColour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductColour.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductColourSize.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductColourSize.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductImage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PromoCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PromoCode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ReviewImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ReviewImage.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/ProductImageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/ProductImageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/ProductImageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/ProductImageServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/repository/CartRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/repository/CartRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/CartServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/CartServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/util/MigrateImagesToSupabase.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/util/MigrateImagesToSupabase.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/factory/AddressFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/factory/AddressFactoryTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/factory/OrderItemFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/factory/OrderItemFactoryTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/AddressServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/AddressServiceTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/OrderItemServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/styling/service/OrderItemServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,12 +45,12 @@
     &quot;assignee&quot;: &quot;hloni2004&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/hloni2004/E_Commerce.git",
-    "accountId": "e319d8a0-3567-4a8a-a17b-95a49f39f88d"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/hloni2004/E_Commerce.git&quot;,
+    &quot;accountId&quot;: &quot;e319d8a0-3567-4a8a-a17b-95a49f39f88d&quot;
   }
-}]]></component>
+}</component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="ProjectErrors" />
   </component>
@@ -66,53 +65,53 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.Main.executor": "Run",
-    "JUnit.AddressFactoryTest.createAddress_WithValidData_ShouldCreateAddress.executor": "Run",
-    "JUnit.AddressServiceTest.executor": "Run",
-    "JUnit.CartItemFactoryTest.executor": "Run",
-    "JUnit.CartItemServiceTest.executor": "Run",
-    "JUnit.CartItemServiceTest.testCreate.executor": "Run",
-    "JUnit.CartServiceTest.executor": "Run",
-    "JUnit.PaymentServiceTest.testCreate.executor": "Run",
-    "JUnit.ProductServiceTest.testCompleteProductWithStockManagement.executor": "Run",
-    "JUnit.ProductServiceTest.testCreate.executor": "Run",
-    "JUnit.ProductServiceTest.testCreateCompleteProductWithAllAspects.executor": "Run",
-    "JUnit.ProductServiceTest.testCreateWithColourAndSize.executor": "Run",
-    "JUnit.ReviewServiceTest.executor": "Run",
-    "JUnit.RoleFactoryTest.executor": "Run",
-    "JUnit.RoleServiceTest.executor": "Run",
-    "JUnit.ShipmentServiceTest.executor": "Run",
-    "JUnit.ShipmentServiceTest.testCreate.executor": "Run",
-    "JUnit.UserFactoryTest.createUser_WithValidData_ShouldCreateUser.executor": "Run",
-    "JUnit.UserServiceTest.executor": "Run",
-    "JUnit.UserServiceTest.testCreate.executor": "Run",
-    "JUnit.UserServiceTest.testRead.executor": "Run",
-    "JUnit.UserServiceTest.testUpdate.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.Main.executor": "Run",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "git-widget-placeholder": "master",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/Lehlohonolo.Mokoena/IdeaProjects/Web/E_Commerce",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "onboarding.tips.debug.path": "C:/Users/Lehlohonolo.Mokoena/IdeaProjects/E-Commerce/src/main/java/za/ac/styling/Main.java",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AddressFactoryTest.createAddress_WithValidData_ShouldCreateAddress.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AddressServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CartItemFactoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CartItemServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CartItemServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CartServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.PaymentServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProductServiceTest.testCompleteProductWithStockManagement.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProductServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProductServiceTest.testCreateCompleteProductWithAllAspects.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ProductServiceTest.testCreateWithColourAndSize.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ReviewServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.RoleFactoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.RoleServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ShipmentServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ShipmentServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserFactoryTest.createUser_WithValidData_ShouldCreateUser.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.testRead.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.testUpdate.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.Main.executor&quot;: &quot;Run&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Lehlohonolo.Mokoena/IdeaProjects/Web/E_Commerce&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/Lehlohonolo.Mokoena/IdeaProjects/E-Commerce/src/main/java/za/ac/styling/Main.java&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
@@ -229,7 +228,8 @@
       <workItem from="1765657549339" duration="2329000" />
       <workItem from="1765718396368" duration="4641000" />
       <workItem from="1765960310813" duration="3000" />
-      <workItem from="1765960415913" duration="13906000" />
+      <workItem from="1765960415913" duration="14297000" />
+      <workItem from="1766041852879" duration="4945000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -335,7 +335,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765971849221</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="superbase">
+      <option name="closed" value="true" />
+      <created>1765980238651</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1765980238651</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -359,7 +367,8 @@
     <MESSAGE value="cart" />
     <MESSAGE value="order" />
     <MESSAGE value="forget password" />
-    <option name="LAST_COMMIT_MESSAGE" value="forget password" />
+    <MESSAGE value="superbase" />
+    <option name="LAST_COMMIT_MESSAGE" value="superbase" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

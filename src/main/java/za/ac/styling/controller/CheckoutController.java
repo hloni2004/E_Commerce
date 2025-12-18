@@ -17,6 +17,7 @@ import java.util.Map;
 public class CheckoutController {
 
     private final CartRepository cartRepository;
+    private final za.ac.styling.service.CartService cartService;
     private final OrderRepository orderRepository;
     private final ShippingMethodRepository shippingMethodRepository;
     private final AddressRepository addressRepository;
@@ -249,15 +250,23 @@ public class CheckoutController {
     @GetMapping("/cart/{userId}")
     public ResponseEntity<?> getCartWithItems(@PathVariable Integer userId) {
         try {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            System.out.println("🛒 Checkout: Fetching cart for user ID: " + userId);
             
-            Cart cart = cartRepository.findByUser(user)
-                    .orElseThrow(() -> new RuntimeException("Cart not found"));
+            // Use cartService which has fetch join to load items
+            Cart cart = cartService.findByUserId(userId)
+                    .orElse(null);
             
+            if (cart == null) {
+                System.out.println("⚠️ No cart found for user " + userId);
+                return ResponseEntity.badRequest().body(Map.of("error", "Cart not found"));
+            }
+            
+            System.out.println("✅ Cart found with " + (cart.getItems() != null ? cart.getItems().size() : 0) + " items");
             return ResponseEntity.ok(cart);
             
         } catch (Exception e) {
+            System.err.println("❌ Error fetching cart: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }

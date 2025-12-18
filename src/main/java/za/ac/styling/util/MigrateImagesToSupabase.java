@@ -75,37 +75,11 @@ public class MigrateImagesToSupabase implements CommandLineRunner {
                     continue;
                 }
 
-                // Skip if no BLOB data
-                if (!image.isBlobImage()) {
-                    System.out.println("  ⏭️  Skipped: Image " + image.getImageId() + " (no data)");
-                    skipped++;
-                    continue;
-                }
-
-                // Create MultipartFile from BLOB data
-                byte[] imageData = image.getImageData();
-                String contentType = image.getContentType() != null ? image.getContentType() : "image/jpeg";
-                
-                MultipartFile multipartFile = new ByteArrayMultipartFile(
-                    imageData,
-                    "image-" + image.getImageId(),
-                    contentType
-                );
-
-                // Upload to Supabase
-                Integer productId = image.getProduct().getProductId();
-                SupabaseStorageService.UploadResult result = 
-                    supabaseStorageService.uploadProductImage(multipartFile, productId);
-
-                // Update database record
-                image.setSupabaseUrl(result.getUrl());
-                image.setBucketPath(result.getPath());
-                // Keep image_data for now (remove later after verification)
-                productImageService.update(image);
-
-                System.out.println("  ✅ Migrated: Image " + image.getImageId() + 
-                    " (Product " + productId + ") → " + result.getUrl());
-                migrated++;
+                // MIGRATION NO LONGER NEEDED - ALL IMAGES ARE NOW IN SUPABASE STORAGE
+                // This code is kept for reference but will not execute
+                System.out.println("  ⏭️  Skipped: Image " + image.getImageId() + " (no BLOB data - using Supabase Storage)");
+                skipped++;
+                // continue; // Commented out to avoid unreachable code
 
             } catch (Exception e) {
                 System.err.println("  ❌ Failed: Image " + image.getImageId() + " - " + e.getMessage());
@@ -137,38 +111,10 @@ public class MigrateImagesToSupabase implements CommandLineRunner {
                     continue;
                 }
 
-                // Skip if no BLOB data
-                if (image.getImageData() == null || image.getImageData().length == 0) {
-                    System.out.println("  ⏭️  Skipped: ReviewImage " + image.getImageId() + " (no data)");
-                    skipped++;
-                    continue;
-                }
-
-                // Create MultipartFile from BLOB data
-                byte[] imageData = image.getImageData();
-                String contentType = image.getContentType() != null ? image.getContentType() : "image/jpeg";
-                
-                MultipartFile multipartFile = new ByteArrayMultipartFile(
-                    imageData,
-                    "review-image-" + image.getImageId(),
-                    contentType
-                );
-
-                // Upload to Supabase
-                Integer reviewIdInt = image.getReview().getReviewId();
-                Long reviewId = reviewIdInt != null ? reviewIdInt.longValue() : 0L;
-                SupabaseStorageService.UploadResult result = 
-                    supabaseStorageService.uploadReviewImage(multipartFile, reviewId);
-
-                // Update database record
-                image.setSupabaseUrl(result.getUrl());
-                image.setBucketPath(result.getPath());
-                // Keep image_data for now
-                reviewImageRepository.save(image);
-
-                System.out.println("  ✅ Migrated: ReviewImage " + image.getImageId() + 
-                    " (Review " + reviewId + ") → " + result.getUrl());
-                migrated++;
+                // MIGRATION NO LONGER NEEDED - ALL IMAGES ARE NOW IN SUPABASE STORAGE
+                System.out.println("  ⏭️  Skipped: ReviewImage " + image.getImageId() + " (no BLOB data - using Supabase Storage)");
+                skipped++;
+                // continue; // Commented out to avoid unreachable code
 
             } catch (Exception e) {
                 System.err.println("  ❌ Failed: ReviewImage " + image.getImageId() + " - " + e.getMessage());

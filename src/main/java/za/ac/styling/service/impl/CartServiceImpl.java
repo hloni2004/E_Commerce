@@ -52,7 +52,8 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Optional<Cart> findByUserId(Integer userId) {
-        return cartRepository.findByUserUserId(userId);
+        // Use fetch join query to eagerly load items
+        return cartRepository.findByUserUserIdWithItems(userId);
     }
 
     @Override

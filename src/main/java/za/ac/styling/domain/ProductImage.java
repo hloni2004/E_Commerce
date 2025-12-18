@@ -29,11 +29,6 @@ public class ProductImage {
     @Column(length = 300)
     private String bucketPath;   // Path in Supabase bucket (for deletion)
     
-    // LEGACY BLOB SUPPORT (for backward compatibility during migration)
-    @Lob
-    @JsonIgnore
-    private byte[] imageData;    // Will be phased out - PostgreSQL uses BYTEA
-    
     // COMMON FIELDS
     private String imageUrl;     // Computed property: returns supabaseUrl or legacy URL
     private String contentType;  // e.g., "image/jpeg", "image/png"
@@ -53,12 +48,5 @@ public class ProductImage {
      */
     public boolean isSupabaseImage() {
         return supabaseUrl != null && !supabaseUrl.isEmpty();
-    }
-    
-    /**
-     * Check if this image is stored as BLOB (legacy)
-     */
-    public boolean isBlobImage() {
-        return imageData != null && imageData.length > 0;
     }
 }
