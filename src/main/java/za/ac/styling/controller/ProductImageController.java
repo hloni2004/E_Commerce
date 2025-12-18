@@ -10,7 +10,7 @@ import za.ac.styling.domain.ProductImage;
 import za.ac.styling.service.ProductImageService;
 import za.ac.styling.service.ProductService;
 import za.ac.styling.service.SupabaseStorageService;
-
+import za.ac.styling.factory.ProductImageFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,32 +56,38 @@ public class ProductImageController {
             }
 
             List<ProductImage> uploadedImages = new ArrayList<>();
+            // Determine if a primary image already exists.
+            boolean primaryImageExists = product.getPrimaryImage() != null;
             int displayOrder = product.getImages() != null ? product.getImages().size() : 0;
 
-            for (MultipartFile file : files) {
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
                 // Upload to Supabase Storage
                 SupabaseStorageService.UploadResult result = 
                     supabaseStorageService.uploadProductImage(file, productId);
 
-                // Create ProductImage entity
-                ProductImage image = ProductImage.builder()
-                        .product(product)
-                        .supabaseUrl(result.getUrl())
-                        .bucketPath(result.getPath())
-                        .contentType(file.getContentType())
-                        .altText(product.getName())
-                        .displayOrder(displayOrder++)
-                        .isPrimary(product.getImages() == null || product.getImages().isEmpty())
-                        .build();
+                // The first image in the batch is primary only if no primary image already exists.
+                boolean isPrimary = !primaryImageExists && i == 0;
+
+                // Create ProductImage entity with correct Supabase URL and bucket path
+                ProductImage image = ProductImageFactory.createProductImage(
+                        product,
+                        null, // legacy imageUrl (not used)
+                        result.getUrl(), // supabaseUrl
+                        result.getPath(), // bucketPath
+                        product.getName(),
+                        displayOrder++,
+                        isPrimary
+                );
 
                 ProductImage saved = productImageService.create(image);
                 uploadedImages.add(saved);
-                
+
                 System.out.println("✅ Uploaded: " + result.getUrl());
             }
 
-            // Set first image as primary if no primary exists
-            if (product.getPrimaryImage() == null && !uploadedImages.isEmpty()) {
+            // Set first image as primary if it wasn't set before.
+            if (!primaryImageExists && !uploadedImages.isEmpty()) {
                 product.setPrimaryImage(uploadedImages.get(0));
                 productService.update(product);
             }

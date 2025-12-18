@@ -12,8 +12,8 @@ public class ProductImageFactory {
     /**
      * Creates a new ProductImage with all information
      */
-    public static ProductImage createProductImage(Product product, String imageUrl, 
-                                                  String altText, int displayOrder, 
+    public static ProductImage createProductImage(Product product, String imageUrl, String supabaseUrl, String bucketPath,
+                                                  String altText, int displayOrder,
                                                   boolean isPrimary) {
 
         // Validate input data
@@ -21,9 +21,10 @@ public class ProductImageFactory {
             throw new IllegalArgumentException("Product is required");
         }
 
-        if (ValidationHelper.isNullOrEmpty(imageUrl)) {
-            throw new IllegalArgumentException("Image URL cannot be empty");
+        if (ValidationHelper.isNullOrEmpty(imageUrl) && ValidationHelper.isNullOrEmpty(supabaseUrl)) {
+            throw new IllegalArgumentException("Either Image URL or Supabase URL must be provided");
         }
+
 
         if (displayOrder < 0) {
             throw new IllegalArgumentException("Display order cannot be negative");
@@ -32,6 +33,8 @@ public class ProductImageFactory {
         return ProductImage.builder()
                 .product(product)
                 .imageUrl(imageUrl)
+                .supabaseUrl(supabaseUrl)
+                .bucketPath(bucketPath)
                 .altText(altText != null ? altText : product.getName())
                 .displayOrder(displayOrder)
                 .isPrimary(isPrimary)
@@ -42,23 +45,23 @@ public class ProductImageFactory {
      * Creates a new ProductImage with default values
      */
     public static ProductImage createProductImage(Product product, String imageUrl) {
-        return createProductImage(product, imageUrl, null, 0, false);
+        return createProductImage(product, imageUrl, null, null, null, 0, false);
     }
 
     /**
      * Creates a primary ProductImage
      */
-    public static ProductImage createPrimaryProductImage(Product product, String imageUrl, 
+    public static ProductImage createPrimaryProductImage(Product product, String imageUrl,
                                                         String altText) {
-        return createProductImage(product, imageUrl, altText, 0, true);
+        return createProductImage(product, imageUrl, null, null, altText, 0, true);
     }
 
     /**
      * Creates a secondary ProductImage with specified display order
      */
-    public static ProductImage createSecondaryProductImage(Product product, String imageUrl, 
+    public static ProductImage createSecondaryProductImage(Product product, String imageUrl,
                                                           String altText, int displayOrder) {
-        return createProductImage(product, imageUrl, altText, displayOrder, false);
+        return createProductImage(product, imageUrl, null, null, altText, displayOrder, false);
     }
 
     /**
