@@ -3,6 +3,7 @@ package za.ac.styling.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import za.ac.styling.domain.Cart;
 import za.ac.styling.service.CartService;
@@ -131,6 +132,7 @@ public class CartController {
     }
 
     @PostMapping("/add-item")
+    @Transactional
     public ResponseEntity<?> addItemToCart(@RequestBody Map<String, Object> request) {
         try {
             System.out.println("🛒 ADD TO CART Request: " + request);
@@ -156,6 +158,7 @@ public class CartController {
                 System.out.println("   Creating new cart for user " + userId);
                 cart = Cart.builder()
                         .user(user)
+                        .items(new ArrayList<>()) // Ensure items list is initialized
                         .createdAt(java.time.LocalDateTime.now())
                         .updatedAt(java.time.LocalDateTime.now())
                         .build();
@@ -227,15 +230,18 @@ public class CartController {
                 
                 // Create new cart item
                 za.ac.styling.domain.CartItem cartItem = za.ac.styling.domain.CartItem.builder()
-                        .cart(cart)
-                        .product(product)
-                        .colour(colour)
-                        .size(size)
-                        .quantity(quantity)
-                        .build();
-                
-                za.ac.styling.domain.CartItem savedItem = cartItemRepository.save(cartItem);
-                System.out.println("✅ New cart item created with ID: " + savedItem.getCartItemId());
+                    .product(product)
+                    .colour(colour)
+                    .size(size)
+                    .quantity(quantity)
+                    .build();
+                cartItem.setCart(cart); // Link CartItem to Cart
+                if (cart.getItems() == null) {
+                    cart.setItems(new java.util.ArrayList<>());
+                }
+                cart.getItems().add(cartItem);
+                cartService.update(cart); // Save cart to persist new item
+                System.out.println("✅ New cart item created, linked, and persisted with cart update.");
             }
 
             cart.setUpdatedAt(java.time.LocalDateTime.now());

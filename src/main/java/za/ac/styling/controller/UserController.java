@@ -1,4 +1,6 @@
+
 package za.ac.styling.controller;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     private UserService userService;
 
@@ -130,8 +134,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
 
-            // Note: In production, use proper password encryption/hashing (BCrypt)
-            if (!user.getPassword().equals(loginRequest.getPassword())) {
+            // Use BCrypt for password comparison
+            if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 response.put("success", false);
                 response.put("message", "Invalid email or password");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
@@ -214,9 +218,10 @@ public class UserController {
                 });
 
             // Create new user
+            String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
             User newUser = User.builder()
                 .email(registerRequest.getEmail())
-                .password(registerRequest.getPassword())  // In production, hash this!
+                .password(hashedPassword)
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
                 .username(registerRequest.getUsername())
@@ -395,13 +400,15 @@ public class UserController {
             String currentPassword = passwords.get("currentPassword");
             String newPassword = passwords.get("newPassword");
 
-            if (!user.getPassword().equals(currentPassword)) {
+
+            if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
                 response.put("success", false);
                 response.put("message", "Current password is incorrect");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            user.setPassword(newPassword);
+            String hashedNewPassword = passwordEncoder.encode(newPassword);
+            user.setPassword(hashedNewPassword);
             userService.update(user);
 
             response.put("success", true);

@@ -1,4 +1,6 @@
+
 package za.ac.styling.factory;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import za.ac.styling.domain.User;
 import za.ac.styling.domain.Role;
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 /**
  * Factory class responsible for creating User objects
  */
+
 public class UserFactory {
 
 
@@ -42,19 +45,22 @@ public class UserFactory {
             throw new IllegalArgumentException("Invalid phone number format");
         }
 
+        // Hash password with BCrypt
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hashedPassword = encoder.encode(password);
         return User.builder()
-                .username(username)
-                .email(email.toLowerCase())
-                .password(password) // Should be hashed in production
-                .firstName(firstName)
-                .lastName(lastName)
-                .phone(phone)
-                .role(role)
-                .isActive(true)
-                .createdAt(LocalDateTime.now())
-                .addresses(new ArrayList<>())
-                .paymentMethods(new ArrayList<>())
-                .build();
+            .username(username)
+            .email(email.toLowerCase())
+            .password(hashedPassword)
+            .firstName(firstName)
+            .lastName(lastName)
+            .phone(phone)
+            .role(role)
+            .isActive(true)
+            .createdAt(LocalDateTime.now())
+            .addresses(new ArrayList<>())
+            .paymentMethods(new ArrayList<>())
+            .build();
     }
 
     /**

@@ -44,7 +44,7 @@ public class ProductController {
             }
 
             // Create Product
-            Product product = Product.builder()
+                Product product = Product.builder()
                     .name(request.getName())
                     .description(request.getDescription())
                     .basePrice(request.getBasePrice())
@@ -55,6 +55,7 @@ public class ProductController {
                     .isActive(request.isActive())
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDate.now())
+                    .images(new ArrayList<>()) // Always initialize images list
                     .build();
 
             // Save product first to get ID

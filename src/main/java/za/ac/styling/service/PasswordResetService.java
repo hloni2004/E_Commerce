@@ -1,4 +1,6 @@
+
 package za.ac.styling.service;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import java.util.Optional;
 
 @Service
 public class PasswordResetService {
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private PasswordResetTokenRepository tokenRepository;
@@ -87,28 +91,8 @@ public class PasswordResetService {
         String resetLink = frontendBaseUrl + "/auth/reset-password?token=" + token;
         String userName = user.getFirstName() != null ? user.getFirstName() : user.getUsername();
         
-        // FOR DEVELOPMENT: Log reset link and OTP to console
-        System.out.println("\n" + "=".repeat(80));
-        System.out.println("PASSWORD RESET REQUEST");
-        System.out.println("=".repeat(80));
-        System.out.println("User: " + user.getEmail() + " (" + userName + ")");
-        System.out.println("Reset Link: " + resetLink);
-        System.out.println("Token: " + token);
-        System.out.println("OTP Code: " + otpCode);
-        System.out.println("Expires: " + expiryDate);
-        System.out.println("=".repeat(80) + "\n");
         
-        try {
-            emailService.sendPasswordResetEmailWithOTP(user.getEmail(), resetLink, userName, otpCode);
-            System.out.println("✓ Email sent successfully to: " + user.getEmail());
-        } catch (Exception e) {
-            // Log the error but DON'T throw exception - allow development testing
-            System.err.println("✗ Failed to send email (continuing anyway for development)");
-            System.err.println("  Error: " + e.getMessage());
-            System.err.println("  → Use the reset link and OTP code printed above to test the flow");
-            // In production, you would throw the exception:
-            // throw new RuntimeException("Email service is currently unavailable. Please contact support or try again later.", e);
-        }
+        emailService.sendPasswordResetEmailWithOTP(user.getEmail(), resetLink, userName, otpCode);
         
         // Return token for development purposes
         return token;
@@ -178,9 +162,11 @@ public class PasswordResetService {
             return false;
         }
 
-        // Update user password
+
+        // Update user password (hash with BCrypt)
         User user = resetToken.getUser();
-        user.setPassword(newPassword); // In production, this should be hashed!
+        String hashedPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(hashedPassword);
         userService.update(user);
 
         // Mark token as used
