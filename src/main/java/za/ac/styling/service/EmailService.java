@@ -399,7 +399,7 @@ public class EmailService {
 
         html.append("<div class='action'>");
         html.append("<p>Please log in to your admin dashboard to manage inventory and reorder this product.</p>");
-        html.append("<p><a href='http://localhost:3000/admin/products'>View Admin Dashboard</a></p>");
+        html.append("<p><a href='https://client-hub-portal.vercel.app/admin/products'>View Admin Dashboard</a></p>");
         html.append("</div>");
 
         html.append("<p style='margin-top: 30px;'>");

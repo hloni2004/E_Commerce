@@ -45,7 +45,7 @@ public class UserController {
     @Autowired
     private za.ac.styling.security.JwtUtil jwtUtil;
 
-    @Value("${app.frontend.url:http://localhost:5173}")
+    @Value("${app.frontend.url:https://client-hub-portal.vercel.app}")
     private String frontendUrl;
 
     @PostMapping("/create")
