@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="issue images are similiar">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="Docker">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -232,7 +230,7 @@
       <workItem from="1766507044486" duration="26000" />
       <workItem from="1766507097376" duration="1461000" />
       <workItem from="1766509828541" duration="5866000" />
-      <workItem from="1766592481143" duration="627000" />
+      <workItem from="1766592481143" duration="4220000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -370,7 +368,31 @@
       <option name="project" value="LOCAL" />
       <updated>1766592853162</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Docker">
+      <option name="closed" value="true" />
+      <created>1766594024728</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1766594024730</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Docker">
+      <option name="closed" value="true" />
+      <created>1766610371394</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1766610371394</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Docker">
+      <option name="closed" value="true" />
+      <created>1766612185289</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1766612185291</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -396,7 +418,8 @@
     <MESSAGE value="forget password" />
     <MESSAGE value="superbase" />
     <MESSAGE value="issue images are similiar" />
-    <option name="LAST_COMMIT_MESSAGE" value="issue images are similiar" />
+    <MESSAGE value="Docker" />
+    <option name="LAST_COMMIT_MESSAGE" value="Docker" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
