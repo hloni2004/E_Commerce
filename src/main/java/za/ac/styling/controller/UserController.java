@@ -113,7 +113,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest,
-            javax.servlet.http.HttpServletRequest request) {
+            jakarta.servlet.http.HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             if (loginRequest.getEmail() == null || loginRequest.getPassword() == null) {
@@ -290,7 +290,7 @@ public class UserController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken,
-            javax.servlet.http.HttpServletRequest request) {
+            jakarta.servlet.http.HttpServletRequest request) {
         if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("success", false, "message", "Invalid refresh token"));
@@ -320,7 +320,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(javax.servlet.http.HttpServletRequest request) {
+    public ResponseEntity<?> logout(jakarta.servlet.http.HttpServletRequest request) {
         var accessCookie = org.springframework.http.ResponseCookie.from("access_token", "")
                 .httpOnly(true).secure(request.isSecure()).path("/").maxAge(0).sameSite("None").build();
         var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", "")
