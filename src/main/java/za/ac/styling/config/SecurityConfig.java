@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.http.HttpMethod;
 import za.ac.styling.security.JwtAuthenticationFilter;
 import za.ac.styling.security.JwtUtil;
 import za.ac.styling.filter.CspFilter;
@@ -40,6 +41,8 @@ public class SecurityConfig {
             // Authorization rules
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**", "/api/users/register", "/api/users/login").permitAll()
+                // Allow public GET access to product and category listings and images
+                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
                 .anyRequest().authenticated()
             )
             // Add JWT filter before UsernamePasswordAuthenticationFilter

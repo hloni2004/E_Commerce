@@ -112,7 +112,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest,
+            javax.servlet.http.HttpServletRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             if (loginRequest.getEmail() == null || loginRequest.getPassword() == null) {
@@ -165,22 +166,26 @@ public class UserController {
 
             var accessCookie = org.springframework.http.ResponseCookie.from("access_token", accessToken)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(request.isSecure())
                     .path("/")
                     .maxAge(900) // 15 minutes
-                    .sameSite("Lax")
+                    .sameSite("None")
                     .build();
 
             var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", refreshToken)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(request.isSecure())
                     .path("/api/users/refresh")
                     .maxAge(7 * 24 * 60 * 60) // 7 days
-                    .sameSite("Lax")
+                    .sameSite("None")
                     .build();
 
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("user", userResponse);
+            resp.put("accessToken", accessToken); // included so SPA frontends can send Authorization header if desired
+
             return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
-                    .header("Set-Cookie", refreshCookie.toString()).body(userResponse);
+                    .header("Set-Cookie", refreshCookie.toString()).body(resp);
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Login error: " + e.getMessage());
@@ -284,7 +289,8 @@ public class UserController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
+    public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken,
+            javax.servlet.http.HttpServletRequest request) {
         if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("success", false, "message", "Invalid refresh token"));
@@ -295,18 +301,18 @@ public class UserController {
 
         var accessCookie = org.springframework.http.ResponseCookie.from("access_token", newAccess)
                 .httpOnly(true)
-                .secure(false)
+                .secure(request.isSecure())
                 .path("/")
                 .maxAge(900) // 15 minutes
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", newRefresh)
                 .httpOnly(true)
-                .secure(false)
+                .secure(request.isSecure())
                 .path("/api/users/refresh")
-                .maxAge(7 * 24 * 60 * 60)
-                .sameSite("Lax")
+                .maxAge(7 * 24 * 60 * 60) // 7 days
+                .sameSite("None")
                 .build();
 
         return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
@@ -314,11 +320,12 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(javax.servlet.http.HttpServletRequest request) {
         var accessCookie = org.springframework.http.ResponseCookie.from("access_token", "")
-                .httpOnly(true).secure(false).path("/").maxAge(0).sameSite("Lax").build();
+                .httpOnly(true).secure(request.isSecure()).path("/").maxAge(0).sameSite("None").build();
         var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", "")
-                .httpOnly(true).secure(false).path("/api/users/refresh").maxAge(0).sameSite("Lax").build();
+                .httpOnly(true).secure(request.isSecure()).path("/api/users/refresh").maxAge(0).sameSite("None")
+                .build();
         return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
                 .header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true, "message", "Logged out"));
     }
