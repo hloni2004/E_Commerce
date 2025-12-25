@@ -30,11 +30,21 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateAccessToken(String subject) {
+    // Overload to support custom claims (e.g., roles)
+    public String generateAccessToken(String subject, java.util.Map<String, Object> claims) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + jwtExpirationMillis);
-        return Jwts.builder().setSubject(subject).setIssuedAt(now).setExpiration(exp).signWith(getSigningKey())
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(now)
+                .setExpiration(exp)
+                .signWith(getSigningKey())
                 .compact();
+    }
+
+    public String generateAccessToken(String subject) {
+        return generateAccessToken(subject, new java.util.HashMap<>());
     }
 
     public String generateRefreshToken(String subject) {

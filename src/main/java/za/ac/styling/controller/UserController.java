@@ -1,5 +1,6 @@
 
 package za.ac.styling.controller;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,12 +65,12 @@ public class UserController {
             User user = userService.read(id);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "User not found"));
+                        .body(Map.of("success", false, "message", "User not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", user));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving user: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving user: " + e.getMessage()));
         }
     }
 
@@ -79,12 +80,12 @@ public class UserController {
             User updated = userService.update(user);
             if (updated == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "User not found"));
+                        .body(Map.of("success", false, "message", "User not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", updated));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error updating user: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error updating user: " + e.getMessage()));
         }
     }
 
@@ -95,7 +96,7 @@ public class UserController {
             return ResponseEntity.ok(Map.of("success", true, "data", users));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving users: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving users: " + e.getMessage()));
         }
     }
 
@@ -106,7 +107,7 @@ public class UserController {
             return ResponseEntity.ok(Map.of("success", true, "message", "User deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error deleting user: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error deleting user: " + e.getMessage()));
         }
     }
 
@@ -121,7 +122,7 @@ public class UserController {
             }
 
             User user = userService.findByEmail(loginRequest.getEmail())
-                .orElse(null);
+                    .orElse(null);
             if (user == null) {
                 response.put("success", false);
                 response.put("message", "Invalid email or password");
@@ -143,38 +144,43 @@ public class UserController {
 
             // Convert to UserResponse DTO
             UserResponse userResponse = UserResponse.builder()
-                .userId(user.getUserId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .phone(user.getPhone())
-                .roleName(user.getRole() != null ? user.getRole().getRoleName() : "CUSTOMER")
-                .isActive(user.isActive())
-                .build();
+                    .userId(user.getUserId())
+                    .username(user.getUsername())
+                    .email(user.getEmail())
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .phone(user.getPhone())
+                    .roleName(user.getRole() != null ? user.getRole().getRoleName() : "CUSTOMER")
+                    .isActive(user.isActive())
+                    .build();
 
             // Generate tokens and set HttpOnly cookies
             String subject = String.valueOf(user.getUserId());
-            String accessToken = jwtUtil.generateAccessToken(subject);
+            // Assign the same role enum as in your code
+            String roleName = user.getRole() != null ? user.getRole().getRoleName() : "CUSTOMER";
+            java.util.Map<String, Object> claims = new java.util.HashMap<>();
+            claims.put("roles", roleName); // single role as string, or use List.of(roleName) for array
+            String accessToken = jwtUtil.generateAccessToken(subject, claims);
             String refreshToken = jwtUtil.generateRefreshToken(subject);
 
             var accessCookie = org.springframework.http.ResponseCookie.from("access_token", accessToken)
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(900) // 15 minutes
-                .sameSite("Lax")
-                .build();
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/")
+                    .maxAge(900) // 15 minutes
+                    .sameSite("Lax")
+                    .build();
 
             var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", refreshToken)
-                .httpOnly(true)
-                .secure(false)
-                .path("/api/users/refresh")
-                .maxAge(7 * 24 * 60 * 60) // 7 days
-                .sameSite("Lax")
-                .build();
+                    .httpOnly(true)
+                    .secure(false)
+                    .path("/api/users/refresh")
+                    .maxAge(7 * 24 * 60 * 60) // 7 days
+                    .sameSite("Lax")
+                    .build();
 
-            return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString()).header("Set-Cookie", refreshCookie.toString()).body(userResponse);
+            return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
+                    .header("Set-Cookie", refreshCookie.toString()).body(userResponse);
         } catch (Exception e) {
             response.put("success", false);
             response.put("message", "Login error: " + e.getMessage());
@@ -200,8 +206,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
 
-            if (registerRequest.getUsername() != null && 
-                userService.findByUsername(registerRequest.getUsername()).isPresent()) {
+            if (registerRequest.getUsername() != null &&
+                    userService.findByUsername(registerRequest.getUsername()).isPresent()) {
                 response.put("success", false);
                 response.put("message", "Username already taken");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -209,27 +215,27 @@ public class UserController {
 
             // Fetch or create default role (CUSTOMER role)
             Role defaultRole = roleService.findByRoleName("CUSTOMER")
-                .orElseGet(() -> {
-                    // Create CUSTOMER role if it doesn't exist
-                    Role newRole = Role.builder()
-                        .roleName("CUSTOMER")
-                        .build();
-                    return roleService.create(newRole);
-                });
+                    .orElseGet(() -> {
+                        // Create CUSTOMER role if it doesn't exist
+                        Role newRole = Role.builder()
+                                .roleName("CUSTOMER")
+                                .build();
+                        return roleService.create(newRole);
+                    });
 
             // Create new user
             String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
             User newUser = User.builder()
-                .email(registerRequest.getEmail())
-                .password(hashedPassword)
-                .firstName(registerRequest.getFirstName())
-                .lastName(registerRequest.getLastName())
-                .username(registerRequest.getUsername())
-                .phone(registerRequest.getPhone())
-                .role(defaultRole)
-                .isActive(true)
-                .createdAt(LocalDateTime.now())
-                .build();
+                    .email(registerRequest.getEmail())
+                    .password(hashedPassword)
+                    .firstName(registerRequest.getFirstName())
+                    .lastName(registerRequest.getLastName())
+                    .username(registerRequest.getUsername())
+                    .phone(registerRequest.getPhone())
+                    .role(defaultRole)
+                    .isActive(true)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
             User created = userService.create(newUser);
             if (created == null) {
@@ -241,33 +247,33 @@ public class UserController {
             // Create default address if provided
             if (registerRequest.getAddressLine1() != null && !registerRequest.getAddressLine1().isEmpty()) {
                 za.ac.styling.domain.Address address = za.ac.styling.domain.Address.builder()
-                    .fullName(registerRequest.getFirstName() + " " + registerRequest.getLastName())
-                    .phone(registerRequest.getPhone())
-                    .addressLine1(registerRequest.getAddressLine1())
-                    .addressLine2(registerRequest.getAddressLine2())
-                    .city(registerRequest.getCity())
-                    .province(registerRequest.getProvince())
-                    .postalCode(registerRequest.getPostalCode())
-                    .country(registerRequest.getCountry() != null ? registerRequest.getCountry() : "South Africa")
-                    .addressType(za.ac.styling.domain.AddressType.SHIPPING)
-                    .isDefault(true)
-                    .user(created)
-                    .build();
-                
+                        .fullName(registerRequest.getFirstName() + " " + registerRequest.getLastName())
+                        .phone(registerRequest.getPhone())
+                        .addressLine1(registerRequest.getAddressLine1())
+                        .addressLine2(registerRequest.getAddressLine2())
+                        .city(registerRequest.getCity())
+                        .province(registerRequest.getProvince())
+                        .postalCode(registerRequest.getPostalCode())
+                        .country(registerRequest.getCountry() != null ? registerRequest.getCountry() : "South Africa")
+                        .addressType(za.ac.styling.domain.AddressType.SHIPPING)
+                        .isDefault(true)
+                        .user(created)
+                        .build();
+
                 addressRepository.save(address);
             }
 
             // Convert to UserResponse DTO
             UserResponse userResponse = UserResponse.builder()
-                .userId(created.getUserId())
-                .username(created.getUsername())
-                .email(created.getEmail())
-                .firstName(created.getFirstName())
-                .lastName(created.getLastName())
-                .phone(created.getPhone())
-                .roleName(created.getRole() != null ? created.getRole().getRoleName() : "CUSTOMER")
-                .isActive(created.isActive())
-                .build();
+                    .userId(created.getUserId())
+                    .username(created.getUsername())
+                    .email(created.getEmail())
+                    .firstName(created.getFirstName())
+                    .lastName(created.getLastName())
+                    .phone(created.getPhone())
+                    .roleName(created.getRole() != null ? created.getRole().getRoleName() : "CUSTOMER")
+                    .isActive(created.isActive())
+                    .build();
 
             return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
         } catch (Exception e) {
@@ -280,53 +286,56 @@ public class UserController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
         if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("success", false, "message", "Invalid refresh token"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("success", false, "message", "Invalid refresh token"));
         }
         String subject = jwtUtil.getSubject(refreshToken);
         String newAccess = jwtUtil.generateAccessToken(subject);
         String newRefresh = jwtUtil.generateRefreshToken(subject); // rotation - in production also revoke old
 
         var accessCookie = org.springframework.http.ResponseCookie.from("access_token", newAccess)
-            .httpOnly(true)
-            .secure(false)
-            .path("/")
-            .maxAge(900) // 15 minutes
-            .sameSite("Lax")
-            .build();
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(900) // 15 minutes
+                .sameSite("Lax")
+                .build();
 
         var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", newRefresh)
-            .httpOnly(true)
-            .secure(false)
-            .path("/api/users/refresh")
-            .maxAge(7 * 24 * 60 * 60)
-            .sameSite("Lax")
-            .build();
+                .httpOnly(true)
+                .secure(false)
+                .path("/api/users/refresh")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")
+                .build();
 
-        return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString()).header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true));
+        return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
+                .header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         var accessCookie = org.springframework.http.ResponseCookie.from("access_token", "")
-            .httpOnly(true).secure(false).path("/").maxAge(0).sameSite("Lax").build();
+                .httpOnly(true).secure(false).path("/").maxAge(0).sameSite("Lax").build();
         var refreshCookie = org.springframework.http.ResponseCookie.from("refresh_token", "")
-            .httpOnly(true).secure(false).path("/api/users/refresh").maxAge(0).sameSite("Lax").build();
-        return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString()).header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true, "message", "Logged out"));
+                .httpOnly(true).secure(false).path("/api/users/refresh").maxAge(0).sameSite("Lax").build();
+        return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
+                .header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true, "message", "Logged out"));
     }
 
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
         try {
             User user = userService.findByEmail(email)
-                .orElse(null);
+                    .orElse(null);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "User not found"));
+                        .body(Map.of("success", false, "message", "User not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", user));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving user: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving user: " + e.getMessage()));
         }
     }
 
@@ -354,8 +363,8 @@ public class UserController {
             if (updates.containsKey("email")) {
                 String newEmail = (String) updates.get("email");
                 // Check if email is already taken by another user
-                if (!user.getEmail().equals(newEmail) && 
-                    userService.findByEmail(newEmail).isPresent()) {
+                if (!user.getEmail().equals(newEmail) &&
+                        userService.findByEmail(newEmail).isPresent()) {
                     response.put("success", false);
                     response.put("message", "Email already in use");
                     return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -364,17 +373,17 @@ public class UserController {
             }
 
             User updated = userService.update(user);
-            
+
             UserResponse userResponse = UserResponse.builder()
-                .userId(updated.getUserId())
-                .username(updated.getUsername())
-                .email(updated.getEmail())
-                .firstName(updated.getFirstName())
-                .lastName(updated.getLastName())
-                .phone(updated.getPhone())
-                .roleName(updated.getRole() != null ? updated.getRole().getRoleName() : "CUSTOMER")
-                .isActive(updated.isActive())
-                .build();
+                    .userId(updated.getUserId())
+                    .username(updated.getUsername())
+                    .email(updated.getEmail())
+                    .firstName(updated.getFirstName())
+                    .lastName(updated.getLastName())
+                    .phone(updated.getPhone())
+                    .roleName(updated.getRole() != null ? updated.getRole().getRoleName() : "CUSTOMER")
+                    .isActive(updated.isActive())
+                    .build();
 
             response.put("success", true);
             response.put("data", userResponse);
@@ -399,7 +408,6 @@ public class UserController {
 
             String currentPassword = passwords.get("currentPassword");
             String newPassword = passwords.get("newPassword");
-
 
             if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
                 response.put("success", false);
@@ -426,7 +434,7 @@ public class UserController {
         Map<String, Object> response = new HashMap<>();
         try {
             String email = request.get("email");
-            
+
             if (email == null || email.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "Email is required");
@@ -438,13 +446,14 @@ public class UserController {
 
             // Always return success to prevent email enumeration
             response.put("success", true);
-            response.put("message", "If an account exists with this email, a password reset link has been sent. Check the server console for the reset link.");
-            
+            response.put("message",
+                    "If an account exists with this email, a password reset link has been sent. Check the server console for the reset link.");
+
             // FOR DEVELOPMENT: Include token in response
             if (token != null) {
                 response.put("token", token);
             }
-            
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -459,7 +468,7 @@ public class UserController {
         Map<String, Object> response = new HashMap<>();
         try {
             boolean isValid = passwordResetService.validateToken(token);
-            
+
             if (isValid) {
                 response.put("success", true);
                 response.put("message", "Token is valid");
@@ -482,7 +491,7 @@ public class UserController {
         try {
             String token = request.get("token");
             String newPassword = request.get("newPassword");
-            
+
             if (token == null || newPassword == null) {
                 response.put("success", false);
                 response.put("message", "Token and new password are required");
@@ -496,7 +505,7 @@ public class UserController {
             }
 
             boolean success = passwordResetService.resetPassword(token, newPassword);
-            
+
             if (success) {
                 response.put("success", true);
                 response.put("message", "Password has been reset successfully");
@@ -519,7 +528,7 @@ public class UserController {
         try {
             String token = request.get("token");
             String otpCode = request.get("otpCode");
-            
+
             if (token == null || otpCode == null) {
                 response.put("success", false);
                 response.put("message", "Token and OTP code are required");
@@ -527,7 +536,7 @@ public class UserController {
             }
 
             boolean verified = passwordResetService.verifyOTP(token, otpCode);
-            
+
             if (verified) {
                 response.put("success", true);
                 response.put("message", "OTP verified successfully");
@@ -544,4 +553,3 @@ public class UserController {
         }
     }
 }
-
