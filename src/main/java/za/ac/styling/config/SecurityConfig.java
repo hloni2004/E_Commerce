@@ -1,3 +1,4 @@
+
 package za.ac.styling.config;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -29,32 +30,20 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtUtil);
 
         http
-                // Disable CSRF for stateless JWT REST API
-                .csrf(csrf -> csrf.disable())
-                // Stateless session management
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // No form login, no HTTP basic
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable())
-                // Authorization rules
-                .authorizeHttpRequests(auth -> auth
-                        // Public endpoints - allow anyone to access
-                        .requestMatchers(
-                                "/",
-                                "/health",
-                                "/api/auth/**",
-                                "/api/users/register",
-                                "/api/users/login",
-                                "/api/users/forgot-password",
-                                "/api/users/reset-password",
-                                "/api/users/validate-reset-token/**",
-                                "/api/users/verify-reset-otp"
-                        ).permitAll()
-                        // All other endpoints require authentication
-                        .anyRequest().authenticated()
-                )
-                // Add JWT filter before UsernamePasswordAuthenticationFilter
-                .addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+            // Disable CSRF for stateless JWT REST API
+            .csrf(csrf -> csrf.disable())
+            // Stateless session management
+            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // No form login, no HTTP basic
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable())
+            // Authorization rules
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**", "/api/users/register", "/api/users/login").permitAll()
+                .anyRequest().authenticated()
+            )
+            // Add JWT filter before UsernamePasswordAuthenticationFilter
+            .addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

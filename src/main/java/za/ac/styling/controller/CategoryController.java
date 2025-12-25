@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import za.ac.styling.domain.Category;
 import za.ac.styling.service.CategoryService;
 
@@ -22,6 +23,7 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Category> createCategory(@RequestBody Category category) {
         try {
             Category created = categoryService.create(category);
@@ -37,12 +39,12 @@ public class CategoryController {
             Category category = categoryService.read(id);
             if (category == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Category not found"));
+                        .body(Map.of("success", false, "message", "Category not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", category));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving category: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving category: " + e.getMessage()));
         }
     }
 
@@ -52,12 +54,12 @@ public class CategoryController {
             Category updated = categoryService.update(category);
             if (updated == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Category not found"));
+                        .body(Map.of("success", false, "message", "Category not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", updated));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error updating category: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error updating category: " + e.getMessage()));
         }
     }
 
@@ -67,13 +69,14 @@ public class CategoryController {
             List<Category> categories = categoryService.getAll();
             System.out.println("Fetched " + categories.size() + " categories");
             for (Category cat : categories) {
-                System.out.println("Category: " + cat.getName() + ", ID: " + cat.getCategoryId() + ", Active: " + cat.isActive());
+                System.out.println(
+                        "Category: " + cat.getName() + ", ID: " + cat.getCategoryId() + ", Active: " + cat.isActive());
             }
             return ResponseEntity.ok(Map.of("success", true, "data", categories));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving categories: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving categories: " + e.getMessage()));
         }
     }
 
@@ -84,7 +87,7 @@ public class CategoryController {
             return ResponseEntity.ok(Map.of("success", true, "message", "Category deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error deleting category: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error deleting category: " + e.getMessage()));
         }
     }
 
@@ -92,15 +95,15 @@ public class CategoryController {
     public ResponseEntity<?> getCategoryByName(@PathVariable String name) {
         try {
             Category category = categoryService.findByName(name)
-                .orElse(null);
+                    .orElse(null);
             if (category == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Category not found"));
+                        .body(Map.of("success", false, "message", "Category not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", category));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving category: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving category: " + e.getMessage()));
         }
     }
 }

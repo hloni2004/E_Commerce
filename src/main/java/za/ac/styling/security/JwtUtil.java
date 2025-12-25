@@ -1,4 +1,10 @@
+
 package za.ac.styling.security;
+
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -27,13 +33,15 @@ public class JwtUtil {
     public String generateAccessToken(String subject) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + jwtExpirationMillis);
-        return Jwts.builder().setSubject(subject).setIssuedAt(now).setExpiration(exp).signWith(getSigningKey()).compact();
+        return Jwts.builder().setSubject(subject).setIssuedAt(now).setExpiration(exp).signWith(getSigningKey())
+                .compact();
     }
 
     public String generateRefreshToken(String subject) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + refreshExpirationMillis);
-        return Jwts.builder().setSubject(subject).setIssuedAt(now).setExpiration(exp).signWith(getSigningKey()).compact();
+        return Jwts.builder().setSubject(subject).setIssuedAt(now).setExpiration(exp).signWith(getSigningKey())
+                .compact();
     }
 
     public boolean validateToken(String token) {
@@ -47,5 +55,18 @@ public class JwtUtil {
 
     public String getSubject(String token) {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody().getSubject();
+    }
+
+    // Extract roles from JWT claims (assumes roles are stored as a claim named
+    // "roles" as a comma-separated string or list)
+    public List<String> getRoles(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
+        Object rolesObj = claims.get("roles");
+        if (rolesObj instanceof String rolesStr) {
+            return List.of(rolesStr.split(","));
+        } else if (rolesObj instanceof Collection rolesCol) {
+            return (List<String>) rolesCol.stream().map(Object::toString).collect(Collectors.toList());
+        }
+        return List.of();
     }
 }
