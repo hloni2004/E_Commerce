@@ -37,7 +37,17 @@ public class SupabaseStorageService {
      */
     public UploadResult uploadCategoryImage(MultipartFile file, Long categoryId) throws IOException {
         String folder = "categories/" + categoryId;
-        return uploadFile(file, categoryImagesBucket, folder);
+        try {
+            return uploadFile(file, categoryImagesBucket, folder);
+        } catch (IOException e) {
+            // If the configured category bucket doesn't exist on Supabase, fall back to productImagesBucket
+            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+            if (msg.contains("bucket not found") || msg.contains("bucket") || msg.contains("not found")) {
+                log.warn("Category bucket '{}' not found. Falling back to product bucket '{}'. Error: {}", categoryImagesBucket, productImagesBucket, e.getMessage());
+                return uploadFile(file, productImagesBucket, "categories/" + categoryId);
+            }
+            throw e;
+        }
     }
 
     private final OkHttpClient httpClient;
