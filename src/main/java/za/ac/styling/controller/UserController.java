@@ -454,20 +454,22 @@ public class UserController {
             }
 
             // Create and send password reset token (service handles email errors)
-            String token = passwordResetService.createPasswordResetToken(email, frontendUrl);
+            za.ac.styling.service.PasswordResetResult result = passwordResetService.createPasswordResetToken(email, frontendUrl);
+            String token = result != null ? result.token() : null;
+            boolean emailSent = result != null && result.emailSent();
 
             // Log for debugging
-            System.out
-                    .println("/api/users/forgot-password called for: " + email + ", tokenCreated: " + (token != null));
+            System.out.println("/api/users/forgot-password called for: " + email + ", tokenCreated: " + (token != null) + ", emailSent: " + emailSent);
 
             // Always return success to prevent email enumeration
             response.put("success", true);
             response.put("message",
-                    "If an account exists with this email, a password reset link has been sent. Check the server console for the reset link.");
+                    "If an account exists with this email, a password reset link has been sent. Check your email or try the test email endpoint if you didn't receive it.");
 
-            // FOR DEVELOPMENT: Include token in response
+            // FOR DEVELOPMENT: Include token and emailSent in response (only for debug)
             if (token != null) {
                 response.put("token", token);
+                response.put("emailSent", emailSent);
             }
 
             return ResponseEntity.ok(response);

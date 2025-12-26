@@ -474,6 +474,11 @@ public class EmailService {
             
             mailSender.send(message);
             System.out.println("Password reset email with OTP sent successfully to: " + to);
+        } catch (org.springframework.mail.MailException me) {
+            System.err.println("MailException while sending password reset email to " + to + ": " + me.getMessage());
+            me.printStackTrace();
+            System.err.println("Hint: verify SMTP credentials and provider settings (spring.mail.username / spring.mail.password). Use /api/email/test to validate.");
+            throw new RuntimeException("Failed to send password reset email", me);
         } catch (Exception e) {
             System.err.println("Failed to send password reset email: " + e.getMessage());
             e.printStackTrace();

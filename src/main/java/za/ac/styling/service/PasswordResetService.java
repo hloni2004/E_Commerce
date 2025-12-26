@@ -54,15 +54,15 @@ public class PasswordResetService {
 
     /**
      * Create and send password reset token
-     * Returns the token for development purposes
+     * Returns a result containing the token and whether email was dispatched
      */
     @Transactional
-    public String createPasswordResetToken(String email, String frontendBaseUrl) {
+    public za.ac.styling.service.PasswordResetResult createPasswordResetToken(String email, String frontendBaseUrl) {
         Optional<User> userOptional = userService.findByEmail(email);
 
         if (userOptional.isEmpty()) {
             // Don't reveal whether email exists for security
-            return null;
+            return new za.ac.styling.service.PasswordResetResult(null, false);
         }
 
         User user = userOptional.get();
@@ -91,9 +91,11 @@ public class PasswordResetService {
         // token so clients get 200
         String resetLink = frontendBaseUrl + "/auth/reset-password?token=" + token;
         String userName = user.getFirstName() != null ? user.getFirstName() : user.getUsername();
+        boolean emailSent = false;
         try {
             emailService.sendPasswordResetEmailWithOTP(user.getEmail(), resetLink, userName, otpCode);
             System.out.println("Password reset email dispatched to: " + user.getEmail());
+            emailSent = true;
         } catch (Exception e) {
             // Log and continue. Token is still created in DB so admin/ops can inspect and
             // resend.
@@ -102,8 +104,8 @@ public class PasswordResetService {
             // Do not rethrow: we want the endpoint to return 200 with generic message
         }
 
-        // Return token for development purposes
-        return token;
+        // Return token for development purposes along with email dispatch status
+        return new za.ac.styling.service.PasswordResetResult(token, emailSent);
     }
 
     /**
