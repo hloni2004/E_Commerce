@@ -1,5 +1,6 @@
 
 package za.ac.styling.service;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,12 +57,11 @@ public class PasswordResetService {
      * Returns the token for development purposes
      */
     @Transactional
-    public String createPasswordResetToken(String email, String frontendBaseUrl) throws Exception {
+    public String createPasswordResetToken(String email, String frontendBaseUrl) {
         Optional<User> userOptional = userService.findByEmail(email);
-        
+
         if (userOptional.isEmpty()) {
             // Don't reveal whether email exists for security
-            // Still throw exception if email service is down
             return null;
         }
 
@@ -76,24 +76,32 @@ public class PasswordResetService {
         LocalDateTime expiryDate = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
 
         PasswordResetToken resetToken = PasswordResetToken.builder()
-            .token(token)
-            .user(user)
-            .expiryDate(expiryDate)
-            .used(false)
-            .otpCode(otpCode)
-            .otpVerified(false)
-            .createdAt(LocalDateTime.now())
-            .build();
+                .token(token)
+                .user(user)
+                .expiryDate(expiryDate)
+                .used(false)
+                .otpCode(otpCode)
+                .otpVerified(false)
+                .createdAt(LocalDateTime.now())
+                .build();
 
         tokenRepository.save(resetToken);
 
-        // Send email - let exceptions propagate
+        // Send email - don't let mail failures break the flow; log them and return
+        // token so clients get 200
         String resetLink = frontendBaseUrl + "/auth/reset-password?token=" + token;
         String userName = user.getFirstName() != null ? user.getFirstName() : user.getUsername();
-        
-        
-        emailService.sendPasswordResetEmailWithOTP(user.getEmail(), resetLink, userName, otpCode);
-        
+        try {
+            emailService.sendPasswordResetEmailWithOTP(user.getEmail(), resetLink, userName, otpCode);
+            System.out.println("Password reset email dispatched to: " + user.getEmail());
+        } catch (Exception e) {
+            // Log and continue. Token is still created in DB so admin/ops can inspect and
+            // resend.
+            System.err.println("Failed to send password reset email to " + user.getEmail() + ": " + e.getMessage());
+            e.printStackTrace();
+            // Do not rethrow: we want the endpoint to return 200 with generic message
+        }
+
         // Return token for development purposes
         return token;
     }
@@ -103,13 +111,13 @@ public class PasswordResetService {
      */
     public boolean validateToken(String token) {
         Optional<PasswordResetToken> resetToken = tokenRepository.findByToken(token);
-        
+
         if (resetToken.isEmpty()) {
             return false;
         }
 
         PasswordResetToken passwordResetToken = resetToken.get();
-        
+
         return !passwordResetToken.isUsed() && !passwordResetToken.isExpired();
     }
 
@@ -119,7 +127,7 @@ public class PasswordResetService {
     @Transactional
     public boolean verifyOTP(String token, String otpCode) {
         Optional<PasswordResetToken> resetTokenOptional = tokenRepository.findByToken(token);
-        
+
         if (resetTokenOptional.isEmpty()) {
             return false;
         }
@@ -146,7 +154,7 @@ public class PasswordResetService {
     @Transactional
     public boolean resetPassword(String token, String newPassword) {
         Optional<PasswordResetToken> resetTokenOptional = tokenRepository.findByToken(token);
-        
+
         if (resetTokenOptional.isEmpty()) {
             return false;
         }
@@ -161,7 +169,6 @@ public class PasswordResetService {
         if (!resetToken.isOtpVerified()) {
             return false;
         }
-
 
         // Update user password (hash with BCrypt)
         User user = resetToken.getUser();

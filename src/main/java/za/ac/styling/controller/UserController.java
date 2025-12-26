@@ -453,8 +453,12 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Create and send password reset token
+            // Create and send password reset token (service handles email errors)
             String token = passwordResetService.createPasswordResetToken(email, frontendUrl);
+
+            // Log for debugging
+            System.out
+                    .println("/api/users/forgot-password called for: " + email + ", tokenCreated: " + (token != null));
 
             // Always return success to prevent email enumeration
             response.put("success", true);
