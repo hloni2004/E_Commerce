@@ -23,21 +23,25 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public Category create(Category category) {
         return categoryRepository.save(category);
     }
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(value = "categories", key = "#id")
     public Category read(Long id) {
         return categoryRepository.findById(id).orElse(null);
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public Category update(Category category) {
         return categoryRepository.save(category);
     }
 
     @Override
+    @org.springframework.cache.annotation.Cacheable("categories")
     public List<Category> getAll() {
         return categoryRepository.findAll();
     }
@@ -68,6 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public Category activateCategory(Long categoryId) {
         Category category = read(categoryId);
         if (category != null) {
@@ -78,6 +83,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public Category deactivateCategory(Long categoryId) {
         Category category = read(categoryId);
         if (category != null) {
@@ -88,6 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @org.springframework.cache.annotation.CacheEvict(value = "categories", allEntries = true)
     public void delete(Long id) {
         categoryRepository.deleteById(id);
     }

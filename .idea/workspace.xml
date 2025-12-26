@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="tokoen still">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="catagories image">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CategoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/SupabaseStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/SupabaseStorageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CACHING.md" beforeDir="false" afterPath="$PROJECT_DIR$/CACHING.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/CategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/CategoryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -237,7 +240,7 @@
       <workItem from="1766667493539" duration="6445000" />
       <workItem from="1766699904300" duration="501000" />
       <workItem from="1766700931891" duration="174000" />
-      <workItem from="1766749013812" duration="964000" />
+      <workItem from="1766749013812" duration="2861000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -455,7 +458,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766678614283</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="catagories image">
+      <option name="closed" value="true" />
+      <created>1766750515993</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1766750515993</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -486,7 +497,8 @@
     <MESSAGE value="tokon" />
     <MESSAGE value="tt" />
     <MESSAGE value="tokoen still" />
-    <option name="LAST_COMMIT_MESSAGE" value="tokoen still" />
+    <MESSAGE value="catagories image" />
+    <option name="LAST_COMMIT_MESSAGE" value="catagories image" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
