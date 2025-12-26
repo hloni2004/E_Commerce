@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="live url cancel local host">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="tokoen still">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/config/SecurityConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CategoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/security/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/security/JwtAuthenticationFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/security/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/security/JwtUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/SupabaseStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/SupabaseStorageService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -236,7 +234,10 @@
       <workItem from="1766509828541" duration="5866000" />
       <workItem from="1766592481143" duration="6285000" />
       <workItem from="1766663249190" duration="1295000" />
-      <workItem from="1766667493539" duration="1217000" />
+      <workItem from="1766667493539" duration="6445000" />
+      <workItem from="1766699904300" duration="501000" />
+      <workItem from="1766700931891" duration="174000" />
+      <workItem from="1766749013812" duration="964000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -422,7 +423,39 @@
       <option name="project" value="LOCAL" />
       <updated>1766620385492</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="tokon">
+      <option name="closed" value="true" />
+      <created>1766669055712</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1766669055713</updated>
+    </task>
+    <task id="LOCAL-00025" summary="tt">
+      <option name="closed" value="true" />
+      <created>1766673659798</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1766673659800</updated>
+    </task>
+    <task id="LOCAL-00026" summary="tokoen still">
+      <option name="closed" value="true" />
+      <created>1766676523615</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1766676523615</updated>
+    </task>
+    <task id="LOCAL-00027" summary="tokoen still">
+      <option name="closed" value="true" />
+      <created>1766678614283</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1766678614283</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -450,7 +483,10 @@
     <MESSAGE value="issue images are similiar" />
     <MESSAGE value="Docker" />
     <MESSAGE value="live url cancel local host" />
-    <option name="LAST_COMMIT_MESSAGE" value="live url cancel local host" />
+    <MESSAGE value="tokon" />
+    <MESSAGE value="tt" />
+    <MESSAGE value="tokoen still" />
+    <option name="LAST_COMMIT_MESSAGE" value="tokoen still" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

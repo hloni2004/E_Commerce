@@ -16,10 +16,40 @@ import java.util.Map;
 public class CategoryController {
 
     private CategoryService categoryService;
+    private za.ac.styling.service.SupabaseStorageService supabaseStorageService;
 
     @Autowired
     public void setCategoryService(CategoryService categoryService) {
         this.categoryService = categoryService;
+    }
+
+    @Autowired
+    public void setSupabaseStorageService(za.ac.styling.service.SupabaseStorageService supabaseStorageService) {
+        this.supabaseStorageService = supabaseStorageService;
+    }
+
+    @PostMapping("/upload/{categoryId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> uploadCategoryImage(@PathVariable Long categoryId, @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        try {
+            Category category = categoryService.read(categoryId);
+            if (category == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("success", false, "message", "Category not found"));
+            }
+
+            za.ac.styling.service.SupabaseStorageService.UploadResult result = supabaseStorageService.uploadCategoryImage(file, categoryId);
+            category.setImageUrl(result.getUrl());
+            categoryService.update(category);
+
+            return ResponseEntity.ok(Map.of("success", true, "message", "Image uploaded successfully", "url", result.getUrl(), "data", category));
+        } catch (IllegalArgumentException iae) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("success", false, "message", iae.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Error uploading image: " + e.getMessage()));
+        }
     }
 
     @PostMapping("/create")

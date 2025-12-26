@@ -29,6 +29,17 @@ public class SupabaseStorageService {
     @Value("${supabase.bucket.review.images:review-images}")
     private String reviewImagesBucket;
 
+    @Value("${supabase.bucket.category.images:category-images}")
+    private String categoryImagesBucket;
+
+    /**
+     * Upload category image
+     */
+    public UploadResult uploadCategoryImage(MultipartFile file, Long categoryId) throws IOException {
+        String folder = "categories/" + categoryId;
+        return uploadFile(file, categoryImagesBucket, folder);
+    }
+
     private final OkHttpClient httpClient;
 
     public SupabaseStorageService() {
@@ -42,7 +53,7 @@ public class SupabaseStorageService {
     /**
      * Upload a file to Supabase Storage
      * 
-     * @param file MultipartFile to upload
+     * @param file   MultipartFile to upload
      * @param bucket Bucket name (product-images or review-images)
      * @param folder Optional folder path within bucket
      * @return UploadResult containing URL and path
@@ -61,13 +72,13 @@ public class SupabaseStorageService {
 
         // Generate unique filename
         String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename != null && originalFilename.contains(".") 
+        String extension = originalFilename != null && originalFilename.contains(".")
                 ? originalFilename.substring(originalFilename.lastIndexOf("."))
                 : ".jpg";
         String filename = UUID.randomUUID().toString() + extension;
-        
+
         // Build path: folder/filename or just filename
-        String path = folder != null && !folder.isEmpty() 
+        String path = folder != null && !folder.isEmpty()
                 ? folder + "/" + filename
                 : filename;
 
@@ -78,8 +89,7 @@ public class SupabaseStorageService {
         // Create request body
         RequestBody requestBody = RequestBody.create(
                 file.getBytes(),
-                MediaType.parse(contentType)
-        );
+                MediaType.parse(contentType));
 
         // Build request
         Request request = new Request.Builder()
@@ -94,7 +104,7 @@ public class SupabaseStorageService {
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 String errorBody = response.body() != null ? response.body().string() : "Unknown error";
-                log.error("❌ Supabase upload FAILED - Bucket: {}, Path: {}, Status: {}, Error: {}", 
+                log.error("❌ Supabase upload FAILED - Bucket: {}, Path: {}, Status: {}, Error: {}",
                         bucket, path, response.code(), errorBody);
                 throw new IOException("Upload failed: " + response.code() + " - " + errorBody);
             }
@@ -103,7 +113,7 @@ public class SupabaseStorageService {
             String publicUrl = String.format("%s/storage/v1/object/public/%s/%s",
                     supabaseUrl, bucket, path);
 
-            log.info("✅ Supabase upload SUCCESS - File: {}, Size: {} bytes, URL: {}", 
+            log.info("✅ Supabase upload SUCCESS - File: {}, Size: {} bytes, URL: {}",
                     file.getOriginalFilename(), file.getSize(), publicUrl);
 
             return new UploadResult(publicUrl, path, bucket);
@@ -130,7 +140,7 @@ public class SupabaseStorageService {
      * Delete a file from Supabase Storage
      * 
      * @param bucket Bucket name
-     * @param path File path in bucket
+     * @param path   File path in bucket
      */
     public void deleteFile(String bucket, String path) throws IOException {
         String deleteUrl = String.format("%s/storage/v1/object/%s/%s",
@@ -177,8 +187,7 @@ public class SupabaseStorageService {
         String jsonBody = "{\"expiresIn\": 3600}";
         RequestBody requestBody = RequestBody.create(
                 jsonBody,
-                MediaType.parse("application/json")
-        );
+                MediaType.parse("application/json"));
 
         Request request = new Request.Builder()
                 .url(signedUrl)
