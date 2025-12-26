@@ -2,6 +2,7 @@ package za.ac.styling.service;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,11 @@ public class EmailService {
 
             mailSender.send(message);
             System.out.println("Order confirmation email sent successfully to: " + order.getUser().getEmail());
+        } catch (MailException me) {
+            // Mail-specific exceptions (auth, SMTP errors)
+            System.err.println("MailException sending order confirmation to " + (order != null && order.getUser() != null ? order.getUser().getEmail() : "<unknown>") + ": " + me.getMessage());
+            me.printStackTrace();
+            System.err.println("Hint: verify SMTP credentials (spring.mail.username / spring.mail.password) and that the SMTP provider allows your requests.");
         } catch (Exception e) {
             // Log error but don't fail the order
             System.err.println("Failed to send order confirmation email: " + e.getMessage());
@@ -168,6 +174,38 @@ public class EmailService {
         html.append("</html>");
 
         return html.toString();
+    }
+
+    /**
+     * Send a simple diagnostic/test email to verify SMTP configuration.
+     * Returns true if send completed (may still have delivered failures reported by provider).
+     */
+    public boolean sendTestEmail(String to) {
+        if (to == null || to.isEmpty()) {
+            System.err.println("Cannot send test email: recipient is null/empty");
+            return false;
+        }
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setFrom("hloniyacho@gmail.com", "E-Commerce Store");
+            helper.setSubject("Test Email - E-Commerce Store");
+            helper.setText("<p>This is a test email from E-Commerce application. If you received this, SMTP is configured correctly.</p>", true);
+
+            mailSender.send(message);
+            System.out.println("Test email sent successfully to: " + to);
+            return true;
+        } catch (MailException me) {
+            System.err.println("MailException sending test email to " + to + ": " + me.getMessage());
+            me.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            System.err.println("Failed to send test email to " + to + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void sendOrderStatusChangeEmail(Order order, OrderStatus oldStatus, OrderStatus newStatus) {

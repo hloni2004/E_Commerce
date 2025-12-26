@@ -316,7 +316,7 @@ public class UserController {
                 .build();
 
         return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
-                .header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true));
+                .header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true, "accessToken", newAccess));
     }
 
     @PostMapping("/logout")

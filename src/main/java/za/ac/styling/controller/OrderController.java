@@ -33,6 +33,15 @@ public class OrderController {
         try {
             Order created = orderService.create(order);
 
+            // Send order confirmation email to customer (do not fail the request if email fails)
+            try {
+                emailService.sendOrderConfirmationEmail(created);
+                System.out.println("Order confirmation email triggered for order: " + created.getOrderNumber());
+            } catch (Exception emailEx) {
+                System.err.println("Failed to send confirmation email for order " + (created != null ? created.getOrderNumber() : "<unknown>") + ": " + emailEx.getMessage());
+                emailEx.printStackTrace();
+            }
+
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

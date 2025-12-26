@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="catagories image and caching">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="uploading photos">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/OrderController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/EmailService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/SupabaseStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/SupabaseStorageService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
@@ -236,7 +241,7 @@
       <workItem from="1766667493539" duration="6445000" />
       <workItem from="1766699904300" duration="501000" />
       <workItem from="1766700931891" duration="174000" />
-      <workItem from="1766749013812" duration="4085000" />
+      <workItem from="1766749013812" duration="5534000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -470,7 +475,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766752859462</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="uploading photos">
+      <option name="closed" value="true" />
+      <created>1766777924118</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1766777924119</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -503,7 +516,8 @@
     <MESSAGE value="tokoen still" />
     <MESSAGE value="catagories image" />
     <MESSAGE value="catagories image and caching" />
-    <option name="LAST_COMMIT_MESSAGE" value="catagories image and caching" />
+    <MESSAGE value="uploading photos" />
+    <option name="LAST_COMMIT_MESSAGE" value="uploading photos" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
