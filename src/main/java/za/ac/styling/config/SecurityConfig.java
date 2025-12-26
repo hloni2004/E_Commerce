@@ -39,12 +39,21 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
                 // Authorization rules
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/users/register", "/api/users/login",
-                                "/api/users/refresh")
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/users/register",
+                                "/api/users/login",
+                                "/api/users/refresh",
+                                "/api/users/forgot-password",
+                                "/api/users/reset-password",
+                                "/api/users/verify-reset-otp",
+                                "/api/users/validate-reset-token"
+                        )
                         .permitAll()
                         // Allow public GET access to product and category listings and images
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
+                )
                 // Add JWT filter before UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtFilter,
                         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);

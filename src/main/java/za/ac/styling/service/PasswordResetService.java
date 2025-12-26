@@ -73,7 +73,8 @@ public class PasswordResetService {
         // Create new token and OTP
         String token = generateToken();
         String otpCode = generateOTP();
-        LocalDateTime expiryDate = LocalDateTime.now().plusHours(EXPIRATION_HOURS);
+        // Use UTC for all token timestamps to avoid timezone mismatch
+        LocalDateTime expiryDate = java.time.LocalDateTime.now(java.time.ZoneOffset.UTC).plusHours(EXPIRATION_HOURS);
 
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .token(token)
@@ -82,25 +83,34 @@ public class PasswordResetService {
                 .used(false)
                 .otpCode(otpCode)
                 .otpVerified(false)
-                .createdAt(LocalDateTime.now())
+                .emailSent(false)
+                .lastSentAt(null)
+                .createdAt(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC))
                 .build();
 
         tokenRepository.save(resetToken);
 
         // Send email - don't let mail failures break the flow; log them and return
-        // token so clients get 200
-        String resetLink = frontendBaseUrl + "/auth/reset-password?token=" + token;
+        // token so clients get 200. Ensure token in URL is URL-encoded.
+        String encodedToken = java.net.URLEncoder.encode(token, java.nio.charset.StandardCharsets.UTF_8);
+        String resetLink = frontendBaseUrl + "/auth/reset-password?token=" + encodedToken;
         String userName = user.getFirstName() != null ? user.getFirstName() : user.getUsername();
         boolean emailSent = false;
         try {
             emailService.sendPasswordResetEmailWithOTP(user.getEmail(), resetLink, userName, otpCode);
             System.out.println("Password reset email dispatched to: " + user.getEmail());
             emailSent = true;
+            resetToken.setEmailSent(true);
+            resetToken.setLastSentAt(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
+            tokenRepository.save(resetToken);
         } catch (Exception e) {
             // Log and continue. Token is still created in DB so admin/ops can inspect and
             // resend.
             System.err.println("Failed to send password reset email to " + user.getEmail() + ": " + e.getMessage());
             e.printStackTrace();
+            resetToken.setEmailSent(false);
+            resetToken.setLastSentAt(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
+            tokenRepository.save(resetToken);
             // Do not rethrow: we want the endpoint to return 200 with generic message
         }
 

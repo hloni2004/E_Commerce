@@ -15,6 +15,8 @@ import za.ac.styling.dto.RegisterRequest;
 import za.ac.styling.dto.UserResponse;
 import za.ac.styling.service.UserService;
 import za.ac.styling.service.PasswordResetService;
+import za.ac.styling.domain.PasswordResetToken;
+import za.ac.styling.repository.PasswordResetTokenRepository;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -42,6 +44,9 @@ public class UserController {
 
     @Autowired
     private PasswordResetService passwordResetService;
+
+    @Autowired
+    private PasswordResetTokenRepository tokenRepository;
 
     @Autowired
     private za.ac.styling.security.JwtUtil jwtUtil;
@@ -454,12 +459,14 @@ public class UserController {
             }
 
             // Create and send password reset token (service handles email errors)
-            za.ac.styling.service.PasswordResetResult result = passwordResetService.createPasswordResetToken(email, frontendUrl);
+            za.ac.styling.service.PasswordResetResult result = passwordResetService.createPasswordResetToken(email,
+                    frontendUrl);
             String token = result != null ? result.token() : null;
             boolean emailSent = result != null && result.emailSent();
 
             // Log for debugging
-            System.out.println("/api/users/forgot-password called for: " + email + ", tokenCreated: " + (token != null) + ", emailSent: " + emailSent);
+            System.out.println("/api/users/forgot-password called for: " + email + ", tokenCreated: " + (token != null)
+                    + ", emailSent: " + emailSent);
 
             // Always return success to prevent email enumeration
             response.put("success", true);
@@ -568,6 +575,77 @@ public class UserController {
             response.put("success", false);
             response.put("message", "Error verifying OTP: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @PostMapping("/resend-reset-email")
+    public ResponseEntity<?> resendResetEmail(@RequestBody Map<String, String> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            String email = request.get("email");
+            if (email == null || email.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Email is required");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            // Create and attempt to send a fresh token (service handles email errors and
+            // logging)
+            za.ac.styling.service.PasswordResetResult result = passwordResetService.createPasswordResetToken(email,
+                    frontendUrl);
+            boolean emailSent = result != null && result.emailSent();
+
+            // Log for ops/debug
+            System.out.println("/api/users/resend-reset-email called for: " + email + ", emailSent: " + emailSent);
+
+            // Do not reveal existence of email to client — return generic success and
+            // provide debug info in dev only
+            response.put("success", true);
+            response.put("message", "If an account exists with this email, a password reset link has been sent.");
+            if (result != null && result.token() != null) {
+                response.put("token", result.token());
+                response.put("emailSent", emailSent);
+            }
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("success", false);
+            response.put("message", "Error processing resend request: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/admin/password-reset-tokens")
+    public ResponseEntity<?> listRecentResetTokens() {
+        try {
+            java.util.List<PasswordResetToken> tokens = tokenRepository.findTop50ByOrderByCreatedAtDesc();
+            java.util.List<Map<String, Object>> sanitized = new java.util.ArrayList<>();
+            for (PasswordResetToken t : tokens) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", t.getId());
+                item.put("email", t.getUser().getEmail());
+                // Mask token for safety (show first and last 4 chars)
+                String tok = t.getToken();
+                if (tok != null && tok.length() > 8) {
+                    item.put("tokenMask", tok.substring(0, 4) + "..." + tok.substring(tok.length() - 4));
+                } else {
+                    item.put("tokenMask", tok);
+                }
+                item.put("expiryDate", t.getExpiryDate());
+                item.put("used", t.isUsed());
+                item.put("otpVerified", t.isOtpVerified());
+                item.put("emailSent", t.isEmailSent());
+                item.put("lastSentAt", t.getLastSentAt());
+                item.put("createdAt", t.getCreatedAt());
+                sanitized.add(item);
+            }
+            return ResponseEntity.ok(Map.of("success", true, "data", sanitized));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", e.getMessage()));
         }
     }
 }
