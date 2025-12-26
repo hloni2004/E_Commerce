@@ -16,7 +16,6 @@ import za.ac.styling.security.JwtUtil;
 import za.ac.styling.filter.CspFilter;
 import za.ac.styling.filter.RateLimitFilter;
 
-
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -31,22 +30,24 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtUtil);
 
         http
-            // Disable CSRF for stateless JWT REST API
-            .csrf(csrf -> csrf.disable())
-            // Stateless session management
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // No form login, no HTTP basic
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-            // Authorization rules
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/users/register", "/api/users/login").permitAll()
-                // Allow public GET access to product and category listings and images
-                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-                .anyRequest().authenticated()
-            )
-            // Add JWT filter before UsernamePasswordAuthenticationFilter
-            .addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+                // Disable CSRF for stateless JWT REST API
+                .csrf(csrf -> csrf.disable())
+                // Stateless session management
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // No form login, no HTTP basic
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                // Authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**", "/api/users/register", "/api/users/login",
+                                "/api/users/refresh")
+                        .permitAll()
+                        // Allow public GET access to product and category listings and images
+                        .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
+                        .anyRequest().authenticated())
+                // Add JWT filter before UsernamePasswordAuthenticationFilter
+                .addFilterBefore(jwtFilter,
+                        org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -69,7 +70,8 @@ public class SecurityConfig {
 
     @Bean
     public FilterRegistrationBean<za.ac.styling.filter.NoCacheFilter> noCacheFilter() {
-        FilterRegistrationBean<za.ac.styling.filter.NoCacheFilter> reg = new FilterRegistrationBean<>(new za.ac.styling.filter.NoCacheFilter());
+        FilterRegistrationBean<za.ac.styling.filter.NoCacheFilter> reg = new FilterRegistrationBean<>(
+                new za.ac.styling.filter.NoCacheFilter());
         reg.addUrlPatterns("/api/*");
         reg.setOrder(3); // Run after RateLimitFilter
         return reg;

@@ -291,7 +291,10 @@ public class UserController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@CookieValue(value = "refresh_token", required = false) String refreshToken,
             jakarta.servlet.http.HttpServletRequest request) {
+        System.out.println("/api/users/refresh called - refresh_token cookie present: " + (refreshToken != null));
+
         if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
+            System.err.println("/api/users/refresh - invalid or missing refresh_token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("success", false, "message", "Invalid refresh token"));
         }
@@ -314,6 +317,8 @@ public class UserController {
                 .maxAge(7 * 24 * 60 * 60) // 7 days
                 .sameSite("None")
                 .build();
+
+        System.out.println("/api/users/refresh - refresh successful for subject: " + subject);
 
         return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
                 .header("Set-Cookie", refreshCookie.toString()).body(Map.of("success", true, "accessToken", newAccess));
