@@ -69,7 +69,7 @@ public class CartServiceImpl implements CartService {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-        
+
         return create(cart);
     }
 
@@ -90,7 +90,9 @@ public class CartServiceImpl implements CartService {
             return 0.0;
         }
 
+        // Only sum items with valid product, colour, and size
         return cart.getItems().stream()
+                .filter(item -> item.getProduct() != null && item.getColour() != null && item.getSize() != null)
                 .mapToDouble(item -> item.getProduct().getBasePrice() * item.getQuantity())
                 .sum();
     }

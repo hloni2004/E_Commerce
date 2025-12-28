@@ -46,6 +46,15 @@ public class CheckoutController {
             Cart cart = cartService.findByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
 
+            // Filter out cart items with missing product, colour, or size
+            if (cart.getItems() != null) {
+                cart.setItems(
+                        cart.getItems().stream()
+                                .filter(item -> item.getProduct() != null && item.getColour() != null
+                                        && item.getSize() != null)
+                                .toList());
+            }
+
             if (cart.getItems() == null || cart.getItems().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Cart is empty"));
             }

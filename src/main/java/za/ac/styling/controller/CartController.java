@@ -13,23 +13,23 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping({"/api/carts", "/api/cart"})
+@RequestMapping({ "/api/carts", "/api/cart" })
 public class CartController {
 
     private CartService cartService;
-    
+
     @Autowired
     private za.ac.styling.repository.CartItemRepository cartItemRepository;
-    
+
     @Autowired
     private za.ac.styling.repository.UserRepository userRepository;
-    
+
     @Autowired
     private za.ac.styling.repository.ProductRepository productRepository;
-    
+
     @Autowired
     private za.ac.styling.repository.ProductColourRepository productColourRepository;
-    
+
     @Autowired
     private za.ac.styling.repository.ProductColourSizeRepository productColourSizeRepository;
 
@@ -54,12 +54,12 @@ public class CartController {
             Cart cart = cartService.read(id);
             if (cart == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Cart not found"));
+                        .body(Map.of("success", false, "message", "Cart not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", cart));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving cart: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving cart: " + e.getMessage()));
         }
     }
 
@@ -69,12 +69,12 @@ public class CartController {
             Cart updated = cartService.update(cart);
             if (updated == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Cart not found"));
+                        .body(Map.of("success", false, "message", "Cart not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", updated));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error updating cart: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error updating cart: " + e.getMessage()));
         }
     }
 
@@ -85,7 +85,7 @@ public class CartController {
             return ResponseEntity.ok(Map.of("success", true, "data", carts));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving carts: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving carts: " + e.getMessage()));
         }
     }
 
@@ -96,7 +96,7 @@ public class CartController {
             return ResponseEntity.ok(Map.of("success", true, "message", "Cart deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error deleting cart: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error deleting cart: " + e.getMessage()));
         }
     }
 
@@ -104,30 +104,36 @@ public class CartController {
     public ResponseEntity<?> getCartByUser(@PathVariable Integer userId) {
         try {
             System.out.println("🛒 Fetching cart for user ID: " + userId);
-            
             Cart cart = cartService.findByUserId(userId)
-                .orElse(null);
-                
+                    .orElse(null);
             if (cart == null) {
                 System.out.println("⚠️ No cart found for user " + userId + ", returning empty cart");
                 return ResponseEntity.ok(Map.of(
-                    "success", true, 
-                    "data", Map.of(
-                        "cartId", 0,
-                        "items", new ArrayList<>(),
-                        "totalPrice", 0.0,
-                        "totalItems", 0
-                    )
-                ));
+                        "success", true,
+                        "data", Map.of(
+                                "cartId", 0,
+                                "items", new ArrayList<>(),
+                                "totalPrice", 0.0,
+                                "totalItems", 0)));
             }
-            
-            System.out.println("✅ Cart found with " + cart.getItems().size() + " items");
+
+            // Filter out cart items with missing product, colour, or size
+            if (cart.getItems() != null) {
+                cart.setItems(
+                        cart.getItems().stream()
+                                .filter(item -> item.getProduct() != null && item.getColour() != null
+                                        && item.getSize() != null)
+                                .toList());
+            }
+
+            System.out.println(
+                    "✅ Cart found with " + (cart.getItems() != null ? cart.getItems().size() : 0) + " valid items");
             return ResponseEntity.ok(Map.of("success", true, "data", cart));
         } catch (Exception e) {
             System.err.println("❌ Error retrieving cart: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving cart: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving cart: " + e.getMessage()));
         }
     }
 
@@ -136,20 +142,20 @@ public class CartController {
     public ResponseEntity<?> addItemToCart(@RequestBody Map<String, Object> request) {
         try {
             System.out.println("🛒 ADD TO CART Request: " + request);
-            
+
             Integer userId = (Integer) request.get("userId");
             Integer productId = (Integer) request.get("productId");
             Integer colourId = (Integer) request.get("colourId");
             Integer sizeId = (Integer) request.get("sizeId");
             Integer quantity = (Integer) request.get("quantity");
 
-            System.out.println("   User ID: " + userId + ", Product ID: " + productId + 
-                             ", Colour ID: " + colourId + ", Size ID: " + sizeId + ", Qty: " + quantity);
+            System.out.println("   User ID: " + userId + ", Product ID: " + productId +
+                    ", Colour ID: " + colourId + ", Size ID: " + sizeId + ", Qty: " + quantity);
 
             // Get user
             za.ac.styling.domain.User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-            
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
             System.out.println("✓ User found: " + user.getEmail());
 
             // Get or create cart for user
@@ -170,45 +176,43 @@ public class CartController {
 
             // Load full entities
             za.ac.styling.domain.Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
             System.out.println("✓ Product found: " + product.getName());
-            
+
             za.ac.styling.domain.ProductColour colour = productColourRepository.findById(colourId)
-                .orElseThrow(() -> new RuntimeException("Colour not found"));
+                    .orElseThrow(() -> new RuntimeException("Colour not found"));
             System.out.println("✓ Colour found: " + colour.getName());
-            
+
             za.ac.styling.domain.ProductColourSize size = productColourSizeRepository.findById(sizeId)
-                .orElseThrow(() -> new RuntimeException("Size not found"));
+                    .orElseThrow(() -> new RuntimeException("Size not found"));
             System.out.println("✓ Size found: " + size.getSizeName() + " (Stock: " + size.getStockQuantity() + ")");
 
             // Calculate available stock (total stock - reserved stock)
             int availableStock = size.getStockQuantity() - size.getReservedQuantity();
-            System.out.println("   Available stock: " + availableStock + " (Total: " + size.getStockQuantity() + 
-                             ", Reserved: " + size.getReservedQuantity() + ")");
+            System.out.println("   Available stock: " + availableStock + " (Total: " + size.getStockQuantity() +
+                    ", Reserved: " + size.getReservedQuantity() + ")");
 
             // Check if item already exists in cart
-            za.ac.styling.domain.CartItem existingItem = cart.getItems() != null ? 
-                cart.getItems().stream()
-                    .filter(item -> item.getProduct().getProductId().equals(productId) 
-                                 && item.getColour().getColourId().equals(colourId)
-                                 && item.getSize().getSizeId().equals(sizeId))
+            za.ac.styling.domain.CartItem existingItem = cart.getItems() != null ? cart.getItems().stream()
+                    .filter(item -> item.getProduct().getProductId().equals(productId)
+                            && item.getColour().getColourId().equals(colourId)
+                            && item.getSize().getSizeId().equals(sizeId))
                     .findFirst()
                     .orElse(null) : null;
 
             if (existingItem != null) {
-                System.out.println("   Item already in cart, updating quantity from " + 
-                                 existingItem.getQuantity() + " to " + (existingItem.getQuantity() + quantity));
-                
+                System.out.println("   Item already in cart, updating quantity from " +
+                        existingItem.getQuantity() + " to " + (existingItem.getQuantity() + quantity));
+
                 // Check if new total quantity exceeds available stock
                 int newQuantity = existingItem.getQuantity() + quantity;
                 if (newQuantity > availableStock) {
                     System.out.println("❌ Insufficient stock for update");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of(
-                            "success", false, 
-                            "message", "Insufficient stock. Only " + availableStock + " items available.",
-                            "availableStock", availableStock
-                        ));
+                            .body(Map.of(
+                                    "success", false,
+                                    "message", "Insufficient stock. Only " + availableStock + " items available.",
+                                    "availableStock", availableStock));
                 }
                 // Update quantity
                 existingItem.setQuantity(newQuantity);
@@ -216,25 +220,24 @@ public class CartController {
                 System.out.println("✅ Cart item updated successfully");
             } else {
                 System.out.println("   Adding new item to cart");
-                
+
                 // Check if quantity exceeds available stock
                 if (quantity > availableStock) {
                     System.out.println("❌ Insufficient stock for new item");
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Map.of(
-                            "success", false, 
-                            "message", "Insufficient stock. Only " + availableStock + " items available.",
-                            "availableStock", availableStock
-                        ));
+                            .body(Map.of(
+                                    "success", false,
+                                    "message", "Insufficient stock. Only " + availableStock + " items available.",
+                                    "availableStock", availableStock));
                 }
-                
+
                 // Create new cart item
                 za.ac.styling.domain.CartItem cartItem = za.ac.styling.domain.CartItem.builder()
-                    .product(product)
-                    .colour(colour)
-                    .size(size)
-                    .quantity(quantity)
-                    .build();
+                        .product(product)
+                        .colour(colour)
+                        .size(size)
+                        .quantity(quantity)
+                        .build();
                 cartItem.setCart(cart); // Link CartItem to Cart
                 if (cart.getItems() == null) {
                     cart.setItems(new java.util.ArrayList<>());
@@ -246,21 +249,20 @@ public class CartController {
 
             cart.setUpdatedAt(java.time.LocalDateTime.now());
             Cart updatedCart = cartService.update(cart);
-            
-            System.out.println("✅ Cart updated. Total items in cart: " + 
-                             (updatedCart.getItems() != null ? updatedCart.getItems().size() : 0));
+
+            System.out.println("✅ Cart updated. Total items in cart: " +
+                    (updatedCart.getItems() != null ? updatedCart.getItems().size() : 0));
 
             return ResponseEntity.ok(Map.of(
-                "success", true, 
-                "message", "Item added to cart",
-                "cartId", cart.getCartId(),
-                "itemCount", updatedCart.getItems() != null ? updatedCart.getItems().size() : 0
-            ));
+                    "success", true,
+                    "message", "Item added to cart",
+                    "cartId", cart.getCartId(),
+                    "itemCount", updatedCart.getItems() != null ? updatedCart.getItems().size() : 0));
         } catch (Exception e) {
             System.err.println("❌ ERROR adding to cart: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error adding item to cart: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error adding item to cart: " + e.getMessage()));
         }
     }
 
@@ -273,14 +275,15 @@ public class CartController {
                 return ResponseEntity.ok(Map.of("success", true, "message", "No cart found for user"));
             }
 
-            // Delete the entire cart (cascade will delete all cart items due to orphanRemoval = true)
+            // Delete the entire cart (cascade will delete all cart items due to
+            // orphanRemoval = true)
             cartService.delete(cart.getCartId());
 
             return ResponseEntity.ok(Map.of("success", true, "message", "Cart and cart items deleted successfully"));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error clearing cart: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error clearing cart: " + e.getMessage()));
         }
     }
 }
