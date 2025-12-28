@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import za.ac.styling.domain.*;
 import za.ac.styling.repository.*;
+import za.ac.styling.service.PromoCodeService;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ public class CheckoutController {
     private final UserRepository userRepository;
     private final za.ac.styling.service.EmailService emailService;
     private final za.ac.styling.service.InventoryService inventoryService;
+    private final za.ac.styling.service.PromoCodeService promoService;
 
     @GetMapping("/shipping-methods")
     public ResponseEntity<?> getActiveShippingMethods() {
@@ -38,15 +40,20 @@ public class CheckoutController {
             Long shippingMethodId = Long.valueOf(request.get("shippingMethodId").toString());
             Long shippingAddressId = Long.valueOf(request.get("shippingAddressId").toString());
 
+            String promoCodeStr = (String) request.get("promoCode");
+            Map<String, Integer> productQuantities = (Map<String, Integer>) request.get("productQuantities");
+            // Convert productQuantities keys to Integer
+            Map<Integer, Integer> productQtyMap = new java.util.HashMap<>();
+            if (productQuantities != null) {
+                for (Map.Entry<String, Integer> entry : productQuantities.entrySet()) {
+                    productQtyMap.put(Integer.valueOf(entry.getKey()), entry.getValue());
+                }
+            }
+
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
-
-            // Use service method that performs fetch join to ensure items are eagerly
-            // loaded
             Cart cart = cartService.findByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
-
-            // Filter out cart items with missing product, colour, or size
             if (cart.getItems() != null) {
                 cart.setItems(
                         cart.getItems().stream()
@@ -54,34 +61,39 @@ public class CheckoutController {
                                         && item.getSize() != null)
                                 .toList());
             }
-
             if (cart.getItems() == null || cart.getItems().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Cart is empty"));
             }
 
-            // Log cart details for diagnostics to help track quantity/price mismatches
-            System.out.println("🛒 Creating order for user " + userId + ", cartId=" + cart.getCartId() + ", items=");
-            cart.getItems().forEach(ci -> {
-                System.out.println(
-                        "   - productId=" + (ci.getProduct() != null ? ci.getProduct().getProductId() : "<null>") +
-                                ", qty=" + ci.getQuantity() + ", unitPrice="
-                                + (ci.getProduct() != null ? ci.getProduct().getBasePrice() : "<null>"));
-            });
-
             ShippingMethod shippingMethod = shippingMethodRepository.findById(shippingMethodId)
                     .orElseThrow(() -> new RuntimeException("Shipping method not found"));
-
             Address shippingAddress = addressRepository.findById(shippingAddressId)
                     .orElseThrow(() -> new RuntimeException("Address not found"));
 
-            // Calculate totals
+            // Calculate subtotal from DB prices
             double subtotal = cart.getItems().stream()
                     .mapToDouble(item -> item.getQuantity() * item.getProduct().getBasePrice())
                     .sum();
-
             double shippingCost = shippingMethod.getCost();
             double taxAmount = subtotal * 0.15; // 15% VAT
-            double totalAmount = subtotal + shippingCost + taxAmount;
+            double discountAmount = 0;
+            String promoMessage = null;
+
+            // Promo code validation and discount calculation
+            za.ac.styling.domain.PromoCode appliedPromo = null;
+            if (promoCodeStr != null && !promoCodeStr.isEmpty()) {
+                var discountResult = promoService.applyPromoCode(
+                        promoCodeStr, userId, productQtyMap, subtotal);
+                if (!discountResult.isApplied()) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("error", discountResult.getMessage(), "errorType", "PROMO_INVALID"));
+                }
+                discountAmount = discountResult.getDiscountAmount();
+                promoMessage = discountResult.getMessage();
+                appliedPromo = promoService.findByCode(promoCodeStr);
+            }
+
+            double totalAmount = subtotal + shippingCost + taxAmount - discountAmount;
 
             // Generate order number
             String orderNumber = "ORD-" + System.currentTimeMillis();
@@ -93,6 +105,7 @@ public class CheckoutController {
                     .subtotal(subtotal)
                     .shippingCost(shippingCost)
                     .taxAmount(taxAmount)
+                    .discountAmount(discountAmount)
                     .totalAmount(totalAmount)
                     .orderDate(new Date())
                     .shippingMethod(shippingMethod)
@@ -118,7 +131,6 @@ public class CheckoutController {
                                 .build();
                     })
                     .toList();
-
             order.setItems(orderItems);
 
             // Check stock availability before creating order
@@ -127,7 +139,6 @@ public class CheckoutController {
                         "error", "Some items in your cart are out of stock or have insufficient quantity",
                         "errorType", "INSUFFICIENT_STOCK"));
             }
-
             // Reserve stock for the order
             try {
                 inventoryService.reserveStock(orderItems);
@@ -140,27 +151,27 @@ public class CheckoutController {
             // Save order
             Order savedOrder = orderRepository.save(order);
 
+            // Record promo usage only after successful order
+            if (appliedPromo != null) {
+                promoService.recordPromoUsage(appliedPromo.getPromoId(), userId, savedOrder.getOrderId());
+            }
+
             // Commit stock (convert reserved to sold)
             inventoryService.commitStock(orderItems);
 
             // Send order confirmation email asynchronously (loosely coupled)
-            // This ensures the order is saved even if email fails
             final Order finalOrder = savedOrder;
             java.util.concurrent.CompletableFuture.runAsync(() -> {
                 try {
-                    // Ensure all relationships are loaded before sending email
-                    finalOrder.getItems().size(); // Force load items
+                    finalOrder.getItems().size();
                     finalOrder.getItems().forEach(item -> {
-                        item.getProduct().getName(); // Force load product
-                        item.getColour().getName(); // Force load colour
-                        item.getColourSize().getSizeName(); // Force load size
+                        item.getProduct().getName();
+                        item.getColour().getName();
+                        item.getColourSize().getSizeName();
                     });
-
-                    // Log recipient email and order number for diagnostics
                     String recipient = finalOrder.getUser() != null ? finalOrder.getUser().getEmail() : "<unknown>";
                     System.out.println("Attempting to send order confirmation email to " + recipient + " for order "
                             + finalOrder.getOrderNumber());
-
                     emailService.sendOrderConfirmationEmail(finalOrder);
                 } catch (Exception e) {
                     System.err.println("Failed to send confirmation email asynchronously: " + e.getMessage());
@@ -172,7 +183,7 @@ public class CheckoutController {
             try {
                 if (cart.getItems() != null && !cart.getItems().isEmpty()) {
                     cart.getItems().clear();
-                    cartService.update(cart); // Persist removal of items
+                    cartService.update(cart);
                     System.out.println("✅ Cleared cart items for cartId=" + cart.getCartId());
                 }
                 cartRepository.delete(cart);
@@ -185,8 +196,11 @@ public class CheckoutController {
             response.put("orderId", savedOrder.getOrderId());
             response.put("orderNumber", savedOrder.getOrderNumber());
             response.put("totalAmount", savedOrder.getTotalAmount());
+            response.put("discountAmount", savedOrder.getDiscountAmount());
             response.put("status", savedOrder.getStatus());
             response.put("message", "Order placed successfully! Check your email for confirmation.");
+            if (promoMessage != null)
+                response.put("promoMessage", promoMessage);
 
             return ResponseEntity.ok(response);
 

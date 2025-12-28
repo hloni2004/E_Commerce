@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="email , password">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="cart issue with login redirect issue">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Order.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/PromoCodeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/PromoCodeService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/PromoCodeServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/PromoCodeServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -238,7 +242,7 @@
       <workItem from="1766700931891" duration="174000" />
       <workItem from="1766749013812" duration="11353000" />
       <workItem from="1766926677183" duration="377000" />
-      <workItem from="1766930307537" duration="796000" />
+      <workItem from="1766930307537" duration="4109000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -528,7 +532,23 @@
       <option name="project" value="LOCAL" />
       <updated>1766792233152</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="cart issue with login redirect issue">
+      <option name="closed" value="true" />
+      <created>1766947139863</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1766947139867</updated>
+    </task>
+    <task id="LOCAL-00038" summary="cart issue with login redirect issue">
+      <option name="closed" value="true" />
+      <created>1766950215931</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1766950215932</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -564,7 +584,8 @@
     <MESSAGE value="uploading photos" />
     <MESSAGE value="email" />
     <MESSAGE value="email , password" />
-    <option name="LAST_COMMIT_MESSAGE" value="email , password" />
+    <MESSAGE value="cart issue with login redirect issue" />
+    <option name="LAST_COMMIT_MESSAGE" value="cart issue with login redirect issue" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

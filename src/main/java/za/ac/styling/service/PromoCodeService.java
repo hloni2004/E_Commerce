@@ -1,3 +1,5 @@
+
+
 package za.ac.styling.service;
 
 import za.ac.styling.domain.PromoCode;
@@ -11,6 +13,7 @@ import java.util.Map;
  * Service interface for PromoCode management
  */
 public interface PromoCodeService extends IService<PromoCode, Integer> {
+
 
     /**
      * Find promo code by code string
@@ -27,7 +30,8 @@ public interface PromoCodeService extends IService<PromoCode, Integer> {
      * Apply promo code to cart items and calculate discount
      * Returns discount details
      */
-    PromoDiscountResult applyPromoCode(String code, Integer userId, Map<Integer, Integer> productQuantities, double cartSubtotal);
+    PromoDiscountResult applyPromoCode(String code, Integer userId, Map<Integer, Integer> productQuantities,
+            double cartSubtotal);
 
     /**
      * Create a new promo code with eligible products
@@ -73,9 +77,17 @@ public interface PromoCodeService extends IService<PromoCode, Integer> {
             this.promoCode = promoCode;
         }
 
-        public boolean isValid() { return valid; }
-        public String getMessage() { return message; }
-        public PromoCode getPromoCode() { return promoCode; }
+        public boolean isValid() {
+            return valid;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public PromoCode getPromoCode() {
+            return promoCode;
+        }
     }
 
     /**
@@ -88,8 +100,8 @@ public interface PromoCodeService extends IService<PromoCode, Integer> {
         private String message;
         private List<Integer> eligibleProductIds;
 
-        public PromoDiscountResult(boolean applied, double discountAmount, double finalTotal, 
-                                  String message, List<Integer> eligibleProductIds) {
+        public PromoDiscountResult(boolean applied, double discountAmount, double finalTotal,
+                String message, List<Integer> eligibleProductIds) {
             this.applied = applied;
             this.discountAmount = discountAmount;
             this.finalTotal = finalTotal;
@@ -97,10 +109,24 @@ public interface PromoCodeService extends IService<PromoCode, Integer> {
             this.eligibleProductIds = eligibleProductIds;
         }
 
-        public boolean isApplied() { return applied; }
-        public double getDiscountAmount() { return discountAmount; }
-        public double getFinalTotal() { return finalTotal; }
-        public String getMessage() { return message; }
-        public List<Integer> getEligibleProductIds() { return eligibleProductIds; }
+        public boolean isApplied() {
+            return applied;
+        }
+
+        public double getDiscountAmount() {
+            return discountAmount;
+        }
+
+        public double getFinalTotal() {
+            return finalTotal;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public List<Integer> getEligibleProductIds() {
+            return eligibleProductIds;
+        }
     }
 }

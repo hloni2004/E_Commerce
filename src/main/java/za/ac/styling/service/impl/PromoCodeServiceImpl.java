@@ -3,6 +3,8 @@ package za.ac.styling.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Scope;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import za.ac.styling.domain.*;
 import za.ac.styling.repository.*;
 import za.ac.styling.service.PromoCodeService;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
  * Service implementation for PromoCode management
  */
 @Service
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class PromoCodeServiceImpl implements PromoCodeService {
 
     @Autowired
@@ -80,12 +83,12 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         if (productIds != null && !productIds.isEmpty()) {
             for (Integer productId : productIds) {
                 Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
-                
+                        .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+
                 PromoProduct promoProduct = PromoProduct.builder()
-                    .promoCode(savedPromo)
-                    .product(product)
-                    .build();
+                        .promoCode(savedPromo)
+                        .product(product)
+                        .build();
                 promoProductRepository.save(promoProduct);
             }
         }
@@ -97,11 +100,11 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     @Transactional
     public PromoCode updatePromoWithProducts(Integer promoId, PromoCode promoCode, List<Integer> productIds) {
         PromoCode existingPromo = promoCodeRepository.findById(promoId)
-            .orElseThrow(() -> new IllegalArgumentException("Promo code not found: " + promoId));
+                .orElseThrow(() -> new IllegalArgumentException("Promo code not found: " + promoId));
 
         // Check if code is being changed to an existing code
         if (!existingPromo.getCode().equalsIgnoreCase(promoCode.getCode()) &&
-            promoCodeRepository.existsByCodeIgnoreCase(promoCode.getCode())) {
+                promoCodeRepository.existsByCodeIgnoreCase(promoCode.getCode())) {
             throw new IllegalArgumentException("Promo code already exists: " + promoCode.getCode());
         }
 
@@ -123,12 +126,12 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         if (productIds != null && !productIds.isEmpty()) {
             for (Integer productId : productIds) {
                 Product product = productRepository.findById(productId)
-                    .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
-                
+                        .orElseThrow(() -> new IllegalArgumentException("Product not found: " + productId));
+
                 PromoProduct promoProduct = PromoProduct.builder()
-                    .promoCode(updatedPromo)
-                    .product(product)
-                    .build();
+                        .promoCode(updatedPromo)
+                        .product(product)
+                        .build();
                 promoProductRepository.save(promoProduct);
             }
         }
@@ -137,7 +140,8 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     }
 
     @Override
-    public PromoValidationResult validatePromoCode(String code, Integer userId, List<Integer> productIds, double cartTotal) {
+    public PromoValidationResult validatePromoCode(String code, Integer userId, List<Integer> productIds,
+            double cartTotal) {
         // Find promo code
         PromoCode promoCode = promoCodeRepository.findByCodeIgnoreCase(code).orElse(null);
         if (promoCode == null) {
@@ -170,16 +174,16 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
         // Check minimum purchase amount
         if (promoCode.getMinPurchaseAmount() != null && cartTotal < promoCode.getMinPurchaseAmount()) {
-            return new PromoValidationResult(false, 
-                String.format("Minimum purchase of R%.2f required", promoCode.getMinPurchaseAmount()), 
-                promoCode);
+            return new PromoValidationResult(false,
+                    String.format("Minimum purchase of R%.2f required", promoCode.getMinPurchaseAmount()),
+                    promoCode);
         }
 
         // Check if any products in cart are eligible
         List<Integer> eligibleProductIds = getEligibleProductIds(promoCode.getPromoId());
         if (!eligibleProductIds.isEmpty()) {
             boolean hasEligibleProduct = productIds.stream()
-                .anyMatch(eligibleProductIds::contains);
+                    .anyMatch(eligibleProductIds::contains);
             if (!hasEligibleProduct) {
                 return new PromoValidationResult(false, "No eligible products in cart", promoCode);
             }
@@ -189,11 +193,12 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     }
 
     @Override
-    public PromoDiscountResult applyPromoCode(String code, Integer userId, Map<Integer, Integer> productQuantities, double cartSubtotal) {
+    public PromoDiscountResult applyPromoCode(String code, Integer userId, Map<Integer, Integer> productQuantities,
+            double cartSubtotal) {
         // Validate first
         List<Integer> productIds = new ArrayList<>(productQuantities.keySet());
         PromoValidationResult validation = validatePromoCode(code, userId, productIds, cartSubtotal);
-        
+
         if (!validation.isValid()) {
             return new PromoDiscountResult(false, 0, cartSubtotal, validation.getMessage(), new ArrayList<>());
         }
@@ -238,10 +243,10 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     @Transactional
     public void recordPromoUsage(Integer promoId, Integer userId, Integer orderId) {
         PromoCode promoCode = promoCodeRepository.findById(promoId)
-            .orElseThrow(() -> new IllegalArgumentException("Promo code not found"));
-        
+                .orElseThrow(() -> new IllegalArgumentException("Promo code not found"));
+
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         Order order = null;
         if (orderId != null) {
@@ -250,10 +255,10 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
         // Create usage record
         PromoUsage usage = PromoUsage.builder()
-            .promoCode(promoCode)
-            .user(user)
-            .order(order)
-            .build();
+                .promoCode(promoCode)
+                .user(user)
+                .order(order)
+                .build();
         promoUsageRepository.save(usage);
 
         // Increment usage count

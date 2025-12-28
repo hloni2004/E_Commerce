@@ -31,6 +31,10 @@ public class Order {
     private double shippingCost;
     private double taxAmount;
     private double discountAmount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "promo_code_id")
+    private PromoCode promoCode;
     private Date orderDate;
 
     @OneToOne
@@ -51,4 +55,12 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
+
+    public PromoCode getPromoCode() {
+        return promoCode;
+    }
+
+    public void setPromoCode(PromoCode promoCode) {
+        this.promoCode = promoCode;
+    }
 }
