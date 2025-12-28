@@ -41,7 +41,8 @@ public class CheckoutController {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Use service method that performs fetch join to ensure items are eagerly loaded
+            // Use service method that performs fetch join to ensure items are eagerly
+            // loaded
             Cart cart = cartService.findByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
 
@@ -52,8 +53,10 @@ public class CheckoutController {
             // Log cart details for diagnostics to help track quantity/price mismatches
             System.out.println("🛒 Creating order for user " + userId + ", cartId=" + cart.getCartId() + ", items=");
             cart.getItems().forEach(ci -> {
-                System.out.println("   - productId=" + (ci.getProduct() != null ? ci.getProduct().getProductId() : "<null>") + 
-                                   ", qty=" + ci.getQuantity() + ", unitPrice=" + (ci.getProduct() != null ? ci.getProduct().getBasePrice() : "<null>"));
+                System.out.println(
+                        "   - productId=" + (ci.getProduct() != null ? ci.getProduct().getProductId() : "<null>") +
+                                ", qty=" + ci.getQuantity() + ", unitPrice="
+                                + (ci.getProduct() != null ? ci.getProduct().getBasePrice() : "<null>"));
             });
 
             ShippingMethod shippingMethod = shippingMethodRepository.findById(shippingMethodId)
@@ -156,8 +159,18 @@ public class CheckoutController {
                 }
             });
 
-            // Delete cart and cart items completely after successful order
-            cartRepository.delete(cart);
+            // Delete cart items and cart after successful order (defensive)
+            try {
+                if (cart.getItems() != null && !cart.getItems().isEmpty()) {
+                    cart.getItems().clear();
+                    cartService.update(cart); // Persist removal of items
+                    System.out.println("✅ Cleared cart items for cartId=" + cart.getCartId());
+                }
+                cartRepository.delete(cart);
+                System.out.println("✅ Deleted cart for userId=" + userId + ", cartId=" + cart.getCartId());
+            } catch (Exception ex) {
+                System.err.println("❌ Failed to fully delete cart or items: " + ex.getMessage());
+            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("orderId", savedOrder.getOrderId());
@@ -262,19 +275,60 @@ public class CheckoutController {
         try {
             System.out.println("🛒 Checkout: Fetching cart for user ID: " + userId);
 
-            // Use cartService which has fetch join to load items
-            Cart cart = cartService.findByUserId(userId)
-                    .orElse(null);
-
+            Cart cart = cartService.findByUserId(userId).orElse(null);
             if (cart == null) {
                 System.out.println("⚠️ No cart found for user " + userId);
                 return ResponseEntity.badRequest().body(Map.of("error", "Cart not found"));
             }
 
+            // Build response with correct image for each cart item
+            var cartItems = cart.getItems();
+            var itemsWithImages = new java.util.ArrayList<>();
+            for (var ci : cartItems) {
+                String imageUrl = null;
+                // Try to get image for selected colour
+                if (ci.getColour() != null && ci.getColour().getProduct() != null
+                        && ci.getColour().getProduct().getImages() != null) {
+                    var images = ci.getColour().getProduct().getImages();
+                    var match = images.stream()
+                            .filter(img -> img.getAltText() != null
+                                    && img.getAltText().toLowerCase().contains(ci.getColour().getName().toLowerCase()))
+                            .findFirst();
+                    if (match.isPresent()) {
+                        imageUrl = match.get().getImageUrl();
+                    }
+                }
+                // Fallback to product primary image
+                if (imageUrl == null && ci.getProduct() != null && ci.getProduct().getPrimaryImage() != null) {
+                    imageUrl = ci.getProduct().getPrimaryImage().getImageUrl();
+                }
+                // Fallback to any image
+                if (imageUrl == null && ci.getProduct() != null && ci.getProduct().getImages() != null
+                        && !ci.getProduct().getImages().isEmpty()) {
+                    imageUrl = ci.getProduct().getImages().get(0).getImageUrl();
+                }
+                var itemMap = new java.util.HashMap<String, Object>();
+                itemMap.put("cartItemId", ci.getCartItemId());
+                itemMap.put("product", Map.of(
+                        "productId", ci.getProduct() != null ? ci.getProduct().getProductId() : null,
+                        "name", ci.getProduct() != null ? ci.getProduct().getName() : null,
+                        "basePrice", ci.getProduct() != null ? ci.getProduct().getBasePrice() : null,
+                        "imageUrl", imageUrl));
+                itemMap.put("colour", Map.of(
+                        "colourId", ci.getColour() != null ? ci.getColour().getColourId() : null,
+                        "name", ci.getColour() != null ? ci.getColour().getName() : null));
+                itemMap.put("size", Map.of(
+                        "sizeId", ci.getSize() != null ? ci.getSize().getSizeId() : null,
+                        "sizeName", ci.getSize() != null ? ci.getSize().getSizeName() : null));
+                itemMap.put("quantity", ci.getQuantity());
+                itemsWithImages.add(itemMap);
+            }
+            var response = Map.of(
+                    "cartId", cart.getCartId(),
+                    "items", itemsWithImages);
             System.out
                     .println("✅ Cart found with " + (cart.getItems() != null ? cart.getItems().size() : 0) + " items");
-            return ResponseEntity.ok(cart);
-
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             System.err.println("❌ Error fetching cart: " + e.getMessage());
             e.printStackTrace();
