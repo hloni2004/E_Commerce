@@ -41,12 +41,20 @@ public class CheckoutController {
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            Cart cart = cartRepository.findByUser(user)
+            // Use service method that performs fetch join to ensure items are eagerly loaded
+            Cart cart = cartService.findByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
 
             if (cart.getItems() == null || cart.getItems().isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Cart is empty"));
             }
+
+            // Log cart details for diagnostics to help track quantity/price mismatches
+            System.out.println("🛒 Creating order for user " + userId + ", cartId=" + cart.getCartId() + ", items=");
+            cart.getItems().forEach(ci -> {
+                System.out.println("   - productId=" + (ci.getProduct() != null ? ci.getProduct().getProductId() : "<null>") + 
+                                   ", qty=" + ci.getQuantity() + ", unitPrice=" + (ci.getProduct() != null ? ci.getProduct().getBasePrice() : "<null>"));
+            });
 
             ShippingMethod shippingMethod = shippingMethodRepository.findById(shippingMethodId)
                     .orElseThrow(() -> new RuntimeException("Shipping method not found"));
