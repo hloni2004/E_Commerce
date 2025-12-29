@@ -33,12 +33,15 @@ public class OrderController {
         try {
             Order created = orderService.create(order);
 
-            // Send order confirmation email to customer (do not fail the request if email fails)
+            // Send order invoice email to customer (do not fail the request if email fails)
             try {
-                emailService.sendOrderConfirmationEmail(created);
-                System.out.println("Order confirmation email triggered for order: " + created.getOrderNumber());
+                if (created != null && created.getUser() != null) {
+                    emailService.sendOrderInvoice(created.getUser(), created);
+                    System.out.println("Order invoice email triggered for order: " + created.getOrderNumber());
+                }
             } catch (Exception emailEx) {
-                System.err.println("Failed to send confirmation email for order " + (created != null ? created.getOrderNumber() : "<unknown>") + ": " + emailEx.getMessage());
+                System.err.println("Failed to send invoice email for order "
+                        + (created != null ? created.getOrderNumber() : "<unknown>") + ": " + emailEx.getMessage());
                 emailEx.printStackTrace();
             }
 
@@ -190,8 +193,18 @@ public class OrderController {
 
             Order updated = orderService.update(order);
 
-            // Send email notification to customer about status change
-            emailService.sendOrderStatusChangeEmail(updated, oldStatus, status);
+            // Send email notification to customer about status change (do not fail the
+            // request if email fails)
+            try {
+                if (updated != null && updated.getUser() != null) {
+                    emailService.sendOrderStatusUpdate(updated.getUser(), updated);
+                    System.out.println("Order status update email triggered for order: " + updated.getOrderNumber());
+                }
+            } catch (Exception emailEx) {
+                System.err.println("Failed to send status update email for order "
+                        + (updated != null ? updated.getOrderNumber() : "<unknown>") + ": " + emailEx.getMessage());
+                emailEx.printStackTrace();
+            }
 
             return ResponseEntity.ok(Map.of(
                     "success", true,

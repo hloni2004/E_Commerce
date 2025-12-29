@@ -194,11 +194,13 @@ public class CheckoutController {
                         item.getColourSize().getSizeName();
                     });
                     String recipient = finalOrder.getUser() != null ? finalOrder.getUser().getEmail() : "<unknown>";
-                    System.out.println("Attempting to send order confirmation email to " + recipient + " for order "
+                    System.out.println("Attempting to send order invoice email to " + recipient + " for order "
                             + finalOrder.getOrderNumber());
-                    emailService.sendOrderConfirmationEmail(finalOrder);
+                    if (finalOrder.getUser() != null) {
+                        emailService.sendOrderInvoice(finalOrder.getUser(), finalOrder);
+                    }
                 } catch (Exception e) {
-                    System.err.println("Failed to send confirmation email asynchronously: " + e.getMessage());
+                    System.err.println("Failed to send invoice email asynchronously: " + e.getMessage());
                     e.printStackTrace();
                 }
             });

@@ -1,184 +1,151 @@
 package za.ac.styling.service;
 
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import za.ac.styling.domain.Order;
 import za.ac.styling.domain.OrderItem;
 import za.ac.styling.domain.OrderStatus;
 import za.ac.styling.domain.Product;
 import za.ac.styling.domain.ProductColourSize;
+import za.ac.styling.domain.User;
 
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
+/**
+ * Service for sending transactional emails (order invoice, status updates)
+ * using Brevo (Sendinblue) SMTP.
+ * All email failures are logged but do not break order processing.
+ */
 @Service
-@RequiredArgsConstructor
 public class EmailService {
 
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
+    private final Environment env;
 
-    public void sendOrderConfirmationEmail(Order order) {
-        try {
-            if (order == null || order.getUser() == null || order.getUser().getEmail() == null) {
-                System.err.println("Cannot send email: Order or user data is null");
-                return;
-            }
-
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setTo(order.getUser().getEmail());
-            helper.setFrom("hloniyacho@gmail.com", "E-Commerce Store");
-            helper.setReplyTo("hloniyacho@gmail.com");
-            helper.setSubject("Order Confirmation - " + order.getOrderNumber());
-            helper.setText(buildOrderConfirmationEmail(order), true);
-
-            mailSender.send(message);
-            System.out.println("Order confirmation email sent successfully to: " + order.getUser().getEmail());
-        } catch (MailException me) {
-            // Mail-specific exceptions (auth, SMTP errors)
-            System.err.println("MailException sending order confirmation to " + (order != null && order.getUser() != null ? order.getUser().getEmail() : "<unknown>") + ": " + me.getMessage());
-            me.printStackTrace();
-            System.err.println("Hint: verify SMTP credentials (spring.mail.username / spring.mail.password) and that the SMTP provider allows your requests.");
-        } catch (Exception e) {
-            // Log error but don't fail the order
-            System.err.println("Failed to send order confirmation email: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private String buildOrderConfirmationEmail(Order order) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
-        StringBuilder html = new StringBuilder();
-
-        html.append("<!DOCTYPE html>");
-        html.append("<html>");
-        html.append("<head>");
-        html.append("<style>");
-        html.append("body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }");
-        html.append(".container { max-width: 600px; margin: 0 auto; padding: 20px; }");
-        html.append(".header { background-color: #000; color: #fff; padding: 30px; text-align: center; }");
-        html.append(".header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }");
-        html.append(".content { background-color: #fff; padding: 30px; }");
-        html.append(".order-info { background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px; }");
-        html.append(".item { border-bottom: 1px solid #ddd; padding: 15px 0; }");
-        html.append(".item:last-child { border-bottom: none; }");
-        html.append(".total { background-color: #000; color: #fff; padding: 20px; text-align: right; }");
-        html.append(".footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }");
-        html.append("table { width: 100%; border-collapse: collapse; }");
-        html.append("td { padding: 8px 0; }");
-        html.append(".text-right { text-align: right; }");
-        html.append(".bold { font-weight: bold; }");
-        html.append("</style>");
-        html.append("</head>");
-        html.append("<body>");
-        html.append("<div class='container'>");
-
-        // Header
-        html.append("<div class='header'>");
-        html.append("<h1>MAISON LUXE</h1>");
-        html.append("<p>Thank you for your order!</p>");
-        html.append("</div>");
-
-        // Content
-        html.append("<div class='content'>");
-        html.append("<h2>Order Confirmation</h2>");
-        String firstName = order.getUser().getFirstName() != null ? order.getUser().getFirstName() : "Customer";
-        html.append("<p>Hi ").append(firstName).append(",</p>");
-        html.append("<p>Your order has been successfully placed and is being processed.</p>");
-
-        // Order Info
-        html.append("<div class='order-info'>");
-        html.append("<table>");
-        html.append("<tr><td><strong>Order Number:</strong></td><td>").append(order.getOrderNumber())
-                .append("</td></tr>");
-        html.append("<tr><td><strong>Order Date:</strong></td><td>").append(dateFormat.format(order.getOrderDate()))
-                .append("</td></tr>");
-        html.append("<tr><td><strong>Status:</strong></td><td>").append(order.getStatus()).append("</td></tr>");
-        html.append("</table>");
-        html.append("</div>");
-
-        // Order Items
-        html.append("<h3>Order Details</h3>");
-        for (OrderItem item : order.getItems()) {
-            html.append("<div class='item'>");
-            html.append("<table>");
-            html.append("<tr>");
-            html.append("<td class='bold'>").append(item.getProduct().getName()).append("</td>");
-            html.append("<td class='text-right'>R").append(String.format("%.2f", item.getSubtotal())).append("</td>");
-            html.append("</tr>");
-            html.append("<tr>");
-            html.append("<td>").append(item.getColour().getName()).append(" / ")
-                    .append(item.getColourSize().getSizeName()).append("</td>");
-            html.append("<td class='text-right'>Qty: ").append(item.getQuantity()).append("</td>");
-            html.append("</tr>");
-            html.append("<tr>");
-            html.append("<td></td>");
-            html.append("<td class='text-right'>R").append(String.format("%.2f", item.getPrice())).append(" each</td>");
-            html.append("</tr>");
-            html.append("</table>");
-            html.append("</div>");
-        }
-
-        // Totals
-        html.append("<div style='margin-top: 30px;'>");
-        html.append("<table>");
-        html.append("<tr><td>Subtotal:</td><td class='text-right'>R").append(String.format("%.2f", order.getSubtotal()))
-                .append("</td></tr>");
-        html.append("<tr><td>Shipping (").append(order.getShippingMethod().getName())
-                .append("):</td><td class='text-right'>R").append(String.format("%.2f", order.getShippingCost()))
-                .append("</td></tr>");
-        html.append("<tr><td>Tax (15% VAT):</td><td class='text-right'>R")
-                .append(String.format("%.2f", order.getTaxAmount())).append("</td></tr>");
-        html.append("</table>");
-        html.append("</div>");
-
-        html.append("<div class='total'>");
-        html.append("<h2 style='margin: 0;'>Total: R").append(String.format("%.2f", order.getTotalAmount()))
-                .append("</h2>");
-        html.append("</div>");
-
-        // Shipping Address
-        html.append("<h3>Shipping Address</h3>");
-        html.append("<p>");
-        html.append(order.getShippingAddress().getFullName()).append("<br>");
-        html.append(order.getShippingAddress().getAddressLine1()).append("<br>");
-        if (order.getShippingAddress().getAddressLine2() != null
-                && !order.getShippingAddress().getAddressLine2().isEmpty()) {
-            html.append(order.getShippingAddress().getAddressLine2()).append("<br>");
-        }
-        html.append(order.getShippingAddress().getCity()).append(", ");
-        html.append(order.getShippingAddress().getProvince()).append(" ");
-        html.append(order.getShippingAddress().getPostalCode()).append("<br>");
-        html.append(order.getShippingAddress().getCountry()).append("<br>");
-        html.append("Phone: ").append(order.getShippingAddress().getPhone());
-        html.append("</p>");
-
-        html.append(
-                "<p style='margin-top: 30px;'>We'll send you a shipping confirmation email as soon as your order ships.</p>");
-        html.append("<p>If you have any questions, please contact us.</p>");
-
-        html.append("</div>");
-
-        // Footer
-        html.append("<div class='footer'>");
-        html.append("<p>Thank you for shopping with MAISON LUXE</p>");
-        html.append("<p>This is an automated email, please do not reply.</p>");
-        html.append("</div>");
-
-        html.append("</div>");
-        html.append("</body>");
-        html.append("</html>");
-
-        return html.toString();
+    @Autowired
+    public EmailService(JavaMailSender mailSender, Environment env) {
+        this.mailSender = mailSender;
+        this.env = env;
     }
 
     /**
+     * Sends a professional HTML invoice email to the user after order placement.
+     * 
+     * @param user  The recipient user.
+     * @param order The order details.
+     */
+    public void sendOrderInvoice(User user, Order order) {
+        String subject = "Your Order Invoice - Order #" + order.getOrderNumber();
+        String to = user.getEmail();
+        String htmlContent = buildInvoiceHtml(user, order);
+        sendHtmlEmail(to, subject, htmlContent);
+    }
+
+    /**
+     * Sends an order status update email to the user when order status changes.
+     * 
+     * @param user  The recipient user.
+     * @param order The order with updated status.
+     */
+    public void sendOrderStatusUpdate(User user, Order order) {
+        String subject = "Order Status Update - Order #" + order.getOrderNumber();
+        String to = user.getEmail();
+        String htmlContent = buildStatusUpdateHtml(user, order);
+        sendHtmlEmail(to, subject, htmlContent);
+    }
+
+    /**
+     * Core method to send an HTML email using JavaMailSender.
+     * Logs any failures but does not throw, so order processing is not interrupted.
+     */
+    private void sendHtmlEmail(String to, String subject, String htmlContent) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true); // true = HTML
+
+            // Optionally set sender from application.properties
+            String from = env.getProperty("spring.mail.username");
+            if (from != null) {
+                helper.setFrom(from);
+            }
+
+            mailSender.send(message);
+            logger.info("Email sent to {} with subject '{}'", to, subject);
+        } catch (MailException | jakarta.mail.MessagingException e) {
+            logger.error("Failed to send email to {}: {}", to, e.getMessage(), e);
+            // Do not rethrow; order processing continues
+        }
+    }
+
+    /**
+     * Builds a professional HTML invoice for the order.
+     */
+    private String buildInvoiceHtml(User user, Order order) {
+        NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
+        StringBuilder itemsTable = new StringBuilder();
+        itemsTable.append("<table style='width:100%;border-collapse:collapse;'>")
+                .append("<tr><th style='border:1px solid #ddd;padding:8px;'>Item</th>")
+                .append("<th style='border:1px solid #ddd;padding:8px;'>Quantity</th>")
+                .append("<th style='border:1px solid #ddd;padding:8px;'>Price</th></tr>");
+        for (OrderItem item : order.getItems()) {
+            itemsTable.append("<tr>")
+                    .append("<td style='border:1px solid #ddd;padding:8px;'>").append(item.getProduct().getName())
+                    .append("</td>")
+                    .append("<td style='border:1px solid #ddd;padding:8px;text-align:center;'>")
+                    .append(item.getQuantity()).append("</td>")
+                    .append("<td style='border:1px solid #ddd;padding:8px;text-align:right;'>")
+                    .append(currency.format(item.getSubtotal())).append("</td>")
+                    .append("</tr>");
+        }
+        itemsTable.append("</table>");
+
+        return "<div style='font-family:sans-serif;max-width:600px;margin:auto;'>"
+                + "<h2 style='color:#2d3748;'>Thank you for your order!</h2>"
+                + "<p>Hi " + user.getFirstName() + ",</p>"
+                + "<p>Your order <b>#" + order.getOrderNumber()
+                + "</b> has been placed successfully. Here is your invoice:</p>"
+                + itemsTable
+                + "<p style='text-align:right;font-size:1.1em;'><b>Total: "
+                + currency.format(order.getTotalAmount()) + "</b></p>"
+                + "<hr style='margin:24px 0;'>"
+                + "<p style='font-size:0.95em;color:#555;'>If you have any questions, reply to this email or contact our support team.</p>"
+                + "</div>";
+    }
+
+    /**
+     * Builds a professional HTML status update for the order.
+     */
+    private String buildStatusUpdateHtml(User user, Order order) {
+        return "<div style='font-family:sans-serif;max-width:600px;margin:auto;'>"
+                + "<h2 style='color:#2d3748;'>Order Status Update</h2>"
+                + "<p>Hi " + user.getFirstName() + ",</p>"
+                + "<p>Your order <b>#" + order.getOrderNumber() + "</b> status has changed to: "
+                + "<span style='color:#3182ce;'>" + order.getStatus() + "</span></p>"
+                + "<p>You can view your order details in your account dashboard.</p>"
+                + "<hr style='margin:24px 0;'>"
+                + "<p style='font-size:0.95em;color:#555;'>If you have any questions, reply to this email or contact our support team.</p>"
+                + "</div>";
+    }
+
+    // ...existing code...
+
+    /**
      * Send a simple diagnostic/test email to verify SMTP configuration.
-     * Returns true if send completed (may still have delivered failures reported by provider).
+     * Returns true if send completed (may still have delivered failures reported by
+     * provider).
      */
     public boolean sendTestEmail(String to) {
         if (to == null || to.isEmpty()) {
@@ -190,9 +157,14 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setFrom("hloniyacho@gmail.com", "E-Commerce Store");
+            String from = env.getProperty("spring.mail.username");
+            if (from != null) {
+                helper.setFrom(from);
+            }
             helper.setSubject("Test Email - E-Commerce Store");
-            helper.setText("<p>This is a test email from E-Commerce application. If you received this, SMTP is configured correctly.</p>", true);
+            helper.setText(
+                    "<p>This is a test email from E-Commerce application. If you received this, SMTP is configured correctly.</p>",
+                    true);
 
             mailSender.send(message);
             System.out.println("Test email sent successfully to: " + to);
@@ -208,133 +180,6 @@ public class EmailService {
         }
     }
 
-    public void sendOrderStatusChangeEmail(Order order, OrderStatus oldStatus, OrderStatus newStatus) {
-        try {
-            if (order == null || order.getUser() == null || order.getUser().getEmail() == null) {
-                System.err.println("Cannot send email: Order or user data is null");
-                return;
-            }
-
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setTo(order.getUser().getEmail());
-            helper.setFrom("hloniyacho@gmail.com", "E-Commerce Store");
-            helper.setReplyTo("hloniyacho@gmail.com");
-            helper.setSubject("Order Status Update - " + order.getOrderNumber());
-            helper.setText(buildOrderStatusChangeEmail(order, oldStatus, newStatus), true);
-
-            mailSender.send(message);
-            System.out.println("Order status change email sent successfully to: " + order.getUser().getEmail());
-        } catch (Exception e) {
-            System.err.println("Failed to send order status change email: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private String buildOrderStatusChangeEmail(Order order, OrderStatus oldStatus, OrderStatus newStatus) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
-        StringBuilder html = new StringBuilder();
-
-        html.append("<!DOCTYPE html>");
-        html.append("<html>");
-        html.append("<head>");
-        html.append("<style>");
-        html.append("body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }");
-        html.append(".container { max-width: 600px; margin: 0 auto; padding: 20px; }");
-        html.append(".header { background-color: #000; color: #fff; padding: 30px; text-align: center; }");
-        html.append(".header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; }");
-        html.append(".content { background-color: #fff; padding: 30px; }");
-        html.append(
-                ".status-box { background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #000; }");
-        html.append(".status-old { color: #999; text-decoration: line-through; }");
-        html.append(".status-new { color: #000; font-weight: bold; font-size: 18px; }");
-        html.append(".info { margin: 15px 0; }");
-        html.append(".footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }");
-        html.append("</style>");
-        html.append("</head>");
-        html.append("<body>");
-        html.append("<div class='container'>");
-
-        // Header
-        html.append("<div class='header'>");
-        html.append("<h1>MAISON LUXE</h1>");
-        html.append("<p>Order Status Updated</p>");
-        html.append("</div>");
-
-        // Content
-        html.append("<div class='content'>");
-        html.append("<h2>Order Status Update</h2>");
-        String firstName = order.getUser().getFirstName() != null ? order.getUser().getFirstName() : "Customer";
-        html.append("<p>Hi ").append(firstName).append(",</p>");
-        html.append("<p>The status of your order has been updated. Please see the details below:</p>");
-
-        // Status Box
-        html.append("<div class='status-box'>");
-        html.append("<p><strong>Order Number:</strong> ").append(order.getOrderNumber()).append("</p>");
-        html.append("<p><strong>Previous Status:</strong> <span class='status-old'>").append(oldStatus)
-                .append("</span></p>");
-        html.append("<p><strong>Current Status:</strong> <span class='status-new'>").append(newStatus)
-                .append("</span></p>");
-        html.append("<p><strong>Updated On:</strong> ").append(dateFormat.format(new java.util.Date())).append("</p>");
-        html.append("</div>");
-
-        // Status-specific messages
-        html.append("<div class='info'>");
-        switch (newStatus) {
-            case CONFIRMED:
-                html.append("<p>Thank you! Your order has been confirmed and is being prepared for shipment.</p>");
-                html.append("<p>We'll send you a shipping notification as soon as your order is on its way.</p>");
-                break;
-            case PROCESSING:
-                html.append("<p>Your order is now being processed and prepared for shipment.</p>");
-                html.append("<p>Expected shipping date: Within 2-3 business days.</p>");
-                break;
-            case SHIPPED:
-                html.append("<p>Great news! Your order has been shipped!</p>");
-                html.append("<p>You can track your package using the shipping information provided.</p>");
-                html.append("<p>Expected delivery: 5-7 business days.</p>");
-                break;
-            case DELIVERED:
-                html.append("<p>Your order has been successfully delivered!</p>");
-                html.append("<p>If you have any issues with your order, please contact our support team.</p>");
-                break;
-            case CANCELLED:
-                html.append("<p>Your order has been cancelled.</p>");
-                html.append("<p>If you did not authorize this cancellation, please contact us immediately.</p>");
-                break;
-            case RETURNED:
-                html.append("<p>Your return has been processed successfully.</p>");
-                html.append(
-                        "<p>Refund will be credited back to your original payment method within 5-7 business days.</p>");
-                break;
-            default:
-                html.append("<p>Your order status has been updated to: ").append(newStatus).append("</p>");
-        }
-        html.append("</div>");
-
-        html.append("<h3>Order Details</h3>");
-        html.append("<p><strong>Order Total:</strong> R").append(String.format("%.2f", order.getTotalAmount()))
-                .append("</p>");
-
-        html.append("<p style='margin-top: 30px;'>If you have any questions, please don't hesitate to contact us.</p>");
-        html.append("<p>Thank you for shopping with MAISON LUXE!</p>");
-
-        html.append("</div>");
-
-        // Footer
-        html.append("<div class='footer'>");
-        html.append("<p>This is an automated email notification, please do not reply.</p>");
-        html.append("<p>© MAISON LUXE - All Rights Reserved</p>");
-        html.append("</div>");
-
-        html.append("</div>");
-        html.append("</body>");
-        html.append("</html>");
-
-        return html.toString();
-    }
-
     public void sendLowStockAlert(Product product, ProductColourSize size, int currentStock, int reorderLevel) {
         try {
             if (product == null || size == null) {
@@ -345,8 +190,11 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setTo("hloniyacho@gmail.com");
-            helper.setFrom("hloniyacho@gmail.com", "E-Commerce Store");
+            String to = env.getProperty("spring.mail.username");
+            if (to != null) {
+                helper.setTo(to);
+                helper.setFrom(to);
+            }
             helper.setSubject("⚠️ Low Stock Alert - " + product.getName());
             helper.setText(buildLowStockAlertEmail(product, size, currentStock, reorderLevel), true);
 
@@ -465,19 +313,23 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
-            helper.setFrom("hloniyacho@gmail.com", "MAISON LUXE");
-            helper.setReplyTo("hloniyacho@gmail.com");
+
+            String from = env.getProperty("spring.mail.username");
+            if (from != null) {
+                helper.setFrom(from);
+                helper.setReplyTo(from);
+            }
             helper.setTo(to);
             helper.setSubject("Password Reset Request - MAISON LUXE");
             helper.setText(buildPasswordResetEmailWithOTP(resetLink, userName, otpCode), true);
-            
+
             mailSender.send(message);
             System.out.println("Password reset email with OTP sent successfully to: " + to);
         } catch (org.springframework.mail.MailException me) {
             System.err.println("MailException while sending password reset email to " + to + ": " + me.getMessage());
             me.printStackTrace();
-            System.err.println("Hint: verify SMTP credentials and provider settings (spring.mail.username / spring.mail.password). Use /api/email/test to validate.");
+            System.err.println(
+                    "Hint: verify SMTP credentials and provider settings (spring.mail.username / spring.mail.password). Use /api/email/test to validate.");
             throw new RuntimeException("Failed to send password reset email", me);
         } catch (Exception e) {
             System.err.println("Failed to send password reset email: " + e.getMessage());
@@ -488,7 +340,7 @@ public class EmailService {
 
     private String buildPasswordResetEmailWithOTP(String resetLink, String userName, String otpCode) {
         StringBuilder html = new StringBuilder();
-        
+
         html.append("<!DOCTYPE html>");
         html.append("<html>");
         html.append("<head>");
@@ -543,18 +395,18 @@ public class EmailService {
         html.append("</head>");
         html.append("<body>");
         html.append("<div class='container'>");
-        
+
         // Header
         html.append("<div class='header'>");
         html.append("<h1>MAISON LUXE</h1>");
         html.append("</div>");
-        
+
         // Content
         html.append("<div class='content'>");
         html.append("<h2 style='color: #000;'>Password Reset Request</h2>");
         html.append("<p>Hello ").append(userName).append(",</p>");
         html.append("<p>We received a request to reset your password for your MAISON LUXE account.</p>");
-        
+
         // OTP Code
         html.append("<div class='info'>");
         html.append("<strong>🔐 Your Verification Code:</strong>");
@@ -565,36 +417,39 @@ public class EmailService {
         html.append("<p style='text-align: center; font-size: 14px; color: #666;'>");
         html.append("Enter this code on the password reset page to verify your identity");
         html.append("</p>");
-        
+
         html.append("<p>Click the button below to open the password reset page:</p>");
         html.append("<p style='text-align: center;'>");
         html.append("<a href='").append(resetLink).append("' class='button'>Reset Password</a>");
         html.append("</p>");
         html.append("<p>Or copy and paste this link into your browser:</p>");
-        html.append("<p style='word-break: break-all; color: #666; font-size: 12px; background: #fff; padding: 10px; border-radius: 4px;'>");
+        html.append(
+                "<p style='word-break: break-all; color: #666; font-size: 12px; background: #fff; padding: 10px; border-radius: 4px;'>");
         html.append(resetLink);
         html.append("</p>");
-        
+
         // Warning
         html.append("<div class='warning'>");
         html.append("<strong>⏱️ This code and link will expire in 1 hour.</strong>");
         html.append("</div>");
-        
-        html.append("<p><strong>Security Note:</strong> Never share this verification code with anyone. MAISON LUXE will never ask you for this code.</p>");
-        html.append("<p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>");
+
+        html.append(
+                "<p><strong>Security Note:</strong> Never share this verification code with anyone. MAISON LUXE will never ask you for this code.</p>");
+        html.append(
+                "<p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>");
         html.append("<p style='margin-top: 30px;'>Best regards,<br><strong>The MAISON LUXE Team</strong></p>");
         html.append("</div>");
-        
+
         // Footer
         html.append("<div class='footer'>");
         html.append("<p>This is an automated email. Please do not reply to this message.</p>");
         html.append("<p>&copy; 2025 MAISON LUXE. All rights reserved.</p>");
         html.append("</div>");
-        
+
         html.append("</div>");
         html.append("</body>");
         html.append("</html>");
-        
+
         return html.toString();
     }
 
@@ -605,13 +460,16 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            
-            helper.setFrom("hloniyacho@gmail.com", "MAISON LUXE");
-            helper.setReplyTo("hloniyacho@gmail.com");
+
+            String from = env.getProperty("spring.mail.username");
+            if (from != null) {
+                helper.setFrom(from);
+                helper.setReplyTo(from);
+            }
             helper.setTo(to);
             helper.setSubject("Password Reset Request - MAISON LUXE");
             helper.setText(buildPasswordResetEmail(resetLink, userName), true);
-            
+
             mailSender.send(message);
             System.out.println("Password reset email sent successfully to: " + to);
         } catch (Exception e) {
@@ -623,7 +481,7 @@ public class EmailService {
 
     private String buildPasswordResetEmail(String resetLink, String userName) {
         StringBuilder html = new StringBuilder();
-        
+
         html.append("<!DOCTYPE html>");
         html.append("<html>");
         html.append("<head>");
@@ -661,12 +519,12 @@ public class EmailService {
         html.append("</head>");
         html.append("<body>");
         html.append("<div class='container'>");
-        
+
         // Header
         html.append("<div class='header'>");
         html.append("<h1>MAISON LUXE</h1>");
         html.append("</div>");
-        
+
         // Content
         html.append("<div class='content'>");
         html.append("<h2 style='color: #000;'>Password Reset Request</h2>");
@@ -677,30 +535,31 @@ public class EmailService {
         html.append("<a href='").append(resetLink).append("' class='button'>Reset Password</a>");
         html.append("</p>");
         html.append("<p>Or copy and paste this link into your browser:</p>");
-        html.append("<p style='word-break: break-all; color: #666; font-size: 12px; background: #fff; padding: 10px; border-radius: 4px;'>");
+        html.append(
+                "<p style='word-break: break-all; color: #666; font-size: 12px; background: #fff; padding: 10px; border-radius: 4px;'>");
         html.append(resetLink);
         html.append("</p>");
-        
+
         // Warning
         html.append("<div class='warning'>");
         html.append("<strong>⏱️ This link will expire in 1 hour.</strong>");
         html.append("</div>");
-        
-        html.append("<p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>");
+
+        html.append(
+                "<p>If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.</p>");
         html.append("<p style='margin-top: 30px;'>Best regards,<br><strong>The MAISON LUXE Team</strong></p>");
         html.append("</div>");
-        
+
         // Footer
         html.append("<div class='footer'>");
         html.append("<p>This is an automated email. Please do not reply to this message.</p>");
         html.append("<p>&copy; 2025 MAISON LUXE. All rights reserved.</p>");
         html.append("</div>");
-        
+
         html.append("</div>");
         html.append("</body>");
         html.append("</html>");
-        
+
         return html.toString();
     }
 }
-
