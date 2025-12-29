@@ -20,6 +20,7 @@ public class CheckoutController {
     private final CartRepository cartRepository;
     private final za.ac.styling.service.CartService cartService;
     private final OrderRepository orderRepository;
+    private final za.ac.styling.service.OrderService orderService;
     private final ShippingMethodRepository shippingMethodRepository;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
@@ -41,12 +42,39 @@ public class CheckoutController {
             Long shippingAddressId = Long.valueOf(request.get("shippingAddressId").toString());
 
             String promoCodeStr = (String) request.get("promoCode");
-            Map<String, Integer> productQuantities = (Map<String, Integer>) request.get("productQuantities");
-            // Convert productQuantities keys to Integer
+            Object pqObj = request.get("productQuantities");
+            // Safely parse productQuantities into a typed map (avoid unchecked casts)
             Map<Integer, Integer> productQtyMap = new java.util.HashMap<>();
-            if (productQuantities != null) {
-                for (Map.Entry<String, Integer> entry : productQuantities.entrySet()) {
-                    productQtyMap.put(Integer.valueOf(entry.getKey()), entry.getValue());
+            if (pqObj instanceof Map<?, ?>) {
+                Map<?, ?> rawMap = (Map<?, ?>) pqObj;
+                for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+                    Object rawKey = entry.getKey();
+                    Object rawVal = entry.getValue();
+                    Integer productId = null;
+                    Integer qty = null;
+                    if (rawKey instanceof Number) {
+                        productId = ((Number) rawKey).intValue();
+                    } else if (rawKey instanceof String) {
+                        try {
+                            productId = Integer.valueOf((String) rawKey);
+                        } catch (NumberFormatException ex) {
+                            // skip invalid key
+                            continue;
+                        }
+                    }
+                    if (rawVal instanceof Number) {
+                        qty = ((Number) rawVal).intValue();
+                    } else if (rawVal instanceof String) {
+                        try {
+                            qty = Integer.valueOf((String) rawVal);
+                        } catch (NumberFormatException ex) {
+                            // skip invalid value
+                            continue;
+                        }
+                    }
+                    if (productId != null && qty != null) {
+                        productQtyMap.put(productId, qty);
+                    }
                 }
             }
 
@@ -148,13 +176,9 @@ public class CheckoutController {
                         "errorType", "INSUFFICIENT_STOCK"));
             }
 
-            // Save order
-            Order savedOrder = orderRepository.save(order);
-
-            // Record promo usage only after successful order
-            if (appliedPromo != null) {
-                promoService.recordPromoUsage(appliedPromo.getPromoId(), userId, savedOrder.getOrderId());
-            }
+            // Save order and finalize promo usage atomically (orderService will validate
+            // promo and record usage)
+            Order savedOrder = orderService.createOrderWithPromo(order, productQtyMap, promoCodeStr, userId);
 
             // Commit stock (convert reserved to sold)
             inventoryService.commitStock(orderItems);

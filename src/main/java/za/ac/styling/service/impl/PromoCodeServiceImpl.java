@@ -146,123 +146,152 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     @Override
     public PromoValidationResult validatePromoCode(String code, Integer userId, List<Integer> productIds,
             double cartTotal) {
-        log.info("Validating promo code: code={}, userId={}, productIds={}, cartTotal={}", code, userId, productIds,
-                cartTotal);
-        // Find promo code
-        PromoCode promoCode = promoCodeRepository.findByCodeIgnoreCase(code).orElse(null);
-        if (promoCode == null) {
-            log.info("Promo validation failed: not found: {}", code);
-            return new PromoValidationResult(false, "Promo code not found", null);
+        // Delegate to processPromo with cents and no finalization
+        long cartCents = Math.round(cartTotal * 100);
+        PromoCodeService.PromoApplicationResult result = processPromo(code, userId,
+                productIds.stream().collect(Collectors.toMap(id -> id, id -> 1)), cartCents, false, null);
+        if (!result.isApplied()) {
+            return new PromoValidationResult(false, result.getMessage(), null);
         }
-
-        // Check if active
-        if (!promoCode.isActive()) {
-            log.info("Promo validation failed: inactive: {}", code);
-            return new PromoValidationResult(false, "Promo code is inactive", promoCode);
-        }
-
-        // Check date validity
-        LocalDateTime now = LocalDateTime.now();
-        if (promoCode.getStartDate() != null && now.isBefore(promoCode.getStartDate())) {
-            log.info("Promo validation failed: not yet valid: {} (startDate={})", code, promoCode.getStartDate());
-            return new PromoValidationResult(false, "Promo code not yet valid", promoCode);
-        }
-        if (promoCode.getEndDate() != null && now.isAfter(promoCode.getEndDate())) {
-            log.info("Promo validation failed: expired: {} (endDate={})", code, promoCode.getEndDate());
-            return new PromoValidationResult(false, "Promo code has expired", promoCode);
-        }
-
-        // Check usage limit
-        if (promoCode.getUsageLimit() != null && promoCode.getCurrentUsage() >= promoCode.getUsageLimit()) {
-            log.info("Promo validation failed: usage limit reached: {} (current={})", code,
-                    promoCode.getCurrentUsage());
-            return new PromoValidationResult(false, "Promo code usage limit reached", promoCode);
-        }
-
-        // Check if user already used (one-time per user)
-        if (userId != null && hasUserUsedPromo(promoCode.getPromoId(), userId)) {
-            log.info("Promo validation failed: user already used: {} userId={}", code, userId);
-            return new PromoValidationResult(false, "You have already used this promo code", promoCode);
-        }
-
-        // Check minimum purchase amount
-        if (promoCode.getMinPurchaseAmount() != null && cartTotal < promoCode.getMinPurchaseAmount()) {
-            log.info("Promo validation failed: min purchase not met: {} (cartTotal={}, min={})", code, cartTotal,
-                    promoCode.getMinPurchaseAmount());
-            return new PromoValidationResult(false,
-                    String.format("Minimum purchase of R%.2f required", promoCode.getMinPurchaseAmount()),
-                    promoCode);
-        }
-
-        // Check if any products in cart are eligible
-        List<Integer> eligibleProductIds = getEligibleProductIds(promoCode.getPromoId());
-        log.info("Eligible product ids for promo {}: {}", code, eligibleProductIds);
-        if (!eligibleProductIds.isEmpty()) {
-            boolean hasEligibleProduct = productIds.stream()
-                    .anyMatch(eligibleProductIds::contains);
-            if (!hasEligibleProduct) {
-                log.info("Promo validation failed: no eligible products in cart for promo {}", code);
-                return new PromoValidationResult(false, "No eligible products in cart", promoCode);
-            }
-        }
-
-        log.info("Promo validation succeeded: {}", code);
-        return new PromoValidationResult(true, "Promo code is valid", promoCode);
+        return new PromoValidationResult(true, "Promo code is valid",
+                promoCodeRepository.findByCodeIgnoreCase(code).orElse(null));
     }
 
     @Override
     public PromoDiscountResult applyPromoCode(String code, Integer userId, Map<Integer, Integer> productQuantities,
             double cartSubtotal) {
-        // Validate first
-        List<Integer> productIds = new ArrayList<>(productQuantities.keySet());
-        PromoValidationResult validation = validatePromoCode(code, userId, productIds, cartSubtotal);
+        // Delegate to processPromo (no finalization)
+        long cartCents = Math.round(cartSubtotal * 100);
+        PromoCodeService.PromoApplicationResult result = processPromo(code, userId, productQuantities, cartCents, false,
+                null);
+        if (!result.isApplied()) {
+            return new PromoDiscountResult(false, 0, cartSubtotal, result.getMessage(), new ArrayList<>());
+        }
+        double discountAmount = result.getDiscountAmountCents() / 100.0;
+        double finalTotal = result.getFinalTotalCents() / 100.0;
+        return new PromoDiscountResult(true, discountAmount, finalTotal, result.getMessage(),
+                result.getEligibleProductIds());
+    }
 
-        if (!validation.isValid()) {
-            return new PromoDiscountResult(false, 0, cartSubtotal, validation.getMessage(), new ArrayList<>());
+    @Override
+    @Transactional
+    public PromoCodeService.PromoApplicationResult processPromo(String code, Integer userId,
+            Map<Integer, Integer> productQuantities,
+            long cartSubtotalCents, boolean finalizeUsage, Integer orderId) {
+        log.info("Process promo: code={}, userId={}, products={}, cartCents={}, finalizeUsage={}", code, userId,
+                productQuantities, cartSubtotalCents, finalizeUsage);
+
+        // Find promo
+        PromoCode promoCode = promoCodeRepository.findByCodeIgnoreCase(code).orElse(null);
+        if (promoCode == null) {
+            log.info("Promo not found: {}", code);
+            return PromoApplicationResult.failure("Promo code not found");
         }
 
-        PromoCode promoCode = validation.getPromoCode();
+        // Check active and dates
+        if (!promoCode.isActive()) {
+            return PromoApplicationResult.failure("Promo code is inactive");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (promoCode.getStartDate() != null && now.isBefore(promoCode.getStartDate())) {
+            return PromoApplicationResult.failure("Promo code not yet valid");
+        }
+        if (promoCode.getEndDate() != null && now.isAfter(promoCode.getEndDate())) {
+            return PromoApplicationResult.failure("Promo code has expired");
+        }
+
+        // Usage limit check
+        if (promoCode.getUsageLimit() != null && promoCode.getCurrentUsage() >= promoCode.getUsageLimit()) {
+            return PromoApplicationResult.failure("Promo code usage limit reached");
+        }
+
+        // One-time per user check (if configured)
+        if (promoCode.isOneTimeUse() && userId != null && hasUserUsedPromo(promoCode.getPromoId(), userId)) {
+            return PromoApplicationResult.failure("You have already used this promo code");
+        }
+
+        // Min purchase amount check
+        if (promoCode.getMinPurchaseAmount() != null) {
+            long minCents = Math.round(promoCode.getMinPurchaseAmount() * 100);
+            if (cartSubtotalCents < minCents) {
+                return PromoApplicationResult
+                        .failure(String.format("Minimum purchase of R%.2f required", promoCode.getMinPurchaseAmount()));
+            }
+        }
+
+        // Determine eligible items total (in cents)
         List<Integer> eligibleProductIds = getEligibleProductIds(promoCode.getPromoId());
-
-        // Calculate discount
-        double discountAmount = 0;
-        double eligibleTotal = 0;
-
-        // If no specific products, apply to entire cart
+        long eligibleTotalCents = 0L;
         if (eligibleProductIds.isEmpty()) {
-            eligibleTotal = cartSubtotal;
+            eligibleTotalCents = cartSubtotalCents;
         } else {
-            // Calculate total of eligible products only
             for (Map.Entry<Integer, Integer> entry : productQuantities.entrySet()) {
                 Integer productId = entry.getKey();
                 if (eligibleProductIds.contains(productId)) {
                     Product product = productRepository.findById(productId).orElse(null);
                     if (product != null) {
-                        eligibleTotal += product.getBasePrice() * entry.getValue();
+                        long priceCents = Math.round(product.getBasePrice() * 100);
+                        eligibleTotalCents += priceCents * entry.getValue();
                     }
                 }
             }
+            if (eligibleTotalCents == 0L) {
+                return PromoApplicationResult.failure("No eligible products in cart");
+            }
         }
 
-        log.info("Promo calculation: promo={}, eligibleTotal={}, cartSubtotal={}", promoCode.getCode(), eligibleTotal,
-                cartSubtotal);
-
-        // Apply discount based on type
+        // Calculate discount in cents
+        long discountCents = 0L;
         if (promoCode.getDiscountType() == PromoCode.DiscountType.PERCENTAGE) {
-            discountAmount = eligibleTotal * (promoCode.getDiscountValue() / 100.0);
+            // discountValue is percent (e.g. 20.0 for 20%)
+            discountCents = Math.round((eligibleTotalCents * promoCode.getDiscountValue()) / 100.0);
         } else if (promoCode.getDiscountType() == PromoCode.DiscountType.FIXED) {
-            discountAmount = Math.min(promoCode.getDiscountValue(), eligibleTotal);
+            long fixedCents = Math.round(promoCode.getDiscountValue() * 100);
+            discountCents = Math.min(fixedCents, eligibleTotalCents);
         }
 
-        double finalTotal = cartSubtotal - discountAmount;
+        long finalTotalCents = cartSubtotalCents - discountCents;
+        String message = String.format("Promo applied! Saved R%.2f", discountCents / 100.0);
 
-        String message = String.format("Promo code applied! Saved R%.2f", discountAmount);
-        log.info("Promo applied: promo={}, discount={}, finalTotal={}", promoCode.getCode(), discountAmount,
-                finalTotal);
-        return new PromoDiscountResult(true, discountAmount, finalTotal, message, eligibleProductIds);
+        // If finalizing usage, attempt atomic increment and record usage (must be in
+        // same transaction)
+        if (finalizeUsage) {
+            // Re-check limit atomically
+            int updated = promoCodeRepository.incrementUsageIfBelowLimit(promoCode.getPromoId());
+            if (updated == 0) {
+                return PromoApplicationResult.failure("Promo code usage limit reached");
+            }
+
+            // Record PromoUsage
+            User user = null;
+            if (userId != null) {
+                user = userRepository.findById(userId)
+                        .orElseThrow(() -> new IllegalArgumentException("User not found"));
+            }
+            za.ac.styling.domain.Order order = null;
+            if (orderId != null) {
+                order = null; // we don't need to hydrate the order now; storing order id may suffice in
+                              // entity mapping
+            }
+
+            PromoUsage usage = PromoUsage.builder()
+                    .promoCode(promoCode)
+                    .user(user)
+                    .order(order)
+                    .build();
+            promoUsageRepository.save(usage);
+
+            // Refresh promoCode's usage count from DB (optional)
+            promoCode = promoCodeRepository.findById(promoCode.getPromoId()).orElse(promoCode);
+        }
+
+        return PromoApplicationResult.success(discountCents, finalTotalCents, message, eligibleProductIds,
+                promoCode.getPromoId(), promoCode);
     }
 
     @Override
+    @Deprecated // Prefer `processPromo(..., finalizeUsage=true, orderId)` to ensure atomic
+                // recording during order placement
     @Transactional
     public void recordPromoUsage(Integer promoId, Integer userId, Integer orderId) {
         PromoCode promoCode = promoCodeRepository.findById(promoId)

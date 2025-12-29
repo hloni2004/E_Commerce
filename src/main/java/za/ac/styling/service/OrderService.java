@@ -57,4 +57,13 @@ public interface OrderService extends IService<Order, Integer> {
      * Calculate order total
      */
     double calculateOrderTotal(Integer orderId);
+
+    /**
+     * Create an order and, if a promo code is provided, validate and atomically
+     * record promo usage.
+     * This method will throw an exception if the promo is invalid or the usage
+     * cannot be recorded (to ensure rollback).
+     */
+    Order createOrderWithPromo(Order order, java.util.Map<Integer, Integer> productQuantities, String promoCode,
+            Integer userId);
 }

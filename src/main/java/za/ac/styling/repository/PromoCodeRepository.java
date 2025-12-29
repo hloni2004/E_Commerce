@@ -41,4 +41,12 @@ public interface PromoCodeRepository extends JpaRepository<PromoCode, Integer> {
      * Check if code exists (case-insensitive)
      */
     boolean existsByCodeIgnoreCase(String code);
+
+    /**
+     * Atomically increment usage count only if usage limit not reached (or usage_limit is null).
+     * Returns number of rows updated (1 if incremented, 0 otherwise).
+     */
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE PromoCode p SET p.currentUsage = p.currentUsage + 1 WHERE p.promoId = :id AND (p.usageLimit IS NULL OR p.currentUsage < p.usageLimit)")
+    int incrementUsageIfBelowLimit(@org.springframework.data.repository.query.Param("id") Integer id);
 }

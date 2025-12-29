@@ -21,6 +21,9 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
+    private za.ac.styling.service.PromoCodeService promoService;
+
+    @Autowired
     public OrderServiceImpl(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
@@ -99,5 +102,37 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void delete(Integer id) {
         orderRepository.deleteById(id);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public Order createOrderWithPromo(Order order, java.util.Map<Integer, Integer> productQuantities, String promoCode,
+            Integer userId) {
+        // Compute subtotal (order.subtotal should already be set by caller, but we
+        // guard)
+        long subtotalCents = Math.round(order.getSubtotal() * 100);
+
+        // If promo code present, validate and preview discount
+        if (promoCode != null && !promoCode.isEmpty()) {
+            var preview = promoService.processPromo(promoCode, userId, productQuantities, subtotalCents, false, null);
+            if (!preview.isApplied()) {
+                throw new IllegalArgumentException("Promo invalid: " + preview.getMessage());
+            }
+            order.setDiscountAmount(preview.getDiscountAmountCents() / 100.0);
+            order.setTotalAmount(preview.getFinalTotalCents() / 100.0 + order.getShippingCost() + order.getTaxAmount());
+        }
+
+        Order saved = orderRepository.save(order);
+
+        // Finalize promo usage atomically with order persistence
+        if (promoCode != null && !promoCode.isEmpty()) {
+            var finalizeRes = promoService.processPromo(promoCode, userId, productQuantities, subtotalCents, true,
+                    saved.getOrderId());
+            if (!finalizeRes.isApplied()) {
+                throw new IllegalStateException("Failed to finalize promo usage: " + finalizeRes.getMessage());
+            }
+        }
+
+        return saved;
     }
 }

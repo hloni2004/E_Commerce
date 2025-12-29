@@ -33,7 +33,7 @@ public class PromoCode {
     private LocalDateTime endDate;
 
     private Integer usageLimit; // Max number of times the promo can be used (null = unlimited)
-    
+
     @Builder.Default
     @Column(nullable = false)
     private Integer currentUsage = 0; // Track how many times it has been used
@@ -43,6 +43,10 @@ public class PromoCode {
     @Builder.Default
     @Column(nullable = false)
     private boolean isActive = true; // Admin can enable/disable
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean oneTimeUse = false; // If true, each user can only use once
 
     private String description; // Optional description for admin reference
 
@@ -71,10 +75,10 @@ public class PromoCode {
     // Helper method to check if promo is currently valid
     public boolean isValid() {
         LocalDateTime now = LocalDateTime.now();
-        return isActive 
-            && (startDate == null || !now.isBefore(startDate))
-            && (endDate == null || !now.isAfter(endDate))
-            && (usageLimit == null || currentUsage < usageLimit);
+        return isActive
+                && (startDate == null || !now.isBefore(startDate))
+                && (endDate == null || !now.isAfter(endDate))
+                && (usageLimit == null || currentUsage < usageLimit);
     }
 
     // Discount type enum
