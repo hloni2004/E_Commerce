@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="cart issue with login redirect issue">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="promo issue">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/PromoCodeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/PromoCodeService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/PromoCodeServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/PromoCodeServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
@@ -59,58 +56,59 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AddressFactoryTest.createAddress_WithValidData_ShouldCreateAddress.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AddressServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CartItemFactoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CartItemServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CartItemServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.CartServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.PaymentServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ProductServiceTest.testCompleteProductWithStockManagement.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ProductServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ProductServiceTest.testCreateCompleteProductWithAllAspects.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ProductServiceTest.testCreateWithColourAndSize.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ReviewServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.RoleFactoryTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.RoleServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ShipmentServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.ShipmentServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserFactoryTest.createUser_WithValidData_ShouldCreateUser.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserServiceTest.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserServiceTest.testCreate.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserServiceTest.testRead.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.UserServiceTest.testUpdate.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.E-Commerce [package].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
-    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
-    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
-    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;Spring Boot.Main.executor&quot;: &quot;Run&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
-    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/hloni/IdeaProjects/Website/E_Commerce&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;onboarding.tips.debug.path&quot;: &quot;C:/Users/Lehlohonolo.Mokoena/IdeaProjects/E-Commerce/src/main/java/za/ac/styling/Main.java&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "JUnit.AddressFactoryTest.createAddress_WithValidData_ShouldCreateAddress.executor": "Run",
+    "JUnit.AddressServiceTest.executor": "Run",
+    "JUnit.CartItemFactoryTest.executor": "Run",
+    "JUnit.CartItemServiceTest.executor": "Run",
+    "JUnit.CartItemServiceTest.testCreate.executor": "Run",
+    "JUnit.CartServiceTest.executor": "Run",
+    "JUnit.PaymentServiceTest.testCreate.executor": "Run",
+    "JUnit.ProductServiceTest.testCompleteProductWithStockManagement.executor": "Run",
+    "JUnit.ProductServiceTest.testCreate.executor": "Run",
+    "JUnit.ProductServiceTest.testCreateCompleteProductWithAllAspects.executor": "Run",
+    "JUnit.ProductServiceTest.testCreateWithColourAndSize.executor": "Run",
+    "JUnit.ReviewServiceTest.executor": "Run",
+    "JUnit.RoleFactoryTest.executor": "Run",
+    "JUnit.RoleServiceTest.executor": "Run",
+    "JUnit.ShipmentServiceTest.executor": "Run",
+    "JUnit.ShipmentServiceTest.testCreate.executor": "Run",
+    "JUnit.UserFactoryTest.createUser_WithValidData_ShouldCreateUser.executor": "Run",
+    "JUnit.UserServiceTest.executor": "Run",
+    "JUnit.UserServiceTest.testCreate.executor": "Run",
+    "JUnit.UserServiceTest.testRead.executor": "Run",
+    "JUnit.UserServiceTest.testUpdate.executor": "Run",
+    "Maven.E-Commerce [clean].executor": "Run",
+    "Maven.E-Commerce [package].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.Main.executor": "Run",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "git-widget-placeholder": "master",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/Users/hloni/IdeaProjects/Website/E_Commerce",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/Lehlohonolo.Mokoena/IdeaProjects/E-Commerce/src/main/java/za/ac/styling/Main.java",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "MavenSettings",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
@@ -242,7 +240,12 @@
       <workItem from="1766700931891" duration="174000" />
       <workItem from="1766749013812" duration="11353000" />
       <workItem from="1766926677183" duration="377000" />
-      <workItem from="1766930307537" duration="4109000" />
+      <workItem from="1766930307537" duration="5550000" />
+      <workItem from="1766961739513" duration="94000" />
+      <workItem from="1766992543807" duration="12000" />
+      <workItem from="1766992641921" duration="523000" />
+      <workItem from="1766993282390" duration="36000" />
+      <workItem from="1766993481835" duration="657000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -548,7 +551,15 @@
       <option name="project" value="LOCAL" />
       <updated>1766950215932</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="promo issue">
+      <option name="closed" value="true" />
+      <created>1766959323989</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1766959323994</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -585,7 +596,8 @@
     <MESSAGE value="email" />
     <MESSAGE value="email , password" />
     <MESSAGE value="cart issue with login redirect issue" />
-    <option name="LAST_COMMIT_MESSAGE" value="cart issue with login redirect issue" />
+    <MESSAGE value="promo issue" />
+    <option name="LAST_COMMIT_MESSAGE" value="promo issue" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

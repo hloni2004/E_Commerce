@@ -1,6 +1,8 @@
 package za.ac.styling.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.annotation.Scope;
@@ -19,6 +21,8 @@ import java.util.stream.Collectors;
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class PromoCodeServiceImpl implements PromoCodeService {
+
+    private static final Logger log = LoggerFactory.getLogger(PromoCodeServiceImpl.class);
 
     @Autowired
     private PromoCodeRepository promoCodeRepository;
@@ -142,38 +146,49 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     @Override
     public PromoValidationResult validatePromoCode(String code, Integer userId, List<Integer> productIds,
             double cartTotal) {
+        log.info("Validating promo code: code={}, userId={}, productIds={}, cartTotal={}", code, userId, productIds,
+                cartTotal);
         // Find promo code
         PromoCode promoCode = promoCodeRepository.findByCodeIgnoreCase(code).orElse(null);
         if (promoCode == null) {
+            log.info("Promo validation failed: not found: {}", code);
             return new PromoValidationResult(false, "Promo code not found", null);
         }
 
         // Check if active
         if (!promoCode.isActive()) {
+            log.info("Promo validation failed: inactive: {}", code);
             return new PromoValidationResult(false, "Promo code is inactive", promoCode);
         }
 
         // Check date validity
         LocalDateTime now = LocalDateTime.now();
         if (promoCode.getStartDate() != null && now.isBefore(promoCode.getStartDate())) {
+            log.info("Promo validation failed: not yet valid: {} (startDate={})", code, promoCode.getStartDate());
             return new PromoValidationResult(false, "Promo code not yet valid", promoCode);
         }
         if (promoCode.getEndDate() != null && now.isAfter(promoCode.getEndDate())) {
+            log.info("Promo validation failed: expired: {} (endDate={})", code, promoCode.getEndDate());
             return new PromoValidationResult(false, "Promo code has expired", promoCode);
         }
 
         // Check usage limit
         if (promoCode.getUsageLimit() != null && promoCode.getCurrentUsage() >= promoCode.getUsageLimit()) {
+            log.info("Promo validation failed: usage limit reached: {} (current={})", code,
+                    promoCode.getCurrentUsage());
             return new PromoValidationResult(false, "Promo code usage limit reached", promoCode);
         }
 
         // Check if user already used (one-time per user)
         if (userId != null && hasUserUsedPromo(promoCode.getPromoId(), userId)) {
+            log.info("Promo validation failed: user already used: {} userId={}", code, userId);
             return new PromoValidationResult(false, "You have already used this promo code", promoCode);
         }
 
         // Check minimum purchase amount
         if (promoCode.getMinPurchaseAmount() != null && cartTotal < promoCode.getMinPurchaseAmount()) {
+            log.info("Promo validation failed: min purchase not met: {} (cartTotal={}, min={})", code, cartTotal,
+                    promoCode.getMinPurchaseAmount());
             return new PromoValidationResult(false,
                     String.format("Minimum purchase of R%.2f required", promoCode.getMinPurchaseAmount()),
                     promoCode);
@@ -181,14 +196,17 @@ public class PromoCodeServiceImpl implements PromoCodeService {
 
         // Check if any products in cart are eligible
         List<Integer> eligibleProductIds = getEligibleProductIds(promoCode.getPromoId());
+        log.info("Eligible product ids for promo {}: {}", code, eligibleProductIds);
         if (!eligibleProductIds.isEmpty()) {
             boolean hasEligibleProduct = productIds.stream()
                     .anyMatch(eligibleProductIds::contains);
             if (!hasEligibleProduct) {
+                log.info("Promo validation failed: no eligible products in cart for promo {}", code);
                 return new PromoValidationResult(false, "No eligible products in cart", promoCode);
             }
         }
 
+        log.info("Promo validation succeeded: {}", code);
         return new PromoValidationResult(true, "Promo code is valid", promoCode);
     }
 
@@ -226,6 +244,9 @@ public class PromoCodeServiceImpl implements PromoCodeService {
             }
         }
 
+        log.info("Promo calculation: promo={}, eligibleTotal={}, cartSubtotal={}", promoCode.getCode(), eligibleTotal,
+                cartSubtotal);
+
         // Apply discount based on type
         if (promoCode.getDiscountType() == PromoCode.DiscountType.PERCENTAGE) {
             discountAmount = eligibleTotal * (promoCode.getDiscountValue() / 100.0);
@@ -236,6 +257,8 @@ public class PromoCodeServiceImpl implements PromoCodeService {
         double finalTotal = cartSubtotal - discountAmount;
 
         String message = String.format("Promo code applied! Saved R%.2f", discountAmount);
+        log.info("Promo applied: promo={}, discount={}, finalTotal={}", promoCode.getCode(), discountAmount,
+                finalTotal);
         return new PromoDiscountResult(true, discountAmount, finalTotal, message, eligibleProductIds);
     }
 
