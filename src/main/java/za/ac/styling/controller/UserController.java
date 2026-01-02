@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import za.ac.styling.domain.Role;
 import za.ac.styling.domain.User;
 import za.ac.styling.dto.LoginRequest;
@@ -26,6 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -53,6 +56,9 @@ public class UserController {
 
     @Value("${app.frontend.url:https://client-hub-portal.vercel.app}")
     private String frontendUrl;
+
+    @Value("${APP_DEBUG:false}")
+    private boolean appDebug;
 
     @PostMapping("/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
@@ -465,8 +471,8 @@ public class UserController {
             boolean emailSent = result != null && result.emailSent();
 
             // Log for debugging
-            System.out.println("/api/users/forgot-password called for: " + email + ", tokenCreated: " + (token != null)
-                    + ", emailSent: " + emailSent);
+            logger.info("/api/users/forgot-password called for: {}, tokenCreated: {}, emailSent: {}", email,
+                    (token != null), emailSent);
 
             // Always return success to prevent email enumeration
             response.put("success", true);
@@ -477,6 +483,9 @@ public class UserController {
             if (token != null) {
                 response.put("token", token);
                 response.put("emailSent", emailSent);
+                if (appDebug && result != null && result.errorMessage() != null) {
+                    response.put("debugError", result.errorMessage());
+                }
             }
 
             return ResponseEntity.ok(response);
