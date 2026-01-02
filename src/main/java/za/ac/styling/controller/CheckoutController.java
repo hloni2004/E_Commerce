@@ -183,27 +183,9 @@ public class CheckoutController {
             // Commit stock (convert reserved to sold)
             inventoryService.commitStock(orderItems);
 
-            // Send order confirmation email asynchronously (loosely coupled)
-            final Order finalOrder = savedOrder;
-            java.util.concurrent.CompletableFuture.runAsync(() -> {
-                try {
-                    finalOrder.getItems().size();
-                    finalOrder.getItems().forEach(item -> {
-                        item.getProduct().getName();
-                        item.getColour().getName();
-                        item.getColourSize().getSizeName();
-                    });
-                    String recipient = finalOrder.getUser() != null ? finalOrder.getUser().getEmail() : "<unknown>";
-                    System.out.println("Attempting to send order invoice email to " + recipient + " for order "
-                            + finalOrder.getOrderNumber());
-                    if (finalOrder.getUser() != null) {
-                        emailService.sendOrderInvoice(finalOrder.getUser(), finalOrder);
-                    }
-                } catch (Exception e) {
-                    System.err.println("Failed to send invoice email asynchronously: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            });
+            // Invoice email will be sent asynchronously via event listener
+            // (OrderPlacedEvent)
+            // No direct call here to avoid duplicate emails.
 
             // Delete cart items and cart after successful order (defensive)
             try {

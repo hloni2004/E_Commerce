@@ -33,17 +33,9 @@ public class OrderController {
         try {
             Order created = orderService.create(order);
 
-            // Send order invoice email to customer (do not fail the request if email fails)
-            try {
-                if (created != null && created.getUser() != null) {
-                    emailService.sendOrderInvoice(created.getUser(), created);
-                    System.out.println("Order invoice email triggered for order: " + created.getOrderNumber());
-                }
-            } catch (Exception emailEx) {
-                System.err.println("Failed to send invoice email for order "
-                        + (created != null ? created.getOrderNumber() : "<unknown>") + ": " + emailEx.getMessage());
-                emailEx.printStackTrace();
-            }
+            // Invoice email will be sent asynchronously via event listener
+            // (OrderPlacedEvent)
+            // No direct call here to avoid duplicate emails.
 
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (Exception e) {

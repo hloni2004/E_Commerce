@@ -24,13 +24,25 @@ public class OrderServiceImpl implements OrderService {
     private za.ac.styling.service.PromoCodeService promoService;
 
     @Autowired
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
+    @Autowired
     public OrderServiceImpl(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
     }
 
     @Override
     public Order create(Order order) {
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        // Fire OrderPlacedEvent for listeners (email, analytics, etc.)
+        try {
+            eventPublisher.publishEvent(new za.ac.styling.events.OrderPlacedEvent(this, saved));
+        } catch (Exception ex) {
+            System.err.println(
+                    "Failed to publish OrderPlacedEvent for order " + saved.getOrderNumber() + ": " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return saved;
     }
 
     @Override
@@ -40,7 +52,15 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order update(Order order) {
-        return orderRepository.save(order);
+        Order saved = orderRepository.save(order);
+        try {
+            eventPublisher.publishEvent(new za.ac.styling.events.OrderPlacedEvent(this, saved));
+        } catch (Exception ex) {
+            System.err.println("Failed to publish OrderPlacedEvent for order "
+                    + (saved != null ? saved.getOrderNumber() : "<unknown>") + ": " + ex.getMessage());
+            ex.printStackTrace();
+        }
+        return saved;
     }
 
     @Override
@@ -131,6 +151,18 @@ public class OrderServiceImpl implements OrderService {
             if (!finalizeRes.isApplied()) {
                 throw new IllegalStateException("Failed to finalize promo usage: " + finalizeRes.getMessage());
             }
+        }
+
+        // Publish an OrderPlacedEvent so other components (email, analytics,
+        // fulfillment)
+        // can react asynchronously without blocking the request thread.
+        try {
+            eventPublisher.publishEvent(new za.ac.styling.events.OrderPlacedEvent(this, saved));
+        } catch (Exception ex) {
+            // Protect order flow from event publishing failures
+            System.err.println(
+                    "Failed to publish OrderPlacedEvent for order " + saved.getOrderNumber() + ": " + ex.getMessage());
+            ex.printStackTrace();
         }
 
         return saved;

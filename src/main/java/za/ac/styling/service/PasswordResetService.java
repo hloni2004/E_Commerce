@@ -1,6 +1,8 @@
 
 package za.ac.styling.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import java.util.Optional;
 
 @Service
 public class PasswordResetService {
+    private static final Logger logger = LoggerFactory.getLogger(PasswordResetService.class);
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -96,9 +99,10 @@ public class PasswordResetService {
         String resetLink = frontendBaseUrl + "/auth/reset-password?token=" + encodedToken;
         String userName = user.getFirstName() != null ? user.getFirstName() : user.getUsername();
         boolean emailSent = false;
+        String errorMessage = null;
         try {
             emailService.sendPasswordResetEmailWithOTP(user.getEmail(), resetLink, userName, otpCode);
-            System.out.println("Password reset email dispatched to: " + user.getEmail());
+            logger.info("Password reset email dispatched to: {}", user.getEmail());
             emailSent = true;
             resetToken.setEmailSent(true);
             resetToken.setLastSentAt(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
@@ -106,8 +110,8 @@ public class PasswordResetService {
         } catch (Exception e) {
             // Log and continue. Token is still created in DB so admin/ops can inspect and
             // resend.
-            System.err.println("Failed to send password reset email to " + user.getEmail() + ": " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Failed to send password reset email to {}: {}", user.getEmail(), e.getMessage(), e);
+            errorMessage = e.getMessage();
             resetToken.setEmailSent(false);
             resetToken.setLastSentAt(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
             tokenRepository.save(resetToken);
@@ -115,7 +119,7 @@ public class PasswordResetService {
         }
 
         // Return token for development purposes along with email dispatch status
-        return new za.ac.styling.service.PasswordResetResult(token, emailSent);
+        return new za.ac.styling.service.PasswordResetResult(token, emailSent, errorMessage);
     }
 
     /**
