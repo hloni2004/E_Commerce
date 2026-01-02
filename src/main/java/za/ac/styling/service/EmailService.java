@@ -15,6 +15,9 @@ import za.ac.styling.domain.OrderStatus;
 import za.ac.styling.domain.Product;
 import za.ac.styling.domain.ProductColourSize;
 import za.ac.styling.domain.User;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.lang.Nullable;
+import za.ac.styling.service.MiljetEmailClient;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -31,6 +34,9 @@ public class EmailService {
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
     private final JavaMailSender mailSender;
     private final Environment env;
+    @Autowired
+    @Nullable
+    private MiljetEmailClient miljetClient;
 
     @Autowired
     public EmailService(JavaMailSender mailSender, Environment env) {
@@ -69,6 +75,17 @@ public class EmailService {
      * Logs any failures but does not throw, so order processing is not interrupted.
      */
     private void sendHtmlEmail(String to, String subject, String htmlContent) {
+        // Prefer Miljet HTTP API if configured
+        if (miljetClient != null && miljetClient.isConfigured()) {
+            try {
+                miljetClient.sendEmail(to, subject, htmlContent);
+                return;
+            } catch (Exception e) {
+                logger.error("Miljet send failed, falling back to SMTP: {}", e.getMessage(), e);
+                // fall through to SMTP fallback
+            }
+        }
+
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
@@ -83,9 +100,9 @@ public class EmailService {
             }
 
             mailSender.send(message);
-            logger.info("Email sent to {} with subject '{}'", to, subject);
+            logger.info("Email sent to {} with subject '{}' via SMTP", to, subject);
         } catch (MailException | jakarta.mail.MessagingException e) {
-            logger.error("Failed to send email to {}: {}", to, e.getMessage(), e);
+            logger.error("Failed to send email to {} via SMTP: {}", to, e.getMessage(), e);
             // Do not rethrow; order processing continues
         }
     }
@@ -152,6 +169,19 @@ public class EmailService {
             System.err.println("Cannot send test email: recipient is null/empty");
             return false;
         }
+        // Prefer Miljet if configured
+        if (miljetClient != null && miljetClient.isConfigured()) {
+            try {
+                miljetClient.sendEmail(to, "Test Email - E-Commerce Store",
+                        "<p>This is a test email from E-Commerce application. If you received this, SMTP is configured correctly.</p>");
+                logger.info("Test email sent via Miljet to {}", to);
+                return true;
+            } catch (Exception e) {
+                logger.error("Miljet test email failed: {}", e.getMessage(), e);
+                // fall back to SMTP
+            }
+        }
+
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -167,15 +197,13 @@ public class EmailService {
                     true);
 
             mailSender.send(message);
-            System.out.println("Test email sent successfully to: " + to);
+            logger.info("Test email sent via SMTP to {}", to);
             return true;
         } catch (MailException me) {
-            System.err.println("MailException sending test email to " + to + ": " + me.getMessage());
-            me.printStackTrace();
+            logger.error("MailException sending test email to {}: {}", to, me.getMessage(), me);
             return false;
         } catch (Exception e) {
-            System.err.println("Failed to send test email to " + to + ": " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Failed to send test email to {}: {}", to, e.getMessage(), e);
             return false;
         }
     }
@@ -310,6 +338,19 @@ public class EmailService {
      * Send password reset email with OTP
      */
     public void sendPasswordResetEmailWithOTP(String to, String resetLink, String userName, String otpCode) {
+        // Prefer Miljet if configured
+        if (miljetClient != null && miljetClient.isConfigured()) {
+            try {
+                miljetClient.sendEmail(to, "Password Reset Request - MAISON LUXE",
+                        buildPasswordResetEmailWithOTP(resetLink, userName, otpCode));
+                logger.info("Password reset email with OTP sent via Miljet to: {}", to);
+                return;
+            } catch (Exception e) {
+                logger.error("Miljet send failed for password reset: {}", e.getMessage(), e);
+                // fall through to SMTP logic and throw if that also fails
+            }
+        }
+
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -324,16 +365,14 @@ public class EmailService {
             helper.setText(buildPasswordResetEmailWithOTP(resetLink, userName, otpCode), true);
 
             mailSender.send(message);
-            System.out.println("Password reset email with OTP sent successfully to: " + to);
+            logger.info("Password reset email with OTP sent via SMTP to: {}", to);
         } catch (org.springframework.mail.MailException me) {
-            System.err.println("MailException while sending password reset email to " + to + ": " + me.getMessage());
-            me.printStackTrace();
-            System.err.println(
+            logger.error("MailException while sending password reset email to {}: {}", to, me.getMessage(), me);
+            logger.error(
                     "Hint: verify SMTP credentials and provider settings (spring.mail.username / spring.mail.password). Use /api/email/test to validate.");
             throw new RuntimeException("Failed to send password reset email", me);
         } catch (Exception e) {
-            System.err.println("Failed to send password reset email: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Failed to send password reset email: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to send password reset email", e);
         }
     }
