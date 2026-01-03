@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="EMAIL MAL JETS6">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="EMAIL MAL JETS6" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -251,6 +249,7 @@
       <workItem from="1767388904788" duration="1721000" />
       <workItem from="1767427385152" duration="8112000" />
       <workItem from="1767455934493" duration="1746000" />
+      <workItem from="1767472430919" duration="211000" />
     </task>
     <task id="LOCAL-00007" summary="annoation">
       <option name="closed" value="true" />
