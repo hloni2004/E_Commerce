@@ -193,6 +193,7 @@ public class ProductController {
             }
             return ResponseEntity.ok(Map.of("success", true, "data", product));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Error retrieving product: " + e.getMessage()));
         }
@@ -344,9 +345,10 @@ public class ProductController {
     @GetMapping("/getAll")
     public ResponseEntity<?> getAll() {
         try {
-            List<Product> products = productService.getAll();
+            List<Product> products = productService.getAllWithRelations();
             return ResponseEntity.ok(Map.of("success", true, "data", products));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Error retrieving products: " + e.getMessage()));
         }
@@ -396,9 +398,10 @@ public class ProductController {
     @GetMapping("/category/{categoryId}")
     public ResponseEntity<?> getProductsByCategory(@PathVariable Long categoryId) {
         try {
-            List<Product> products = productService.findByCategoryId(categoryId);
+            List<Product> products = productService.findByCategoryIdWithRelations(categoryId);
             return ResponseEntity.ok(Map.of("success", true, "data", products));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("success", false, "message", "Error retrieving products: " + e.getMessage()));
         }

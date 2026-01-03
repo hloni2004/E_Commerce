@@ -1,5 +1,6 @@
 package za.ac.styling.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,27 @@ import java.util.Optional;
  */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
+
+    /**
+     * Find product by ID with all relationships eagerly loaded
+     */
+    @EntityGraph(attributePaths = {"category", "colours", "colours.sizes", "images", "primaryImage"})
+    @Query("SELECT p FROM Product p WHERE p.productId = :id")
+    Optional<Product> findByIdWithRelations(Integer id);
+
+    /**
+     * Find all products with relationships eagerly loaded
+     */
+    @EntityGraph(attributePaths = {"category", "colours", "colours.sizes", "images", "primaryImage"})
+    @Query("SELECT p FROM Product p")
+    List<Product> findAllWithRelations();
+
+    /**
+     * Find products by category ID with relationships eagerly loaded
+     */
+    @EntityGraph(attributePaths = {"category", "colours", "colours.sizes", "images", "primaryImage"})
+    @Query("SELECT p FROM Product p WHERE p.category.categoryId = :categoryId")
+    List<Product> findByCategoryCategoryIdWithRelations(Long categoryId);
 
     /**
      * Find product by SKU
