@@ -1,4 +1,3 @@
-
 package za.ac.styling.config;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -37,8 +36,7 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtUtil);
 
         // Enable CORS support for preflight requests
-        http.cors().and()
-
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 // Stateless session management
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -55,10 +53,11 @@ public class SecurityConfig {
                                 "/api/users/forgot-password",
                                 "/api/users/reset-password",
                                 "/api/users/verify-reset-otp",
-                                "/api/users/validate-reset-token")
+                                "/api/users/validate-reset-token",
+                                "/api/users/resend-reset-email")
+                        .permitAll()
                         // Allow preflight CORS OPTIONS requests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .permitAll()
                         // Allow public GET access to product and category listings and images
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
                         .anyRequest().authenticated())

@@ -54,10 +54,10 @@ public class MiljetEmailClient {
         try {
             ResponseEntity<String> resp = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
             if (resp.getStatusCode().is2xxSuccessful()) {
-                logger.info("Miljet email sent to {} (status={})", to, resp.getStatusCodeValue());
+                logger.info("Miljet email sent to {} (status={})", to, resp.getStatusCode().value());
             } else {
                 throw new RuntimeException(
-                        "Miljet API returned status: " + resp.getStatusCodeValue() + " body=" + resp.getBody());
+                        "Miljet API returned status: " + resp.getStatusCode().value() + " body=" + resp.getBody());
             }
         } catch (Exception e) {
             logger.error("Failed to send email via Miljet to {}: {}", to, e.getMessage(), e);
