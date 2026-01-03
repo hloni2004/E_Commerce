@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="EMAIL MAL JETS6" />
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="EMAIL MAL JETS6">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -249,23 +251,7 @@
       <workItem from="1767388904788" duration="1721000" />
       <workItem from="1767427385152" duration="8112000" />
       <workItem from="1767455934493" duration="1746000" />
-      <workItem from="1767472430919" duration="211000" />
-    </task>
-    <task id="LOCAL-00007" summary="annoation">
-      <option name="closed" value="true" />
-      <created>1765444798666</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1765444798666</updated>
-    </task>
-    <task id="LOCAL-00008" summary="annoation">
-      <option name="closed" value="true" />
-      <created>1765444804504</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1765444804504</updated>
+      <workItem from="1767472430919" duration="1610000" />
     </task>
     <task id="LOCAL-00009" summary="controller">
       <option name="closed" value="true" />
@@ -643,7 +629,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767457044149</updated>
     </task>
-    <option name="localTasksCounter" value="56" />
+    <task id="LOCAL-00056" summary="EMAIL MAL JETS6">
+      <option name="closed" value="true" />
+      <created>1767472815948</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1767472815950</updated>
+    </task>
+    <task id="LOCAL-00057" summary="EMAIL MAL JETS6">
+      <option name="closed" value="true" />
+      <created>1767474800946</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1767474800948</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
