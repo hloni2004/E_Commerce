@@ -13,6 +13,16 @@ import java.util.Optional;
 public interface ProductService extends IService<Product, Integer> {
 
     /**
+     * Find product by ID with all relationships eagerly loaded
+     */
+    Product readWithRelations(Integer id);
+
+    /**
+     * Find all products with relationships eagerly loaded
+     */
+    List<Product> getAllWithRelations();
+
+    /**
      * Find product by SKU
      */
     Optional<Product> findBySku(String sku);
@@ -26,6 +36,11 @@ public interface ProductService extends IService<Product, Integer> {
      * Find products by category ID
      */
     List<Product> findByCategoryId(Long categoryId);
+
+    /**
+     * Find products by category ID with relationships eagerly loaded
+     */
+    List<Product> findByCategoryIdWithRelations(Long categoryId);
 
     /**
      * Find all active products

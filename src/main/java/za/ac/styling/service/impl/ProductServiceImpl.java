@@ -39,6 +39,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product readWithRelations(Integer id) {
+        return productRepository.findByIdWithRelations(id).orElse(null);
+    }
+
+    @Override
     public Product update(Product product) {
         return productRepository.save(product);
     }
@@ -46,6 +51,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> getAll() {
         return productRepository.findAll();
+    }
+
+    @Override
+    public List<Product> getAllWithRelations() {
+        return productRepository.findAllWithRelations();
     }
 
     @Override
@@ -61,6 +71,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> findByCategoryId(Long categoryId) {
         return productRepository.findByCategoryCategoryId(categoryId);
+    }
+
+    @Override
+    public List<Product> findByCategoryIdWithRelations(Long categoryId) {
+        return productRepository.findByCategoryCategoryIdWithRelations(categoryId);
     }
 
     @Override
