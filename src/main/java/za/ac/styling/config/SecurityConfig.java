@@ -56,6 +56,8 @@ public class SecurityConfig {
                                 "/api/users/reset-password",
                                 "/api/users/verify-reset-otp",
                                 "/api/users/validate-reset-token")
+                        // Allow preflight CORS OPTIONS requests
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .permitAll()
                         // Allow public GET access to product and category listings and images
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
@@ -88,6 +90,8 @@ public class SecurityConfig {
                     "http://localhost:3000");
         }
         configuration.setAllowedOrigins(origins);
+        // Also allow origin patterns to be more flexible with subdomains and ports
+        configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
