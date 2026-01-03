@@ -86,6 +86,7 @@ public class SecurityConfig {
                     "https://client-hub-portal.vercel.app",
                     "http://localhost:5173",
                     "http://localhost:3000");
+        }
         configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
