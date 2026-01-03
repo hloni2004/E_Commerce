@@ -19,5 +19,9 @@ USER appuser
 COPY --from=build /app/target/E-Commerce-1.0-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
+ 
+# Allow configuring CORS origins at container runtime via env var
+# Example: APP_CORS_ALLOWED_ORIGINS=https://client-hub-portal.vercel.app
+ENV APP_CORS_ALLOWED_ORIGINS="https://client-hub-portal.vercel.app"
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

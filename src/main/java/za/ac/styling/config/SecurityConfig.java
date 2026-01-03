@@ -3,7 +3,14 @@ package za.ac.styling.config;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import za.ac.styling.config.HttpsEnforcementFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
 import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Value;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,8 +36,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtUtil jwtUtil) throws Exception {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtUtil);
 
-        http
-                // Disable CSRF for stateless JWT REST API
+        // Enable CORS support for preflight requests
+        http.cors().and()
+
                 .csrf(csrf -> csrf.disable())
                 // Stateless session management
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -47,18 +55,44 @@ public class SecurityConfig {
                                 "/api/users/forgot-password",
                                 "/api/users/reset-password",
                                 "/api/users/verify-reset-otp",
-                                "/api/users/validate-reset-token"
-                        )
+                                "/api/users/validate-reset-token")
                         .permitAll()
                         // Allow public GET access to product and category listings and images
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 // Add JWT filter before UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtFilter,
                         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Read allowed origins from environment/property `APP_CORS_ALLOWED_ORIGINS`
+        // (comma separated)
+        // Fall back to sensible defaults if not provided
+        String env = System.getenv("APP_CORS_ALLOWED_ORIGINS");
+        List<String> origins;
+        if (env != null && !env.trim().isEmpty()) {
+            origins = Arrays.stream(env.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+        } else {
+            origins = Arrays.asList(
+                    "https://client-hub-portal.vercel.app",
+                    "http://localhost:5173",
+                    "http://localhost:3000");
+        }
+        configuration.setAllowedOrigins(origins);
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     @Bean
