@@ -8,13 +8,11 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
- * Simple HTTP client to send emails via Miljet API when configured.
- * This client expects a JSON payload with keys: `to`, `subject`, `html`.
- * It sets header `Authorization: Bearer <MILJET_API_KEY>` by default.
+ * Mailjet HTTP API client using v3.1 send API
+ * Expects MILJET_API_KEY in format: "api_key:secret_key"
  */
 @Component
 public class MiljetEmailClient {
@@ -29,39 +27,59 @@ public class MiljetEmailClient {
     }
 
     public boolean isConfigured() {
-        return env.getProperty("miljet.api.key") != null && !env.getProperty("miljet.api.key").isBlank();
+        String apiKey = env.getProperty("miljet.api.key");
+        return apiKey != null && !apiKey.isBlank() && apiKey.contains(":");
     }
 
     public void sendEmail(String to, String subject, String html) {
         String apiKey = env.getProperty("miljet.api.key");
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new IllegalStateException("Miljet API key not configured");
+        if (apiKey == null || apiKey.isBlank() || !apiKey.contains(":")) {
+            throw new IllegalStateException("Mailjet API key not configured correctly. Expected format: 'api_key:secret_key'");
         }
 
-        String url = env.getProperty("miljet.api.url", "https://api.miljet.email/v1/send");
+        String url = env.getProperty("miljet.api.url", "https://api.mailjet.com/v3.1/send");
+        String fromEmail = env.getProperty("spring.mail.from", "hloniyacho@gmail.com");
+        String fromName = env.getProperty("MAIL_SENDER_NAME", "E-Commerce Store");
+
+        // Mailjet v3.1 expects Basic Auth with api_key:secret_key
+        String[] credentials = apiKey.split(":");
+        String encodedAuth = Base64.getEncoder().encodeToString(apiKey.getBytes());
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
+        headers.set("Authorization", "Basic " + encodedAuth);
 
+        // Mailjet v3.1 send API format
         Map<String, Object> payload = new HashMap<>();
-        payload.put("to", to);
-        payload.put("subject", subject);
-        payload.put("html", html);
+        List<Map<String, Object>> messages = new ArrayList<>();
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("From", Map.of(
+                "Email", fromEmail,
+                "Name", fromName
+        ));
+        message.put("To", List.of(Map.of("Email", to)));
+        message.put("Subject", subject);
+        message.put("HTMLPart", html);
+
+        messages.add(message);
+        payload.put("Messages", messages);
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
 
         try {
+            logger.info("Sending email via Mailjet to: {}", to);
             ResponseEntity<String> resp = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
             if (resp.getStatusCode().is2xxSuccessful()) {
-                logger.info("Miljet email sent to {} (status={})", to, resp.getStatusCode().value());
+                logger.info(" Mailjet email sent successfully to {} (status={})", to, resp.getStatusCode().value());
             } else {
                 throw new RuntimeException(
-                        "Miljet API returned status: " + resp.getStatusCode().value() + " body=" + resp.getBody());
+                        "Mailjet API returned status: " + resp.getStatusCode().value() + " body=" + resp.getBody());
             }
         } catch (Exception e) {
-            logger.error("Failed to send email via Miljet to {}: {}", to, e.getMessage(), e);
-            throw new RuntimeException("Miljet send failed: " + e.getMessage(), e);
+            logger.error("Failed to send email via Mailjet to {}: {}", to, e.getMessage(), e);
+            throw new RuntimeException("Mailjet send failed: " + e.getMessage(), e);
         }
     }
 }
