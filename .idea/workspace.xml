@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="EMAIL MAL JETS">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="EMAIL MAL JETS3">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -249,6 +249,7 @@
       <workItem from="1767351785192" duration="4247000" />
       <workItem from="1767372641355" duration="3399000" />
       <workItem from="1767388904788" duration="1721000" />
+      <workItem from="1767427385152" duration="1030000" />
     </task>
     <task id="LOCAL-00001" summary="domain">
       <option name="closed" value="true" />
@@ -634,7 +635,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767390052153</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="EMAIL MAL JETS3">
+      <option name="closed" value="true" />
+      <created>1767427728007</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1767427728007</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -676,7 +685,8 @@
     <MESSAGE value="promo issue3" />
     <MESSAGE value="emaail not sent issue" />
     <MESSAGE value="EMAIL MAL JETS" />
-    <option name="LAST_COMMIT_MESSAGE" value="EMAIL MAL JETS" />
+    <MESSAGE value="EMAIL MAL JETS3" />
+    <option name="LAST_COMMIT_MESSAGE" value="EMAIL MAL JETS3" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

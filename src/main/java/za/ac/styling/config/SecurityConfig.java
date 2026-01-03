@@ -82,14 +82,11 @@ public class SecurityConfig {
                     .collect(Collectors.toList());
         } else {
             origins = Arrays.asList(
+                    "https://e-commerce-7lqm.onrender.com",
                     "https://client-hub-portal.vercel.app",
                     "http://localhost:5173",
                     "http://localhost:3000");
-        }
-        configuration.setAllowedOrigins(origins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
+        }4etAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
