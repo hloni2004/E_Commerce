@@ -4,7 +4,7 @@ import za.ac.styling.domain.Product;
 import za.ac.styling.domain.ProductColour;
 import za.ac.styling.util.ValidationHelper;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Factory class responsible for creating ProductColour objects
@@ -33,7 +33,7 @@ public class ProductColourFactory {
                 .name(name.trim())
                 .hexCode(hexCode.toUpperCase())
                 .product(product)
-                .sizes(new ArrayList<>())
+                .sizes(new HashSet<>())
                 .build();
     }
 

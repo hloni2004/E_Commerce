@@ -2,6 +2,8 @@ package za.ac.styling.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.util.Date;
@@ -13,15 +15,16 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(name = "orders")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer orderId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private User user;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<OrderItem> items;
 
@@ -32,22 +35,22 @@ public class Order {
     private double taxAmount;
     private double discountAmount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "promo_code_id")
     private PromoCode promoCode;
     private Date orderDate;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private ShippingMethod shippingMethod;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Address shippingAddress;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Address billingAddress;
 
     private boolean invoiceEmailSent;

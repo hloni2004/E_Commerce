@@ -17,7 +17,12 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    @Value("${security.jwt.secret:change_this_in_prod}")
+    // Use the same property name as defined in application.properties (jwt.secret).
+    // The default value here is deliberately long enough (>= 256 bits) to satisfy
+    // JJWT's HMAC requirements
+    // but in real deployments this should be overridden via environment-specific
+    // configuration.
+    @Value("${jwt.secret:change_this_in_prod_change_this_in_prod_change_this_in_prod_change_this_in_prod}")
     private String jwtSecret;
 
     @Value("${security.jwt.expirationMillis:900000}") // default 15 minutes

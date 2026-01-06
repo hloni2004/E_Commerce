@@ -1,6 +1,7 @@
 package za.ac.styling.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,6 +11,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = { "colour" })
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ProductColourSize {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +23,7 @@ public class ProductColourSize {
     private int reservedQuantity;
     private int reorderLevel;
 
-    @ManyToOne
-    @JsonIgnore  // Prevent circular reference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore // Prevent circular reference
     private ProductColour colour;
 }

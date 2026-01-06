@@ -44,7 +44,7 @@ public class ProductController {
             }
 
             // Create Product
-                Product product = Product.builder()
+            Product product = Product.builder()
                     .name(request.getName())
                     .description(request.getDescription())
                     .basePrice(request.getBasePrice())
@@ -55,7 +55,7 @@ public class ProductController {
                     .isActive(request.isActive())
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDate.now())
-                    .images(new ArrayList<>()) // Always initialize images list
+                    .images(new HashSet<>()) // Always initialize images set
                     .build();
 
             // Save product first to get ID
@@ -63,7 +63,7 @@ public class ProductController {
 
             // Create and save images with proper FK
             if (request.getImageBase64List() != null && !request.getImageBase64List().isEmpty()) {
-                List<ProductImage> images = new ArrayList<>();
+                Set<ProductImage> images = new HashSet<>();
                 for (int i = 0; i < request.getImageBase64List().size(); i++) {
                     String base64Data = request.getImageBase64List().get(i);
 
@@ -88,9 +88,11 @@ public class ProductController {
                     }
 
                     // TODO: Upload to Supabase Storage instead of storing as BLOB
-                    // For now, skip BLOB storage - images should be uploaded via multipart/form-data
-                    System.out.println("⚠️ Warning: Base64 image upload detected. Please use multipart file upload to Supabase Storage.");
-                    
+                    // For now, skip BLOB storage - images should be uploaded via
+                    // multipart/form-data
+                    System.out.println(
+                            "⚠️ Warning: Base64 image upload detected. Please use multipart file upload to Supabase Storage.");
+
                     ProductImage image = ProductImage.builder()
                             .product(savedProduct)
                             .contentType(contentType)
@@ -98,7 +100,7 @@ public class ProductController {
                             .displayOrder(i)
                             .isPrimary(i == 0)
                             .build();
-                    
+
                     // Skip adding this image since we don't have Supabase URL
                     continue;
                 }
@@ -106,13 +108,13 @@ public class ProductController {
 
                 // Set primary image
                 if (!images.isEmpty()) {
-                    savedProduct.setPrimaryImage(images.get(0));
+                    savedProduct.setPrimaryImage(images.iterator().next());
                 }
             }
 
             // Create and save colours with sizes with proper FK
             if (request.getColours() != null && !request.getColours().isEmpty()) {
-                List<ProductColour> colours = new ArrayList<>();
+                Set<ProductColour> colours = new HashSet<>();
 
                 for (ProductColourRequest colourReq : request.getColours()) {
                     ProductColour colour = ProductColour.builder()
@@ -123,7 +125,7 @@ public class ProductController {
 
                     // Create sizes with proper FK
                     if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
-                        List<ProductColourSize> sizes = new ArrayList<>();
+                        Set<ProductColourSize> sizes = new HashSet<>();
 
                         for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
                             ProductColourSize size = ProductColourSize.builder()
@@ -171,15 +173,14 @@ public class ProductController {
             // Images are stored in Supabase Storage - return the URL
             if (image.getSupabaseUrl() != null) {
                 return ResponseEntity.ok(Map.of(
-                    "imageUrl", image.getSupabaseUrl(),
-                    "contentType", image.getContentType() != null ? image.getContentType() : "image/jpeg"
-                ));
+                        "imageUrl", image.getSupabaseUrl(),
+                        "contentType", image.getContentType() != null ? image.getContentType() : "image/jpeg"));
             }
-            
+
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("error", e.getMessage()));
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -234,7 +235,7 @@ public class ProductController {
             if (request.getImageBase64List() != null && !request.getImageBase64List().isEmpty()) {
                 // Initialize images collection if null
                 if (existingProduct.getImages() == null) {
-                    existingProduct.setImages(new ArrayList<>());
+                    existingProduct.setImages(new HashSet<>());
                 }
 
                 // Remove images that are not in the existingImageIds list
@@ -263,9 +264,11 @@ public class ProductController {
                     }
 
                     // TODO: Upload to Supabase Storage instead of storing as BLOB
-                    // For now, skip BLOB storage - images should be uploaded via multipart/form-data
-                    System.out.println("⚠️ Warning: Base64 image upload detected. Please use multipart file upload to Supabase Storage.");
-                    
+                    // For now, skip BLOB storage - images should be uploaded via
+                    // multipart/form-data
+                    System.out.println(
+                            "⚠️ Warning: Base64 image upload detected. Please use multipart file upload to Supabase Storage.");
+
                     ProductImage image = ProductImage.builder()
                             .product(existingProduct)
                             .contentType(contentType)
@@ -273,7 +276,7 @@ public class ProductController {
                             .displayOrder(currentSize + i)
                             .isPrimary(existingProduct.getImages().isEmpty() && i == 0)
                             .build();
-                    
+
                     // Skip adding this image since we don't have Supabase URL
                     continue;
                 }
@@ -283,7 +286,7 @@ public class ProductController {
                     existingProduct.setPrimaryImage(existingProduct.getImages().stream()
                             .filter(ProductImage::isPrimary)
                             .findFirst()
-                            .orElse(existingProduct.getImages().get(0)));
+                            .orElse(existingProduct.getImages().iterator().next()));
                 }
             }
 
@@ -293,7 +296,7 @@ public class ProductController {
                 if (existingProduct.getColours() != null) {
                     existingProduct.getColours().clear();
                 } else {
-                    existingProduct.setColours(new ArrayList<>());
+                    existingProduct.setColours(new HashSet<>());
                 }
 
                 for (ProductColourRequest colourReq : request.getColours()) {
@@ -305,7 +308,7 @@ public class ProductController {
 
                     // Add sizes
                     if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
-                        List<ProductColourSize> sizes = new ArrayList<>();
+                        Set<ProductColourSize> sizes = new HashSet<>();
 
                         for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
                             ProductColourSize size = ProductColourSize.builder()
@@ -425,7 +428,7 @@ public class ProductController {
     @GetMapping("/low-stock")
     public ResponseEntity<?> getLowStockProducts() {
         try {
-            List<Product> allProducts = productService.getAll();
+            List<Product> allProducts = productService.getAllWithRelations();
             List<Map<String, Object>> lowStockAlerts = new ArrayList<>();
 
             if (allProducts != null) {

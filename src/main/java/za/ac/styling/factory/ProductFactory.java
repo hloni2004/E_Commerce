@@ -7,7 +7,7 @@ import za.ac.styling.util.ValidationHelper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Factory class responsible for creating Product objects
@@ -44,8 +44,8 @@ public class ProductFactory {
                 .comparePrice(0.0)
                 .sku(sku.toUpperCase())
                 .category(category)
-                .colours(new ArrayList<>())
-                .images(new ArrayList<>())
+                .colours(new HashSet<>())
+                .images(new HashSet<>())
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDate.now())
@@ -93,8 +93,8 @@ public class ProductFactory {
                 .sku(sku.toUpperCase())
                 .weight(weight)
                 .category(category)
-                .colours(new ArrayList<>())
-                .images(new ArrayList<>())
+                .colours(new HashSet<>())
+                .images(new HashSet<>())
                 .isActive(true)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDate.now())

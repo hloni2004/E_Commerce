@@ -1,10 +1,12 @@
 package za.ac.styling.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -12,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(exclude = { "product", "sizes" })
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class ProductColour {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +24,10 @@ public class ProductColour {
     private String name;
     private String hexCode;
 
-    @ManyToOne
-    @JsonIgnore  // Prevent circular reference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore // Prevent circular reference
     private Product product;
 
-    @OneToMany(mappedBy = "colour", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductColourSize> sizes;
+    @OneToMany(mappedBy = "colour", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<ProductColourSize> sizes;
 }

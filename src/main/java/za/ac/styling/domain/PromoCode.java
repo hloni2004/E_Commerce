@@ -1,6 +1,7 @@
 package za.ac.styling.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(name = "promo_codes")
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class PromoCode {
 
     @Id

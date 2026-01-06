@@ -6,6 +6,39 @@
   <component name="ChangeListManager">
     <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="EMAIL MAL JETS6">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/CheckoutController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ProductController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ProductImageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/controller/ProductImageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Address.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Address.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Cart.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Cart.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/CartItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/CartItem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Order.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/OrderItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/OrderItem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PasswordResetToken.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PasswordResetToken.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Payment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PaymentMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PaymentMethod.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductColour.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductColour.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductColourSize.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductColourSize.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ProductImage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PromoCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PromoCode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PromoProduct.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PromoProduct.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PromoUsage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/PromoUsage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Review.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Review.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ReviewImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ReviewImage.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Role.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Role.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Shipment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/Shipment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ShippingMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/ShippingMethod.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/domain/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/ProductColourFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/ProductColourFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/ProductFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/factory/ProductFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/security/JwtUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/security/JwtUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/EmailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/MiljetEmailClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/MiljetEmailClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/impl/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -252,6 +285,12 @@
       <workItem from="1767427385152" duration="8112000" />
       <workItem from="1767455934493" duration="1746000" />
       <workItem from="1767472430919" duration="1610000" />
+      <workItem from="1767562221342" duration="251000" />
+      <workItem from="1767602220465" duration="4364000" />
+      <workItem from="1767616075855" duration="3950000" />
+      <workItem from="1767689971210" duration="564000" />
+      <workItem from="1767690688949" duration="3162000" />
+      <workItem from="1767722635196" duration="6528000" />
     </task>
     <task id="LOCAL-00009" summary="controller">
       <option name="closed" value="true" />

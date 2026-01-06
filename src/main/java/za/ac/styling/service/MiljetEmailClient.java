@@ -34,12 +34,17 @@ public class MiljetEmailClient {
     public void sendEmail(String to, String subject, String html) {
         String apiKey = env.getProperty("miljet.api.key");
         if (apiKey == null || apiKey.isBlank() || !apiKey.contains(":")) {
-            throw new IllegalStateException("Mailjet API key not configured correctly. Expected format: 'api_key:secret_key'");
+            throw new IllegalStateException(
+                    "Mailjet API key not configured correctly. Expected format: 'api_key:secret_key'");
         }
 
         String url = env.getProperty("miljet.api.url", "https://api.mailjet.com/v3.1/send");
-        String fromEmail = env.getProperty("spring.mail.from", "hloniyacho@gmail.com");
-        String fromName = env.getProperty("MAIL_SENDER_NAME", "E-Commerce Store");
+        // Use mail.sender.email, then spring.mail.from as fallback
+        String fromEmail = env.getProperty("mail.sender.email");
+        if (fromEmail == null || fromEmail.isBlank()) {
+            fromEmail = env.getProperty("spring.mail.from", "hloniyacho@gmail.com");
+        }
+        String fromName = env.getProperty("mail.sender.name", "MAISON LUXE");
 
         // Mailjet v3.1 expects Basic Auth with api_key:secret_key
         String[] credentials = apiKey.split(":");
@@ -56,8 +61,7 @@ public class MiljetEmailClient {
         Map<String, Object> message = new HashMap<>();
         message.put("From", Map.of(
                 "Email", fromEmail,
-                "Name", fromName
-        ));
+                "Name", fromName));
         message.put("To", List.of(Map.of("Email", to)));
         message.put("Subject", subject);
         message.put("HTMLPart", html);

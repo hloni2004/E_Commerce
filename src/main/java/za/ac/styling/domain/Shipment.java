@@ -15,14 +15,14 @@ public class Shipment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long shipmentId;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private Order order;
 
     private String trackingNumber;
     private String carrier;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private ShippingMethod shippingMethod;
 
     private LocalDateTime shippedDate;

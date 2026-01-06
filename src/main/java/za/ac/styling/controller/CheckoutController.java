@@ -336,7 +336,7 @@ public class CheckoutController {
                 // Fallback to any image
                 if (imageUrl == null && ci.getProduct() != null && ci.getProduct().getImages() != null
                         && !ci.getProduct().getImages().isEmpty()) {
-                    imageUrl = ci.getProduct().getImages().get(0).getImageUrl();
+                    imageUrl = ci.getProduct().getImages().iterator().next().getImageUrl();
                 }
                 var itemMap = new java.util.HashMap<String, Object>();
                 itemMap.put("cartItemId", ci.getCartItemId());

@@ -48,11 +48,13 @@ public class ProductImageController {
             @RequestParam("files") List<MultipartFile> files) {
         try {
             System.out.println("📤 Uploading " + files.size() + " images for product " + productId);
-            
-            Product product = productService.read(productId);
+
+            // Use readWithRelations to eagerly load images and avoid
+            // LazyInitializationException
+            Product product = productService.readWithRelations(productId);
             if (product == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Product not found"));
+                        .body(Map.of("success", false, "message", "Product not found"));
             }
 
             List<ProductImage> uploadedImages = new ArrayList<>();
@@ -63,10 +65,10 @@ public class ProductImageController {
             for (int i = 0; i < files.size(); i++) {
                 MultipartFile file = files.get(i);
                 // Upload to Supabase Storage
-                SupabaseStorageService.UploadResult result = 
-                    supabaseStorageService.uploadProductImage(file, productId);
+                SupabaseStorageService.UploadResult result = supabaseStorageService.uploadProductImage(file, productId);
 
-                // The first image in the batch is primary only if no primary image already exists.
+                // The first image in the batch is primary only if no primary image already
+                // exists.
                 boolean isPrimary = !primaryImageExists && i == 0;
 
                 // Create ProductImage entity with correct Supabase URL and bucket path
@@ -77,8 +79,7 @@ public class ProductImageController {
                         result.getPath(), // bucketPath
                         product.getName(),
                         displayOrder++,
-                        isPrimary
-                );
+                        isPrimary);
 
                 ProductImage saved = productImageService.create(image);
                 uploadedImages.add(saved);
@@ -93,16 +94,15 @@ public class ProductImageController {
             }
 
             return ResponseEntity.ok(Map.of(
-                "success", true, 
-                "message", "Images uploaded successfully",
-                "images", uploadedImages
-            ));
+                    "success", true,
+                    "message", "Images uploaded successfully",
+                    "images", uploadedImages));
 
         } catch (Exception e) {
             System.err.println("❌ Error uploading images: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error uploading images: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error uploading images: " + e.getMessage()));
         }
     }
 
@@ -122,12 +122,12 @@ public class ProductImageController {
             ProductImage productImage = productImageService.read(id);
             if (productImage == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Product image not found"));
+                        .body(Map.of("success", false, "message", "Product image not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", productImage));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving product image: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving product image: " + e.getMessage()));
         }
     }
 
@@ -137,12 +137,12 @@ public class ProductImageController {
             ProductImage updated = productImageService.update(productImage);
             if (updated == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Product image not found"));
+                        .body(Map.of("success", false, "message", "Product image not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", updated));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error updating product image: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error updating product image: " + e.getMessage()));
         }
     }
 
@@ -153,7 +153,7 @@ public class ProductImageController {
             return ResponseEntity.ok(Map.of("success", true, "data", productImages));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving product images: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving product images: " + e.getMessage()));
         }
     }
 
@@ -164,7 +164,7 @@ public class ProductImageController {
             return ResponseEntity.ok(Map.of("success", true, "message", "Product image deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error deleting product image: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error deleting product image: " + e.getMessage()));
         }
     }
 
@@ -175,7 +175,7 @@ public class ProductImageController {
             return ResponseEntity.ok(Map.of("success", true, "data", images));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving product images: " + e.getMessage()));
+                    .body(Map.of("success", false, "message", "Error retrieving product images: " + e.getMessage()));
         }
     }
 }

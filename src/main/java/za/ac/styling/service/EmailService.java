@@ -18,6 +18,7 @@ import za.ac.styling.domain.User;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.lang.Nullable;
 import za.ac.styling.service.MiljetEmailClient;
+import java.io.UnsupportedEncodingException;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -93,17 +94,24 @@ public class EmailService {
             helper.setSubject(subject);
             helper.setText(htmlContent, true); // true = HTML
 
-            // Optionally set sender from application.properties
-            String from = env.getProperty("spring.mail.username");
-            if (from != null) {
-                helper.setFrom(from);
+            // Set sender from application.properties - use mail.sender.email, fallback to
+            // spring.mail.from
+            String from = env.getProperty("mail.sender.email");
+            if (from == null || from.isBlank()) {
+                from = env.getProperty("spring.mail.from");
             }
+            if (from == null || from.isBlank()) {
+                from = "hloniyacho@gmail.com"; // Default fallback
+            }
+            String senderName = env.getProperty("mail.sender.name", "MAISON LUXE");
+            helper.setFrom(from, senderName);
 
             mailSender.send(message);
             logger.info("Email sent to {} with subject '{}' via SMTP", to, subject);
-        } catch (MailException | jakarta.mail.MessagingException e) {
+        } catch (MailException | jakarta.mail.MessagingException | UnsupportedEncodingException e) {
             logger.error("Failed to send email to {} via SMTP: {}", to, e.getMessage(), e);
-            // Do not rethrow; order processing continues
+            // Rethrow so caller knows email failed
+            throw new RuntimeException("Failed to send email: " + e.getMessage(), e);
         }
     }
 
@@ -187,13 +195,15 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            String from = env.getProperty("spring.mail.username");
-            if (from != null) {
-                helper.setFrom(from);
+            String from = env.getProperty("mail.sender.email");
+            if (from == null || from.isBlank()) {
+                from = env.getProperty("spring.mail.from", "hloniyacho@gmail.com");
             }
-            helper.setSubject("Test Email - E-Commerce Store");
+            String senderName = env.getProperty("mail.sender.name", "MAISON LUXE");
+            helper.setFrom(from, senderName);
+            helper.setSubject("Test Email - MAISON LUXE");
             helper.setText(
-                    "<p>This is a test email from E-Commerce application. If you received this, SMTP is configured correctly.</p>",
+                    "<p>This is a test email from MAISON LUXE. If you received this, email is configured correctly.</p>",
                     true);
 
             mailSender.send(message);
@@ -218,11 +228,11 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            String to = env.getProperty("spring.mail.username");
-            if (to != null) {
-                helper.setTo(to);
-                helper.setFrom(to);
-            }
+            // Send low stock alerts to the admin/store email
+            String adminEmail = env.getProperty("mail.sender.email", "hloniyacho@gmail.com");
+            String senderName = env.getProperty("mail.sender.name", "MAISON LUXE");
+            helper.setTo(adminEmail);
+            helper.setFrom(adminEmail, senderName);
             helper.setSubject("⚠️ Low Stock Alert - " + product.getName());
             helper.setText(buildLowStockAlertEmail(product, size, currentStock, reorderLevel), true);
 
@@ -355,11 +365,17 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            String from = env.getProperty("spring.mail.username");
-            if (from != null) {
-                helper.setFrom(from);
-                helper.setReplyTo(from);
+            // Set sender from application.properties - use mail.sender.email
+            String from = env.getProperty("mail.sender.email");
+            if (from == null || from.isBlank()) {
+                from = env.getProperty("spring.mail.from");
             }
+            if (from == null || from.isBlank()) {
+                from = "hloniyacho@gmail.com"; // Default fallback
+            }
+            String senderName = env.getProperty("mail.sender.name", "MAISON LUXE");
+            helper.setFrom(from, senderName);
+            helper.setReplyTo(from);
             helper.setTo(to);
             helper.setSubject("Password Reset Request - MAISON LUXE");
             helper.setText(buildPasswordResetEmailWithOTP(resetLink, userName, otpCode), true);
@@ -500,17 +516,19 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            String from = env.getProperty("spring.mail.username");
-            if (from != null) {
-                helper.setFrom(from);
-                helper.setReplyTo(from);
+            String from = env.getProperty("mail.sender.email");
+            if (from == null || from.isBlank()) {
+                from = env.getProperty("spring.mail.from", "hloniyacho@gmail.com");
             }
+            String senderName = env.getProperty("mail.sender.name", "MAISON LUXE");
+            helper.setFrom(from, senderName);
+            helper.setReplyTo(from);
             helper.setTo(to);
             helper.setSubject("Password Reset Request - MAISON LUXE");
             helper.setText(buildPasswordResetEmail(resetLink, userName), true);
 
             mailSender.send(message);
-            System.out.println("Password reset email sent successfully to: " + to);
+            logger.info("Password reset email sent successfully to: {}", to);
         } catch (Exception e) {
             System.err.println("Failed to send password reset email: " + e.getMessage());
             e.printStackTrace();

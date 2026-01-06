@@ -1,11 +1,13 @@
 package za.ac.styling.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -14,6 +16,7 @@ import java.util.List;
 @Builder
 @EqualsAndHashCode(exclude = { "colours", "images", "primaryImage", "category" })
 @ToString(exclude = { "colours", "images", "primaryImage" })
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class Product {
 
     @Id
@@ -28,16 +31,16 @@ public class Product {
     private double weight;
     private int reorderLevel; // Stock level that triggers low inventory notification
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductColour> colours;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<ProductColour> colours;
 
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductImage> images;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Set<ProductImage> images;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "primary_image_id", nullable = true)
     private ProductImage primaryImage;
 

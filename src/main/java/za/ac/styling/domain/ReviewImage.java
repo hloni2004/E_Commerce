@@ -14,26 +14,26 @@ public class ReviewImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private Review review;
 
     // SUPABASE STORAGE FIELDS
     @Column(length = 500)
-    private String supabaseUrl;  // Full public URL to image in Supabase
-    
-    @Column(length = 300)
-    private String bucketPath;   // Path in Supabase bucket (for deletion)
+    private String supabaseUrl; // Full public URL to image in Supabase
 
-    private String contentType;  // image/jpeg, image/png, etc.
-    
+    @Column(length = 300)
+    private String bucketPath; // Path in Supabase bucket (for deletion)
+
+    private String contentType; // image/jpeg, image/png, etc.
+
     /**
      * Get the image URL (prioritizes Supabase URL)
      */
     public String getImageUrl() {
         return supabaseUrl != null ? supabaseUrl : null;
     }
-    
+
     /**
      * Check if this image is stored in Supabase
      */
