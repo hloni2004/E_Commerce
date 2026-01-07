@@ -14,39 +14,28 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 
-/**
- * One-time migration script to move existing BLOB images to Supabase
- * 
- * USAGE:
- * 1. Uncomment @Component annotation below
- * 2. Restart the application
- * 3. Wait for migration to complete
- * 4. Comment out @Component again to prevent re-running
- * 5. Optional: Remove image_data columns from database after verifying
- */
-// @Component  // UNCOMMENT TO RUN MIGRATION
 public class MigrateImagesToSupabase implements CommandLineRunner {
 
     @Autowired
     private ProductImageService productImageService;
-    
+
     @Autowired
     private ReviewImageRepository reviewImageRepository;
-    
+
     @Autowired
     private SupabaseStorageService supabaseStorageService;
 
     @Override
     public void run(String... args) throws Exception {
         System.out.println("\n" + "=".repeat(80));
-        System.out.println("🚀 STARTING BLOB TO SUPABASE MIGRATION");
+        System.out.println("STARTING BLOB TO SUPABASE MIGRATION");
         System.out.println("=".repeat(80) + "\n");
-        
+
         migrateProductImages();
         migrateReviewImages();
-        
+
         System.out.println("\n" + "=".repeat(80));
-        System.out.println("✅ MIGRATION COMPLETED!");
+        System.out.println("MIGRATION COMPLETED!");
         System.out.println("=".repeat(80) + "\n");
         System.out.println("Next steps:");
         System.out.println("1. Verify images are loading from Supabase URLs");
@@ -59,8 +48,8 @@ public class MigrateImagesToSupabase implements CommandLineRunner {
     }
 
     private void migrateProductImages() {
-        System.out.println("📦 Migrating Product Images...");
-        
+        System.out.println("Migrating Product Images...");
+
         List<ProductImage> allImages = productImageService.getAll();
         int migrated = 0;
         int skipped = 0;
@@ -68,35 +57,32 @@ public class MigrateImagesToSupabase implements CommandLineRunner {
 
         for (ProductImage image : allImages) {
             try {
-                // Skip if already migrated
+
                 if (image.isSupabaseImage()) {
                     System.out.println("  ⏭️  Skipped: Image " + image.getImageId() + " (already in Supabase)");
                     skipped++;
                     continue;
                 }
 
-                // MIGRATION NO LONGER NEEDED - ALL IMAGES ARE NOW IN SUPABASE STORAGE
-                // This code is kept for reference but will not execute
-                System.out.println("  ⏭️  Skipped: Image " + image.getImageId() + " (no BLOB data - using Supabase Storage)");
+                System.out.println("  Skipped: Image " + image.getImageId() + " (no BLOB data - using Supabase Storage)");
                 skipped++;
-                // continue; // Commented out to avoid unreachable code
 
             } catch (Exception e) {
-                System.err.println("  ❌ Failed: Image " + image.getImageId() + " - " + e.getMessage());
+                System.err.println("  Failed: Image " + image.getImageId() + " - " + e.getMessage());
                 failed++;
             }
         }
 
-        System.out.println("\n📊 Product Images Summary:");
-        System.out.println("   ✅ Migrated: " + migrated);
-        System.out.println("   ⏭️  Skipped: " + skipped);
-        System.out.println("   ❌ Failed: " + failed);
+        System.out.println("\nProduct Images Summary:");
+        System.out.println("   Migrated: " + migrated);
+        System.out.println("   Skipped: " + skipped);
+        System.out.println("   Failed: " + failed);
         System.out.println();
     }
 
     private void migrateReviewImages() {
-        System.out.println("📦 Migrating Review Images...");
-        
+        System.out.println("Migrating Review Images...");
+
         List<ReviewImage> allImages = reviewImageRepository.findAll();
         int migrated = 0;
         int skipped = 0;
@@ -104,34 +90,29 @@ public class MigrateImagesToSupabase implements CommandLineRunner {
 
         for (ReviewImage image : allImages) {
             try {
-                // Skip if already migrated
+
                 if (image.isSupabaseImage()) {
                     System.out.println("  ⏭️  Skipped: ReviewImage " + image.getImageId() + " (already in Supabase)");
                     skipped++;
                     continue;
                 }
 
-                // MIGRATION NO LONGER NEEDED - ALL IMAGES ARE NOW IN SUPABASE STORAGE
-                System.out.println("  ⏭️  Skipped: ReviewImage " + image.getImageId() + " (no BLOB data - using Supabase Storage)");
+                System.out.println("  Skipped: ReviewImage " + image.getImageId() + " (no BLOB data - using Supabase Storage)");
                 skipped++;
-                // continue; // Commented out to avoid unreachable code
 
             } catch (Exception e) {
-                System.err.println("  ❌ Failed: ReviewImage " + image.getImageId() + " - " + e.getMessage());
+                System.err.println("  Failed: ReviewImage " + image.getImageId() + " - " + e.getMessage());
                 failed++;
             }
         }
 
-        System.out.println("\n📊 Review Images Summary:");
-        System.out.println("   ✅ Migrated: " + migrated);
-        System.out.println("   ⏭️  Skipped: " + skipped);
-        System.out.println("   ❌ Failed: " + failed);
+        System.out.println("\nReview Images Summary:");
+        System.out.println("   Migrated: " + migrated);
+        System.out.println("   Skipped: " + skipped);
+        System.out.println("   Failed: " + failed);
         System.out.println();
     }
 
-    /**
-     * Helper class to convert byte[] to MultipartFile
-     */
     private static class ByteArrayMultipartFile implements MultipartFile {
         private final byte[] data;
         private final String name;

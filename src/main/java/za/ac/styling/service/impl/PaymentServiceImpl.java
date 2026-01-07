@@ -10,9 +10,6 @@ import za.ac.styling.service.PaymentService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Payment entity
- */
 @Service
 public class PaymentServiceImpl implements PaymentService {
 

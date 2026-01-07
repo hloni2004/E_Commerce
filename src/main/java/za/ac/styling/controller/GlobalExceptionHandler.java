@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleAll(Exception ex) {
         String correlationId = UUID.randomUUID().toString();
-        // Log server-side with correlation id
+
         ex.printStackTrace();
         Map<String, Object> body = Map.of(
             "timestamp", Instant.now().toString(),

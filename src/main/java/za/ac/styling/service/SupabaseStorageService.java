@@ -10,9 +10,6 @@ import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Service for handling file uploads to Supabase Storage
- */
 @Slf4j
 @Service
 public class SupabaseStorageService {
@@ -32,16 +29,12 @@ public class SupabaseStorageService {
     @Value("${supabase.bucket.category.images:category-images}")
     private String categoryImagesBucket;
 
-    /**
-     * Upload category image
-     */
     public UploadResult uploadCategoryImage(MultipartFile file, Long categoryId) throws IOException {
         String folder = "categories/" + categoryId;
         try {
             return uploadFile(file, categoryImagesBucket, folder);
         } catch (IOException e) {
-            // If the configured category bucket doesn't exist on Supabase, fall back to
-            // productImagesBucket
+
             String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
             if (msg.contains("bucket not found") || msg.contains("bucket") || msg.contains("not found")) {
                 log.warn("Category bucket '{}' not found. Falling back to product bucket '{}'. Error: {}",
@@ -62,57 +55,42 @@ public class SupabaseStorageService {
                 .build();
     }
 
-    /**
-     * Upload a file to Supabase Storage
-     * 
-     * @param file   MultipartFile to upload
-     * @param bucket Bucket name (product-images or review-images)
-     * @param folder Optional folder path within bucket
-     * @return UploadResult containing URL and path
-     */
     public UploadResult uploadFile(MultipartFile file, String bucket, String folder) throws IOException {
-        // Validate file
+
         if (file.isEmpty()) {
             throw new IllegalArgumentException("File is empty");
         }
 
-        // Validate content type
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new IllegalArgumentException("Only image files are allowed");
         }
 
-        // Generate unique filename
         String originalFilename = file.getOriginalFilename();
         String extension = originalFilename != null && originalFilename.contains(".")
                 ? originalFilename.substring(originalFilename.lastIndexOf("."))
                 : ".jpg";
         String filename = UUID.randomUUID().toString() + extension;
 
-        // Build path: folder/filename or just filename
         String path = folder != null && !folder.isEmpty()
                 ? folder + "/" + filename
                 : filename;
 
-        // Build Supabase Storage URL
         String uploadUrl = String.format("%s/storage/v1/object/%s/%s",
                 supabaseUrl, bucket, path);
 
-        // Create request body
         RequestBody requestBody = RequestBody.create(
                 file.getBytes(),
                 MediaType.parse(contentType));
 
-        // Build request
         Request request = new Request.Builder()
                 .url(uploadUrl)
                 .post(requestBody)
                 .addHeader("Authorization", "Bearer " + serviceRoleKey)
                 .addHeader("Content-Type", contentType)
-                .addHeader("x-upsert", "true") // Allow overwrite
+                .addHeader("x-upsert", "true")
                 .build();
 
-        // Execute request
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 String errorBody = response.body() != null ? response.body().string() : "Unknown error";
@@ -121,7 +99,6 @@ public class SupabaseStorageService {
                 throw new IOException("Upload failed: " + response.code() + " - " + errorBody);
             }
 
-            // Build public URL
             String publicUrl = String.format("%s/storage/v1/object/public/%s/%s",
                     supabaseUrl, bucket, path);
 
@@ -132,28 +109,16 @@ public class SupabaseStorageService {
         }
     }
 
-    /**
-     * Upload product image
-     */
     public UploadResult uploadProductImage(MultipartFile file, Integer productId) throws IOException {
         String folder = "products/" + productId;
         return uploadFile(file, productImagesBucket, folder);
     }
 
-    /**
-     * Upload review image
-     */
     public UploadResult uploadReviewImage(MultipartFile file, Long reviewId) throws IOException {
         String folder = "reviews/" + reviewId;
         return uploadFile(file, reviewImagesBucket, folder);
     }
 
-    /**
-     * Delete a file from Supabase Storage
-     * 
-     * @param bucket Bucket name
-     * @param path   File path in bucket
-     */
     public void deleteFile(String bucket, String path) throws IOException {
         String deleteUrl = String.format("%s/storage/v1/object/%s/%s",
                 supabaseUrl, bucket, path);
@@ -166,36 +131,25 @@ public class SupabaseStorageService {
 
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful() && response.code() != 404) {
-                // 404 is OK (file already deleted)
+
                 String errorBody = response.body() != null ? response.body().string() : "Unknown error";
                 throw new IOException("Delete failed: " + response.code() + " - " + errorBody);
             }
         }
     }
 
-    /**
-     * Delete product image
-     */
     public void deleteProductImage(String path) throws IOException {
         deleteFile(productImagesBucket, path);
     }
 
-    /**
-     * Delete review image
-     */
     public void deleteReviewImage(String path) throws IOException {
         deleteFile(reviewImagesBucket, path);
     }
 
-    /**
-     * Generate a signed URL for private access (valid for 1 hour)
-     * Use this for authenticated/private images
-     */
     public String getSignedUrl(String bucket, String path) throws IOException {
         String signedUrl = String.format("%s/storage/v1/object/sign/%s/%s",
                 supabaseUrl, bucket, path);
 
-        // Create JSON body for expiry time (3600 seconds = 1 hour)
         String jsonBody = "{\"expiresIn\": 3600}";
         RequestBody requestBody = RequestBody.create(
                 jsonBody,
@@ -213,17 +167,13 @@ public class SupabaseStorageService {
                 throw new IOException("Failed to generate signed URL: " + response.code());
             }
 
-            // Parse JSON response to get signedURL field
             String responseBody = response.body().string();
-            // Simple JSON parsing (you can use Jackson for more robust parsing)
+
             String signedUrlPath = responseBody.split("\"signedURL\":\"")[1].split("\"")[0];
             return supabaseUrl + signedUrlPath;
         }
     }
 
-    /**
-     * Result object containing upload information
-     */
     public static class UploadResult {
         private final String url;
         private final String path;

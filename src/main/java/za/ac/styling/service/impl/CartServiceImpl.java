@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Cart entity
- */
 @Service
 public class CartServiceImpl implements CartService {
 
@@ -52,7 +49,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Optional<Cart> findByUserId(Integer userId) {
-        // Use fetch join query to eagerly load items
+
         return cartRepository.findByUserUserIdWithItems(userId);
     }
 
@@ -90,7 +87,6 @@ public class CartServiceImpl implements CartService {
             return 0.0;
         }
 
-        // Only sum items with valid product, colour, and size
         return cart.getItems().stream()
                 .filter(item -> item.getProduct() != null && item.getColour() != null && item.getSize() != null)
                 .mapToDouble(item -> item.getProduct().getBasePrice() * item.getQuantity())

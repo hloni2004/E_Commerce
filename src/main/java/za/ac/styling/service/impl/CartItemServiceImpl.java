@@ -11,9 +11,6 @@ import za.ac.styling.service.CartItemService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for CartItem entity
- */
 @Service
 public class CartItemServiceImpl implements CartItemService {
 
@@ -76,6 +73,13 @@ public class CartItemServiceImpl implements CartItemService {
     public CartItem updateQuantity(Integer cartItemId, Integer quantity) {
         CartItem cartItem = read(cartItemId);
         if (cartItem != null) {
+
+            if (cartItem.getSize() != null) {
+                int available = cartItem.getSize().getStockQuantity() - cartItem.getSize().getReservedQuantity();
+                if (quantity > available) {
+                    throw new IllegalArgumentException("Insufficient stock. Only " + available + " items available.");
+                }
+            }
             cartItem.setQuantity(quantity);
             return update(cartItem);
         }

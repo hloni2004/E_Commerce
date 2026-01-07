@@ -4,17 +4,10 @@ import za.ac.styling.domain.PayPalPayment;
 import za.ac.styling.domain.User;
 import za.ac.styling.util.ValidationHelper;
 
-/**
- * Factory class responsible for creating PayPalPayment objects
- */
 public class PayPalPaymentFactory {
 
-    /**
-     * Creates a new PayPalPayment with email and payer ID
-     */
     public static PayPalPayment createPayPalPayment(String email, String payerId, User user) {
 
-        // Validate input data
         if (!ValidationHelper.isValidEmail(email)) {
             throw new IllegalArgumentException("Invalid email format");
         }
@@ -34,9 +27,6 @@ public class PayPalPaymentFactory {
                 .build();
     }
 
-    /**
-     * Creates a new PayPalPayment with only email
-     */
     public static PayPalPayment createPayPalPayment(String email, User user) {
         if (!ValidationHelper.isValidEmail(email)) {
             throw new IllegalArgumentException("Invalid email format");
@@ -53,11 +43,6 @@ public class PayPalPaymentFactory {
                 .build();
     }
 
-
-
-    /**
-     * Validates a PayPalPayment
-     */
     public static boolean validatePayPalPayment(PayPalPayment payment) {
         if (payment == null) {
             return false;
@@ -65,9 +50,6 @@ public class PayPalPaymentFactory {
         return payment.validate();
     }
 
-    /**
-     * Updates the payer ID for an existing PayPalPayment
-     */
     public static PayPalPayment updatePayerId(PayPalPayment payment, String payerId) {
         if (payment == null) {
             throw new IllegalArgumentException("PayPalPayment cannot be null");
@@ -81,9 +63,6 @@ public class PayPalPaymentFactory {
         return payment;
     }
 
-    /**
-     * Updates the email for an existing PayPalPayment
-     */
     public static PayPalPayment updateEmail(PayPalPayment payment, String email) {
         if (payment == null) {
             throw new IllegalArgumentException("PayPalPayment cannot be null");
@@ -97,9 +76,6 @@ public class PayPalPaymentFactory {
         return payment;
     }
 
-    /**
-     * Creates a masked version of email for display
-     */
     public static String maskEmail(String email) {
         if (ValidationHelper.isNullOrEmpty(email) || !email.contains("@")) {
             return "****@****.com";

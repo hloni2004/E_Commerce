@@ -9,9 +9,6 @@ import za.ac.styling.service.PermissionService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Permission entity
- */
 @Service
 public class PermissionServiceImpl implements PermissionService {
 

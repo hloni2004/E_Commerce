@@ -14,7 +14,6 @@ public class PayPalPayment extends PaymentMethod {
     private String email;
     private String payerId;
 
-
     @Override
     public boolean validate() { return email.contains("@"); }
 }

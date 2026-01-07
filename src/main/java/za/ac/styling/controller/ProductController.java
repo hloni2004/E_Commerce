@@ -21,21 +21,22 @@ import java.util.*;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    private ProductService productService;
+    private final ProductService productService;
+    private final CategoryService categoryService;
+    private final CartItemRepository cartItemRepository;
 
     @Autowired
-    private CategoryService categoryService;
-
-    @Autowired
-    public void setProductService(ProductService productService) {
+    public ProductController(ProductService productService, CategoryService categoryService, CartItemRepository cartItemRepository) {
         this.productService = productService;
+        this.categoryService = categoryService;
+        this.cartItemRepository = cartItemRepository;
     }
 
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@RequestBody ProductCreateRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Validate category exists
+
             Category category = categoryService.read(request.getCategoryId());
             if (category == null) {
                 response.put("success", false);
@@ -43,31 +44,27 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Create Product
             Product product = Product.builder()
                     .name(request.getName())
                     .description(request.getDescription())
                     .basePrice(request.getBasePrice())
-                    .comparePrice(request.getComparePrice() != null ? request.getComparePrice() : 0.0)
+                    .comparePrice(request.getComparePrice())
                     .sku(request.getSku())
                     .weight(request.getWeight() != null ? request.getWeight() : 0.0)
                     .category(category)
                     .isActive(request.isActive())
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDate.now())
-                    .images(new HashSet<>()) // Always initialize images set
+                    .images(new HashSet<>())
                     .build();
 
-            // Save product first to get ID
             Product savedProduct = productService.create(product);
 
-            // Create and save images with proper FK
             if (request.getImageBase64List() != null && !request.getImageBase64List().isEmpty()) {
                 Set<ProductImage> images = new HashSet<>();
                 for (int i = 0; i < request.getImageBase64List().size(); i++) {
                     String base64Data = request.getImageBase64List().get(i);
 
-                    // Remove data URL prefix if present (e.g., "data:image/png;base64,")
                     String base64Image = base64Data;
                     String contentType = "image/jpeg";
 
@@ -75,7 +72,6 @@ public class ProductController {
                         String[] parts = base64Data.split(",");
                         base64Image = parts[1];
 
-                        // Extract content type
                         if (parts[0].contains("image/")) {
                             String typeSection = parts[0];
                             if (typeSection.contains("image/png"))
@@ -87,9 +83,6 @@ public class ProductController {
                         }
                     }
 
-                    // TODO: Upload to Supabase Storage instead of storing as BLOB
-                    // For now, skip BLOB storage - images should be uploaded via
-                    // multipart/form-data
                     System.out.println(
                             "⚠️ Warning: Base64 image upload detected. Please use multipart file upload to Supabase Storage.");
 
@@ -101,18 +94,15 @@ public class ProductController {
                             .isPrimary(i == 0)
                             .build();
 
-                    // Skip adding this image since we don't have Supabase URL
                     continue;
                 }
                 savedProduct.setImages(images);
 
-                // Set primary image
                 if (!images.isEmpty()) {
                     savedProduct.setPrimaryImage(images.iterator().next());
                 }
             }
 
-            // Create and save colours with sizes with proper FK
             if (request.getColours() != null && !request.getColours().isEmpty()) {
                 Set<ProductColour> colours = new HashSet<>();
 
@@ -123,7 +113,6 @@ public class ProductController {
                             .product(savedProduct)
                             .build();
 
-                    // Create sizes with proper FK
                     if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
                         Set<ProductColourSize> sizes = new HashSet<>();
 
@@ -145,7 +134,6 @@ public class ProductController {
                 savedProduct.setColours(colours);
             }
 
-            // Update product with all relationships
             Product finalProduct = productService.update(savedProduct);
 
             response.put("success", true);
@@ -164,13 +152,12 @@ public class ProductController {
     @GetMapping("/image/{imageId}")
     public ResponseEntity<?> getProductImage(@PathVariable Long imageId) {
         try {
-            // Return Supabase URL instead of BLOB data
+
             ProductImage image = productService.getImageById(imageId);
             if (image == null) {
                 return ResponseEntity.notFound().build();
             }
 
-            // Images are stored in Supabase Storage - return the URL
             if (image.getSupabaseUrl() != null) {
                 return ResponseEntity.ok(Map.of(
                         "imageUrl", image.getSupabaseUrl(),
@@ -204,7 +191,7 @@ public class ProductController {
     public ResponseEntity<?> update(@RequestBody ProductCreateRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Get existing product
+
             Product existingProduct = productService.read(request.getProductId());
             if (existingProduct == null) {
                 response.put("success", false);
@@ -212,7 +199,6 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            // Validate category exists
             Category category = categoryService.read(request.getCategoryId());
             if (category == null) {
                 response.put("success", false);
@@ -220,34 +206,30 @@ public class ProductController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Update basic product fields
             existingProduct.setName(request.getName());
             existingProduct.setDescription(request.getDescription());
             existingProduct.setBasePrice(request.getBasePrice());
-            existingProduct.setComparePrice(request.getComparePrice() != null ? request.getComparePrice() : 0.0);
+            existingProduct.setComparePrice(request.getComparePrice());
             existingProduct.setSku(request.getSku());
             existingProduct.setWeight(request.getWeight() != null ? request.getWeight() : 0.0);
             existingProduct.setCategory(category);
             existingProduct.setActive(request.isActive());
             existingProduct.setUpdatedAt(LocalDate.now());
 
-            // Handle new images if provided
             if (request.getImageBase64List() != null && !request.getImageBase64List().isEmpty()) {
-                // Initialize images collection if null
+
                 if (existingProduct.getImages() == null) {
                     existingProduct.setImages(new HashSet<>());
                 }
 
-                // Remove images that are not in the existingImageIds list
                 if (request.getExistingImageIds() != null) {
                     existingProduct.getImages()
                             .removeIf(img -> !request.getExistingImageIds().contains(img.getImageId()));
                 } else {
-                    // Clear all existing images if no existing IDs provided
+
                     existingProduct.getImages().clear();
                 }
 
-                // Add new images
                 int currentSize = existingProduct.getImages().size();
                 for (int i = 0; i < request.getImageBase64List().size(); i++) {
                     String base64Data = request.getImageBase64List().get(i);
@@ -263,9 +245,6 @@ public class ProductController {
                             contentType = "image/webp";
                     }
 
-                    // TODO: Upload to Supabase Storage instead of storing as BLOB
-                    // For now, skip BLOB storage - images should be uploaded via
-                    // multipart/form-data
                     System.out.println(
                             "⚠️ Warning: Base64 image upload detected. Please use multipart file upload to Supabase Storage.");
 
@@ -277,11 +256,9 @@ public class ProductController {
                             .isPrimary(existingProduct.getImages().isEmpty() && i == 0)
                             .build();
 
-                    // Skip adding this image since we don't have Supabase URL
                     continue;
                 }
 
-                // Set primary image
                 if (!existingProduct.getImages().isEmpty()) {
                     existingProduct.setPrimaryImage(existingProduct.getImages().stream()
                             .filter(ProductImage::isPrimary)
@@ -290,46 +267,98 @@ public class ProductController {
                 }
             }
 
-            // Update colours and sizes
             if (request.getColours() != null && !request.getColours().isEmpty()) {
-                // Clear existing colours properly to avoid orphan removal issue
-                if (existingProduct.getColours() != null) {
-                    existingProduct.getColours().clear();
-                } else {
+
+                if (existingProduct.getColours() == null) {
                     existingProduct.setColours(new HashSet<>());
                 }
 
+                Set<String> newColourKeys = new HashSet<>();
                 for (ProductColourRequest colourReq : request.getColours()) {
-                    ProductColour colour = ProductColour.builder()
+                    String colourKey = colourReq.getName() + "|" + colourReq.getHexCode();
+                    newColourKeys.add(colourKey);
+                }
+
+                existingProduct.getColours().removeIf(existingColour -> {
+                    String existingKey = existingColour.getName() + "|" + existingColour.getHexCode();
+                    return !newColourKeys.contains(existingKey);
+                });
+
+                for (ProductColourRequest colourReq : request.getColours()) {
+                    String colourKey = colourReq.getName() + "|" + colourReq.getHexCode();
+
+                    ProductColour existingColour = existingProduct.getColours().stream()
+                        .filter(c -> (c.getName() + "|" + c.getHexCode()).equals(colourKey))
+                        .findFirst()
+                        .orElse(null);
+
+                    if (existingColour != null) {
+
+                        if (existingColour.getSizes() == null) {
+                            existingColour.setSizes(new HashSet<>());
+                        }
+
+                        Set<String> newSizeNames = new HashSet<>();
+                        if (colourReq.getSizes() != null) {
+                            for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
+                                newSizeNames.add(sizeReq.getSizeName());
+                            }
+                        }
+
+                        existingColour.getSizes().removeIf(existingSize -> 
+                            !newSizeNames.contains(existingSize.getSizeName())
+                        );
+
+                        if (colourReq.getSizes() != null) {
+                            for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
+                                ProductColourSize existingSize = existingColour.getSizes().stream()
+                                    .filter(s -> s.getSizeName().equals(sizeReq.getSizeName()))
+                                    .findFirst()
+                                    .orElse(null);
+
+                                if (existingSize != null) {
+
+                                    existingSize.setStockQuantity(sizeReq.getStockQuantity());
+                                } else {
+
+                                    ProductColourSize newSize = ProductColourSize.builder()
+                                        .colour(existingColour)
+                                        .sizeName(sizeReq.getSizeName())
+                                        .stockQuantity(sizeReq.getStockQuantity())
+                                        .reservedQuantity(0)
+                                        .reorderLevel(5)
+                                        .build();
+                                    existingColour.getSizes().add(newSize);
+                                }
+                            }
+                        }
+                    } else {
+
+                        ProductColour newColour = ProductColour.builder()
                             .product(existingProduct)
                             .name(colourReq.getName())
                             .hexCode(colourReq.getHexCode())
                             .build();
 
-                    // Add sizes
-                    if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
-                        Set<ProductColourSize> sizes = new HashSet<>();
-
-                        for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
-                            ProductColourSize size = ProductColourSize.builder()
-                                    .colour(colour)
+                        if (colourReq.getSizes() != null && !colourReq.getSizes().isEmpty()) {
+                            Set<ProductColourSize> sizes = new HashSet<>();
+                            for (ProductSizeRequest sizeReq : colourReq.getSizes()) {
+                                ProductColourSize size = ProductColourSize.builder()
+                                    .colour(newColour)
                                     .sizeName(sizeReq.getSizeName())
                                     .stockQuantity(sizeReq.getStockQuantity())
                                     .reservedQuantity(0)
                                     .reorderLevel(5)
                                     .build();
-
-                            sizes.add(size);
+                                sizes.add(size);
+                            }
+                            newColour.setSizes(sizes);
                         }
-                        colour.setSizes(sizes);
+                        existingProduct.getColours().add(newColour);
                     }
-
-                    // Add to existing collection instead of replacing
-                    existingProduct.getColours().add(colour);
                 }
             }
 
-            // Save updated product
             Product updatedProduct = productService.update(existingProduct);
 
             response.put("success", true);
@@ -357,8 +386,32 @@ public class ProductController {
         }
     }
 
-    @Autowired
-    private CartItemRepository cartItemRepository;
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllIncludingDeleted() {
+        try {
+            List<Product> products = productService.getAllIncludingDeleted();
+            return ResponseEntity.ok(Map.of("success", true, "data", products));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Error retrieving products: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/restore/{id}")
+    public ResponseEntity<?> restoreProduct(@PathVariable Integer id) {
+        try {
+            Product p = productService.restoreProduct(id);
+            if (p == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", "Product not found"));
+            }
+            return ResponseEntity.ok(Map.of("success", true, "message", "Product restored", "data", p));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("success", false, "message", "Error restoring product: " + e.getMessage()));
+        }
+    }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Integer id) {
@@ -369,26 +422,8 @@ public class ProductController {
                         .body(Map.of("success", false, "message", "Product not found"));
             }
 
-            // First, delete all cart items that reference this product's colours/sizes
-            // This prevents FK constraint violations
-            if (product.getColours() != null) {
-                for (ProductColour colour : product.getColours()) {
-                    if (colour.getSizes() != null) {
-                        for (ProductColourSize size : colour.getSizes()) {
-                            cartItemRepository.deleteBySize(size);
-                        }
-                    }
-                    cartItemRepository.deleteByColour(colour);
-                }
-            }
-            cartItemRepository.deleteByProduct(product);
-
-            // Remove primaryImage reference to avoid FK constraint issues
-            product.setPrimaryImage(null);
+            product.softDelete();
             productService.update(product);
-
-            // Now delete the product (cascade will handle images, colours, sizes)
-            productService.delete(id);
 
             return ResponseEntity.ok(Map.of("success", true, "message", "Product deleted successfully"));
         } catch (Exception e) {
@@ -437,7 +472,7 @@ public class ProductController {
                         for (ProductColour colour : product.getColours()) {
                             if (colour.getSizes() != null && !colour.getSizes().isEmpty()) {
                                 for (ProductColourSize size : colour.getSizes()) {
-                                    // Check if stock is below reorder level
+
                                     int reorderLevel = size.getReorderLevel() > 0 ? size.getReorderLevel() : 20;
                                     int currentStock = size.getStockQuantity();
 

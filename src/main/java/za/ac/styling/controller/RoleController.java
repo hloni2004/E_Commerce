@@ -6,28 +6,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import za.ac.styling.domain.Role;
 import za.ac.styling.service.RoleService;
+import za.ac.styling.util.ResponseUtil;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/roles")
 public class RoleController {
 
-    private RoleService roleService;
+    private final RoleService roleService;
 
     @Autowired
-    public void setRoleService(RoleService roleService) {
+    public RoleController(RoleService roleService) {
         this.roleService = roleService;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Role> createRole(@RequestBody Role role) {
+    public ResponseEntity<?> createRole(@RequestBody Role role) {
         try {
             Role created = roleService.create(role);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+            return ResponseUtil.created(created);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseUtil.error("Error creating role", e);
         }
     }
 
@@ -35,14 +35,9 @@ public class RoleController {
     public ResponseEntity<?> read(@PathVariable Integer id) {
         try {
             Role role = roleService.read(id);
-            if (role == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Role not found"));
-            }
-            return ResponseEntity.ok(Map.of("success", true, "data", role));
+            return role != null ? ResponseUtil.success(role) : ResponseUtil.notFound("Role not found");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving role: " + e.getMessage()));
+            return ResponseUtil.error("Error retrieving role", e);
         }
     }
 
@@ -50,14 +45,9 @@ public class RoleController {
     public ResponseEntity<?> update(@RequestBody Role role) {
         try {
             Role updated = roleService.update(role);
-            if (updated == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Role not found"));
-            }
-            return ResponseEntity.ok(Map.of("success", true, "data", updated));
+            return updated != null ? ResponseUtil.success(updated) : ResponseUtil.notFound("Role not found");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error updating role: " + e.getMessage()));
+            return ResponseUtil.error("Error updating role", e);
         }
     }
 
@@ -65,10 +55,9 @@ public class RoleController {
     public ResponseEntity<?> getAll() {
         try {
             List<Role> roles = roleService.getAll();
-            return ResponseEntity.ok(Map.of("success", true, "data", roles));
+            return ResponseUtil.success(roles);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving roles: " + e.getMessage()));
+            return ResponseUtil.error("Error retrieving roles", e);
         }
     }
 
@@ -76,26 +65,19 @@ public class RoleController {
     public ResponseEntity<?> deleteRole(@PathVariable Integer id) {
         try {
             roleService.delete(id);
-            return ResponseEntity.ok(Map.of("success", true, "message", "Role deleted successfully"));
+            return ResponseUtil.success("Role deleted successfully");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error deleting role: " + e.getMessage()));
+            return ResponseUtil.error("Error deleting role", e);
         }
     }
 
     @GetMapping("/name/{roleName}")
     public ResponseEntity<?> getRoleByName(@PathVariable String roleName) {
         try {
-            Role role = roleService.findByRoleName(roleName)
-                .orElse(null);
-            if (role == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("success", false, "message", "Role not found"));
-            }
-            return ResponseEntity.ok(Map.of("success", true, "data", role));
+            Role role = roleService.findByRoleName(roleName).orElse(null);
+            return role != null ? ResponseUtil.success(role) : ResponseUtil.notFound("Role not found");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("success", false, "message", "Error retrieving role: " + e.getMessage()));
+            return ResponseUtil.error("Error retrieving role", e);
         }
     }
 }

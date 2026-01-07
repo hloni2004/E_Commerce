@@ -9,9 +9,6 @@ import za.ac.styling.service.UserService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for User entity
- */
 @Service
 public class UserServiceImpl implements UserService {
 

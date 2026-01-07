@@ -9,9 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Root controller for health checks and basic information
- */
 @RestController
 public class RootController {
 

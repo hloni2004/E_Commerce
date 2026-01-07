@@ -12,9 +12,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Order entity
- */
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -34,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Order create(Order order) {
         Order saved = orderRepository.save(order);
-        // Fire OrderPlacedEvent for listeners (email, analytics, etc.)
+
         try {
             eventPublisher.publishEvent(new za.ac.styling.events.OrderPlacedEvent(this, saved));
         } catch (Exception ex) {
@@ -128,11 +125,9 @@ public class OrderServiceImpl implements OrderService {
     @org.springframework.transaction.annotation.Transactional
     public Order createOrderWithPromo(Order order, java.util.Map<Integer, Integer> productQuantities, String promoCode,
             Integer userId) {
-        // Compute subtotal (order.subtotal should already be set by caller, but we
-        // guard)
+
         long subtotalCents = Math.round(order.getSubtotal() * 100);
 
-        // If promo code present, validate and preview discount
         if (promoCode != null && !promoCode.isEmpty()) {
             var preview = promoService.processPromo(promoCode, userId, productQuantities, subtotalCents, false, null);
             if (!preview.isApplied()) {
@@ -144,7 +139,6 @@ public class OrderServiceImpl implements OrderService {
 
         Order saved = orderRepository.save(order);
 
-        // Finalize promo usage atomically with order persistence
         if (promoCode != null && !promoCode.isEmpty()) {
             var finalizeRes = promoService.processPromo(promoCode, userId, productQuantities, subtotalCents, true,
                     saved.getOrderId());
@@ -153,13 +147,10 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        // Publish an OrderPlacedEvent so other components (email, analytics,
-        // fulfillment)
-        // can react asynchronously without blocking the request thread.
         try {
             eventPublisher.publishEvent(new za.ac.styling.events.OrderPlacedEvent(this, saved));
         } catch (Exception ex) {
-            // Protect order flow from event publishing failures
+
             System.err.println(
                     "Failed to publish OrderPlacedEvent for order " + saved.getOrderNumber() + ": " + ex.getMessage());
             ex.printStackTrace();

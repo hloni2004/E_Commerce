@@ -10,21 +10,11 @@ import za.ac.styling.util.ValidationHelper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-/**
- * Factory class responsible for creating User objects
- */
-
 public class UserFactory {
 
-
-
-    /**
-     * Creates a new User with complete information including phone and role
-     */
     public static User createUser(String username, String email, String password,
                                   String firstName, String lastName, String phone, Role role) {
 
-        // Validate input data
         if (!ValidationHelper.isValidUsername(username)) {
             throw new IllegalArgumentException("Invalid username");
         }
@@ -45,7 +35,6 @@ public class UserFactory {
             throw new IllegalArgumentException("Invalid phone number format");
         }
 
-        // Hash password with BCrypt
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         String hashedPassword = encoder.encode(password);
         return User.builder()
@@ -63,15 +52,11 @@ public class UserFactory {
             .build();
     }
 
-    /**
-     * Creates a new User with a Cart
-     */
     public static User createUserWithCart(String username, String email, String password,
                                           String firstName, String lastName, Role role) {
 
         User user = createUser(username, email, password, firstName, lastName, null, role);
 
-        // Create and associate a cart
         Cart cart = Cart.builder()
                 .user(user)
                 .items(new ArrayList<>())
@@ -84,9 +69,6 @@ public class UserFactory {
         return user;
     }
 
-    /**
-     * Creates an admin user
-     */
     public static User createAdminUser(String username, String email, String password,
                                        String firstName, String lastName, Role adminRole) {
 
@@ -97,9 +79,6 @@ public class UserFactory {
         return createUserWithCart(username, email, password, firstName, lastName, adminRole);
     }
 
-    /**
-     * Creates a customer user
-     */
     public static User createCustomerUser(String username, String email, String password,
                                           String firstName, String lastName, Role customerRole) {
 

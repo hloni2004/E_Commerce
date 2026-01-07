@@ -7,17 +7,10 @@ import za.ac.styling.util.ValidationHelper;
 
 import java.util.Date;
 
-/**
- * Factory class responsible for creating Review objects
- */
 public class ReviewFactory {
 
-    /**
-     * Creates a new Review with basic information
-     */
     public static Review createReview(User user, Product product, int rating, String comment) {
 
-        // Validate input data
         if (user == null) {
             throw new IllegalArgumentException("User is required");
         }
@@ -39,9 +32,6 @@ public class ReviewFactory {
                 .build();
     }
 
-    /**
-     * Creates a review without comment (rating only)
-     */
     public static Review createRatingOnlyReview(User user, Product product, int rating) {
 
         if (user == null) {
@@ -64,9 +54,6 @@ public class ReviewFactory {
                 .build();
     }
 
-    /**
-     * Creates a detailed review with longer comment
-     */
     public static Review createDetailedReview(User user, Product product, int rating,
             String comment) {
 
@@ -81,9 +68,6 @@ public class ReviewFactory {
         return createReview(user, product, rating, comment);
     }
 
-    /**
-     * Creates a positive review (4-5 stars)
-     */
     public static Review createPositiveReview(User user, Product product, int rating,
             String comment) {
 
@@ -94,9 +78,6 @@ public class ReviewFactory {
         return createReview(user, product, rating, comment);
     }
 
-    /**
-     * Creates a negative review (1-2 stars)
-     */
     public static Review createNegativeReview(User user, Product product, int rating,
             String comment) {
 

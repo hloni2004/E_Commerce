@@ -6,17 +6,10 @@ import za.ac.styling.domain.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-/**
- * Factory class responsible for creating Cart objects
- */
 public class CartFactory {
 
-    /**
-     * Creates a new Cart for a user
-     */
     public static Cart createCart(User user) {
 
-        // Validate input data
         if (user == null) {
             throw new IllegalArgumentException("User is required");
         }
@@ -29,9 +22,6 @@ public class CartFactory {
                 .build();
     }
 
-    /**
-     * Creates an empty cart without user association (for guest checkout)
-     */
     public static Cart createGuestCart() {
 
         return Cart.builder()
@@ -41,9 +31,6 @@ public class CartFactory {
                 .build();
     }
 
-    /**
-     * Creates a cart and associates it with the user bidirectionally
-     */
     public static Cart createCartWithUserAssociation(User user) {
 
         if (user == null) {

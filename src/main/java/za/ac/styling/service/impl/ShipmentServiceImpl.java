@@ -11,9 +11,6 @@ import za.ac.styling.service.ShipmentService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Shipment entity
- */
 @Service
 public class ShipmentServiceImpl implements ShipmentService {
 

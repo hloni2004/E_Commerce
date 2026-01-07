@@ -9,9 +9,6 @@ import za.ac.styling.service.ProductColourService;
 
 import java.util.List;
 
-/**
- * Service implementation for ProductColour entity
- */
 @Service
 public class ProductColourServiceImpl implements ProductColourService {
 

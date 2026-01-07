@@ -9,9 +9,6 @@ import za.ac.styling.service.CategoryService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Category entity
- */
 @Service
 public class CategoryServiceImpl implements CategoryService {
 

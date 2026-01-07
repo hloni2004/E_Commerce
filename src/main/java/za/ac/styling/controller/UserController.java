@@ -49,6 +49,9 @@ public class UserController {
     private PasswordResetService passwordResetService;
 
     @Autowired
+    private za.ac.styling.service.EmailService emailService;
+
+    @Autowired
     private PasswordResetTokenRepository tokenRepository;
 
     @Autowired
@@ -133,7 +136,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            User user = userService.findByEmail(loginRequest.getEmail())
+            String normalizedEmail = loginRequest.getEmail().trim().toLowerCase();
+            User user = userService.findByEmail(normalizedEmail)
                     .orElse(null);
             if (user == null) {
                 response.put("success", false);
@@ -147,14 +151,33 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
             }
 
-            // Use BCrypt for password comparison
+            if (user.isAccountLocked()) {
+                response.put("success", false);
+                response.put("message", "Your account has been locked due to multiple failed login attempts. Please try again in 10 minutes.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+            }
+
             if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+
+                user.incrementFailedAttempts();
+                userService.update(user);
+
+                if (user.isAccountLocked()) {
+                    response.put("success", false);
+                    response.put("message", "Too many failed login attempts. Your account has been locked for 10 minutes.");
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+                }
+
                 response.put("success", false);
                 response.put("message", "Invalid email or password");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            // Convert to UserResponse DTO
+            if (user.getFailedLoginAttempts() > 0) {
+                user.resetFailedAttempts();
+                userService.update(user);
+            }
+
             UserResponse userResponse = UserResponse.builder()
                     .userId(user.getUserId())
                     .username(user.getUsername())
@@ -166,12 +189,11 @@ public class UserController {
                     .isActive(user.isActive())
                     .build();
 
-            // Generate tokens and set HttpOnly cookies
             String subject = String.valueOf(user.getUserId());
-            // Assign the same role enum as in your code
+
             String roleName = user.getRole() != null ? user.getRole().getRoleName() : "CUSTOMER";
             java.util.Map<String, Object> claims = new java.util.HashMap<>();
-            claims.put("roles", roleName); // single role as string, or use List.of(roleName) for array
+            claims.put("roles", roleName);
             String accessToken = jwtUtil.generateAccessToken(subject, claims);
             String refreshToken = jwtUtil.generateRefreshToken(subject);
 
@@ -179,7 +201,7 @@ public class UserController {
                     .httpOnly(true)
                     .secure(request.isSecure())
                     .path("/")
-                    .maxAge(900) // 15 minutes
+                    .maxAge(900)
                     .sameSite("None")
                     .build();
 
@@ -187,13 +209,13 @@ public class UserController {
                     .httpOnly(true)
                     .secure(request.isSecure())
                     .path("/api/users/refresh")
-                    .maxAge(7 * 24 * 60 * 60) // 7 days
+                    .maxAge(7 * 24 * 60 * 60)
                     .sameSite("None")
                     .build();
 
             Map<String, Object> resp = new HashMap<>();
             resp.put("user", userResponse);
-            resp.put("accessToken", accessToken); // included so SPA frontends can send Authorization header if desired
+            resp.put("accessToken", accessToken);
 
             return ResponseEntity.ok().header("Set-Cookie", accessCookie.toString())
                     .header("Set-Cookie", refreshCookie.toString()).body(resp);
@@ -208,15 +230,16 @@ public class UserController {
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         Map<String, Object> response = new HashMap<>();
         try {
-            // Validate input
+
             if (registerRequest.getEmail() == null || registerRequest.getPassword() == null) {
                 response.put("success", false);
                 response.put("message", "Email and password are required");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Check if user already exists
-            if (userService.findByEmail(registerRequest.getEmail()).isPresent()) {
+            String normalizedEmail = registerRequest.getEmail().trim().toLowerCase();
+
+            if (userService.findByEmail(normalizedEmail).isPresent()) {
                 response.put("success", false);
                 response.put("message", "User with this email already exists");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -229,20 +252,18 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
 
-            // Fetch or create default role (CUSTOMER role)
             Role defaultRole = roleService.findByRoleName("CUSTOMER")
                     .orElseGet(() -> {
-                        // Create CUSTOMER role if it doesn't exist
+
                         Role newRole = Role.builder()
                                 .roleName("CUSTOMER")
                                 .build();
                         return roleService.create(newRole);
                     });
 
-            // Create new user
             String hashedPassword = passwordEncoder.encode(registerRequest.getPassword());
             User newUser = User.builder()
-                    .email(registerRequest.getEmail())
+                    .email(normalizedEmail)
                     .password(hashedPassword)
                     .firstName(registerRequest.getFirstName())
                     .lastName(registerRequest.getLastName())
@@ -260,7 +281,6 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
             }
 
-            // Create default address if provided
             if (registerRequest.getAddressLine1() != null && !registerRequest.getAddressLine1().isEmpty()) {
                 za.ac.styling.domain.Address address = za.ac.styling.domain.Address.builder()
                         .fullName(registerRequest.getFirstName() + " " + registerRequest.getLastName())
@@ -279,7 +299,14 @@ public class UserController {
                 addressRepository.save(address);
             }
 
-            // Convert to UserResponse DTO
+            try {
+                emailService.sendWelcomeEmail(created);
+                logger.info("Welcome email sent to new user: {}", created.getEmail());
+            } catch (Exception emailError) {
+
+                logger.error("Failed to send welcome email to {}: {}", created.getEmail(), emailError.getMessage());
+            }
+
             UserResponse userResponse = UserResponse.builder()
                     .userId(created.getUserId())
                     .username(created.getUsername())
@@ -311,13 +338,13 @@ public class UserController {
         }
         String subject = jwtUtil.getSubject(refreshToken);
         String newAccess = jwtUtil.generateAccessToken(subject);
-        String newRefresh = jwtUtil.generateRefreshToken(subject); // rotation - in production also revoke old
+        String newRefresh = jwtUtil.generateRefreshToken(subject);
 
         var accessCookie = org.springframework.http.ResponseCookie.from("access_token", newAccess)
                 .httpOnly(true)
                 .secure(request.isSecure())
                 .path("/")
-                .maxAge(900) // 15 minutes
+                .maxAge(900)
                 .sameSite("None")
                 .build();
 
@@ -325,7 +352,7 @@ public class UserController {
                 .httpOnly(true)
                 .secure(request.isSecure())
                 .path("/api/users/refresh")
-                .maxAge(7 * 24 * 60 * 60) // 7 days
+                .maxAge(7 * 24 * 60 * 60)
                 .sameSite("None")
                 .build();
 
@@ -349,7 +376,9 @@ public class UserController {
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getUserByEmail(@PathVariable String email) {
         try {
-            User user = userService.findByEmail(email)
+
+            String normalizedEmail = email.trim().toLowerCase();
+            User user = userService.findByEmail(normalizedEmail)
                     .orElse(null);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -373,7 +402,6 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
 
-            // Update allowed fields
             if (updates.containsKey("firstName")) {
                 user.setFirstName((String) updates.get("firstName"));
             }
@@ -385,14 +413,17 @@ public class UserController {
             }
             if (updates.containsKey("email")) {
                 String newEmail = (String) updates.get("email");
-                // Check if email is already taken by another user
-                if (!user.getEmail().equals(newEmail) &&
-                        userService.findByEmail(newEmail).isPresent()) {
+
+                String normalizedNewEmail = newEmail.trim().toLowerCase();
+                String normalizedCurrentEmail = user.getEmail().toLowerCase();
+
+                if (!normalizedCurrentEmail.equals(normalizedNewEmail) &&
+                        userService.findByEmail(normalizedNewEmail).isPresent()) {
                     response.put("success", false);
                     response.put("message", "Email already in use");
                     return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
                 }
-                user.setEmail(newEmail);
+                user.setEmail(normalizedNewEmail);
             }
 
             User updated = userService.update(user);
@@ -464,22 +495,18 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Create and send password reset token (service handles email errors)
             za.ac.styling.service.PasswordResetResult result = passwordResetService.createPasswordResetToken(email,
                     frontendUrl);
             String token = result != null ? result.token() : null;
             boolean emailSent = result != null && result.emailSent();
 
-            // Log for debugging
             logger.info("/api/users/forgot-password called for: {}, tokenCreated: {}, emailSent: {}", email,
                     (token != null), emailSent);
 
-            // Always return success to prevent email enumeration
             response.put("success", true);
             response.put("message",
                     "If an account exists with this email, a password reset link has been sent. Check your email or try the test email endpoint if you didn't receive it.");
 
-            // FOR DEVELOPMENT: Include token and emailSent in response (only for debug)
             if (token != null) {
                 response.put("token", token);
                 response.put("emailSent", emailSent);
@@ -538,7 +565,14 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            boolean success = passwordResetService.resetPassword(token, newPassword);
+            boolean success = false;
+            try {
+                success = passwordResetService.resetPassword(token, newPassword);
+            } catch (IllegalArgumentException iae) {
+                response.put("success", false);
+                response.put("message", iae.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
 
             if (success) {
                 response.put("success", true);
@@ -598,17 +632,12 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
-            // Create and attempt to send a fresh token (service handles email errors and
-            // logging)
             za.ac.styling.service.PasswordResetResult result = passwordResetService.createPasswordResetToken(email,
                     frontendUrl);
             boolean emailSent = result != null && result.emailSent();
 
-            // Log for ops/debug
             System.out.println("/api/users/resend-reset-email called for: " + email + ", emailSent: " + emailSent);
 
-            // Do not reveal existence of email to client — return generic success and
-            // provide debug info in dev only
             response.put("success", true);
             response.put("message", "If an account exists with this email, a password reset link has been sent.");
             if (result != null && result.token() != null) {
@@ -635,7 +664,7 @@ public class UserController {
                 Map<String, Object> item = new HashMap<>();
                 item.put("id", t.getId());
                 item.put("email", t.getUser().getEmail());
-                // Mask token for safety (show first and last 4 chars)
+
                 String tok = t.getToken();
                 if (tok != null && tok.length() > 8) {
                     item.put("tokenMask", tok.substring(0, 4) + "..." + tok.substring(tok.length() - 4));

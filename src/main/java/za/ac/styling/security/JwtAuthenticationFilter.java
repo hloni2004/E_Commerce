@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
         } else {
-            // Try cookie fallback (if cookies are used)
+
             if (request.getCookies() != null) {
                 for (var c : request.getCookies()) {
                     if ("access_token".equals(c.getName())) {

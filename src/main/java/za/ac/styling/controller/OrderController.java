@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import za.ac.styling.domain.Order;
+import za.ac.styling.domain.ProductImage;
 import za.ac.styling.service.OrderService;
 import za.ac.styling.service.EmailService;
 
@@ -32,10 +33,6 @@ public class OrderController {
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         try {
             Order created = orderService.create(order);
-
-            // Invoice email will be sent asynchronously via event listener
-            // (OrderPlacedEvent)
-            // No direct call here to avoid duplicate emails.
 
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (Exception e) {
@@ -100,30 +97,33 @@ public class OrderController {
         try {
             List<Order> orders = orderService.findByUserId(userId);
 
-            // Force load lazy relationships to avoid serialization issues
             orders.forEach(order -> {
                 if (order.getItems() != null) {
-                    order.getItems().size(); // Force load items
+                    order.getItems().size();
                     order.getItems().forEach(item -> {
                         if (item.getProduct() != null) {
-                            item.getProduct().getName(); // Force load product
+                            item.getProduct().getName();
                             if (item.getProduct().getPrimaryImage() != null) {
-                                item.getProduct().getPrimaryImage().getImageId(); // Force load image
+
+                                ProductImage primaryImage = item.getProduct().getPrimaryImage();
+                                primaryImage.getImageId();
+                                primaryImage.getImageUrl();
+                                primaryImage.getSupabaseUrl();
                             }
                         }
                         if (item.getColour() != null) {
-                            item.getColour().getName(); // Force load colour
+                            item.getColour().getName();
                         }
                         if (item.getColourSize() != null) {
-                            item.getColourSize().getSizeName(); // Force load size
+                            item.getColourSize().getSizeName();
                         }
                     });
                 }
                 if (order.getShippingMethod() != null) {
-                    order.getShippingMethod().getName(); // Force load shipping method
+                    order.getShippingMethod().getName();
                 }
                 if (order.getShippingAddress() != null) {
-                    order.getShippingAddress().getFullName(); // Force load address
+                    order.getShippingAddress().getFullName();
                 }
             });
 
@@ -144,7 +144,6 @@ public class OrderController {
                         .body(Map.of("success", false, "message", "Order not found"));
             }
 
-            // Return order items for reordering - frontend will add them to cart
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "data", originalOrder.getItems(),
@@ -155,9 +154,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Update order status in real-time
-     */
     @PutMapping("/{orderId}/status")
     public ResponseEntity<?> updateOrderStatus(
             @PathVariable Integer orderId,
@@ -175,18 +171,15 @@ public class OrderController {
             za.ac.styling.domain.OrderStatus status = za.ac.styling.domain.OrderStatus.valueOf(newStatus);
             order.setStatus(status);
 
-            // Handle inventory for cancelled orders
             if (status == za.ac.styling.domain.OrderStatus.CANCELLED &&
                     (oldStatus == za.ac.styling.domain.OrderStatus.PENDING ||
                             oldStatus == za.ac.styling.domain.OrderStatus.PROCESSING)) {
-                // Release reserved stock when order is cancelled
+
                 inventoryService.releaseStock(order.getItems());
             }
 
             Order updated = orderService.update(order);
 
-            // Send email notification to customer about status change (do not fail the
-            // request if email fails)
             try {
                 if (updated != null && updated.getUser() != null) {
                     emailService.sendOrderStatusUpdate(updated.getUser(), updated);
@@ -211,9 +204,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Cancel order and restore inventory
-     */
     @PostMapping("/{orderId}/cancel")
     public ResponseEntity<?> cancelOrder(@PathVariable Integer orderId) {
         try {
@@ -230,10 +220,8 @@ public class OrderController {
                         .body(Map.of("success", false, "message", "Cannot cancel " + order.getStatus() + " orders"));
             }
 
-            // Update status to cancelled
             order.setStatus(za.ac.styling.domain.OrderStatus.CANCELLED);
 
-            // Release stock back to inventory
             inventoryService.releaseStock(order.getItems());
 
             Order updated = orderService.update(order);
@@ -248,9 +236,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Process return and restore inventory
-     */
     @PostMapping("/{orderId}/return")
     public ResponseEntity<?> returnOrder(@PathVariable Integer orderId) {
         try {
@@ -266,10 +251,8 @@ public class OrderController {
                         .body(Map.of("success", false, "message", "Only delivered orders can be returned"));
             }
 
-            // Update status to returned
             order.setStatus(za.ac.styling.domain.OrderStatus.RETURNED);
 
-            // Return stock to inventory
             inventoryService.returnStock(order.getItems());
 
             Order updated = orderService.update(order);
@@ -284,9 +267,6 @@ public class OrderController {
         }
     }
 
-    /**
-     * Get real-time inventory status for order items
-     */
     @GetMapping("/{orderId}/inventory-status")
     public ResponseEntity<?> getOrderInventoryStatus(@PathVariable Integer orderId) {
         try {

@@ -9,9 +9,6 @@ import za.ac.styling.service.ShippingMethodService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for ShippingMethod entity
- */
 @Service
 public class ShippingMethodServiceImpl implements ShippingMethodService {
 

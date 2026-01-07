@@ -24,6 +24,6 @@ public class ProductColourSize {
     private int reorderLevel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore // Prevent circular reference
+    @JsonIgnore
     private ProductColour colour;
 }

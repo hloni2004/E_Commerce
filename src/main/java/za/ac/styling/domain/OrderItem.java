@@ -36,11 +36,11 @@ public class OrderItem {
     private int quantity;
 
     @Column(name = "price_at_purchase", nullable = false)
-    private double price; // Price per unit at time of purchase
+    private double price;
 
     @Column(name = "subtotal")
-    private double subtotal; // quantity * price
+    private double subtotal;
 
     @Column(name = "total_price", nullable = false)
-    private double totalPrice; // Total price for this item (same as subtotal)
+    private double totalPrice;
 }

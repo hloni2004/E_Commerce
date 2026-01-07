@@ -21,33 +21,25 @@ public class ProductImage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    @JsonIgnore // Prevent circular reference
+    @JsonIgnore
     private Product product;
 
-    // SUPABASE STORAGE FIELDS
     @Column(length = 500)
-    private String supabaseUrl; // Full public URL to image in Supabase
+    private String supabaseUrl;
 
     @Column(length = 300)
-    private String bucketPath; // Path in Supabase bucket (for deletion)
+    private String bucketPath;
 
-    // COMMON FIELDS
-    private String imageUrl; // Computed property: returns supabaseUrl or legacy URL
-    private String contentType; // e.g., "image/jpeg", "image/png"
+    private String imageUrl;
+    private String contentType;
     private String altText;
     private int displayOrder;
     private boolean isPrimary;
 
-    /**
-     * Get the image URL (prioritizes Supabase URL)
-     */
     public String getImageUrl() {
         return supabaseUrl != null ? supabaseUrl : imageUrl;
     }
 
-    /**
-     * Check if this image is stored in Supabase
-     */
     public boolean isSupabaseImage() {
         return supabaseUrl != null && !supabaseUrl.isEmpty();
     }

@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * REST Controller for real-time inventory management
- */
 @RestController
 @RequestMapping("/api/inventory")
 @RequiredArgsConstructor
@@ -20,9 +17,6 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
-    /**
-     * Get available stock for a specific size
-     */
     @GetMapping("/available-stock/{sizeId}")
     public ResponseEntity<?> getAvailableStock(@PathVariable Integer sizeId) {
         try {
@@ -42,14 +36,11 @@ public class InventoryController {
         }
     }
 
-    /**
-     * Get all low stock items (at or below reorder level)
-     */
     @GetMapping("/low-stock")
     public ResponseEntity<?> getLowStockItems() {
         try {
             List<ProductColourSize> lowStockItems = inventoryService.getLowStockItems();
-            
+
             List<Map<String, Object>> response = lowStockItems.stream()
                 .map(size -> {
                     Map<String, Object> item = new java.util.HashMap<>();
@@ -65,7 +56,7 @@ public class InventoryController {
                     return item;
                 })
                 .collect(Collectors.toList());
-            
+
             Map<String, Object> result = new java.util.HashMap<>();
             result.put("success", true);
             result.put("data", response);
@@ -78,14 +69,11 @@ public class InventoryController {
         }
     }
 
-    /**
-     * Get all out of stock items
-     */
     @GetMapping("/out-of-stock")
     public ResponseEntity<?> getOutOfStockItems() {
         try {
             List<ProductColourSize> outOfStockItems = inventoryService.getOutOfStockItems();
-            
+
             List<Map<String, Object>> response = outOfStockItems.stream()
                 .map(size -> {
                     Map<String, Object> item = new java.util.HashMap<>();
@@ -99,7 +87,7 @@ public class InventoryController {
                     return item;
                 })
                 .collect(Collectors.toList());
-            
+
             Map<String, Object> result = new java.util.HashMap<>();
             result.put("success", true);
             result.put("data", response);
@@ -112,9 +100,6 @@ public class InventoryController {
         }
     }
 
-    /**
-     * Check if multiple items have sufficient stock
-     */
     @PostMapping("/check-availability")
     public ResponseEntity<?> checkStockAvailability(@RequestBody List<Map<String, Object>> items) {
         try {
@@ -123,7 +108,7 @@ public class InventoryController {
                     Integer sizeId = (Integer) item.get("sizeId");
                     Integer requestedQuantity = (Integer) item.get("quantity");
                     int availableStock = inventoryService.getAvailableStock(sizeId);
-                    
+
                     Map<String, Object> avail = new java.util.HashMap<>();
                     avail.put("sizeId", sizeId);
                     avail.put("requestedQuantity", requestedQuantity);
@@ -133,10 +118,10 @@ public class InventoryController {
                     return avail;
                 })
                 .collect(Collectors.toList());
-            
+
             boolean allAvailable = availability.stream()
                 .allMatch(item -> (Boolean) item.get("isAvailable"));
-            
+
             Map<String, Object> result = new java.util.HashMap<>();
             result.put("success", true);
             result.put("data", availability);
@@ -149,15 +134,12 @@ public class InventoryController {
         }
     }
 
-    /**
-     * Get real-time inventory dashboard stats
-     */
     @GetMapping("/dashboard-stats")
     public ResponseEntity<?> getDashboardStats() {
         try {
             List<ProductColourSize> lowStock = inventoryService.getLowStockItems();
             List<ProductColourSize> outOfStock = inventoryService.getOutOfStockItems();
-            
+
             return ResponseEntity.ok(Map.of(
                 "success", true,
                 "data", Map.of(

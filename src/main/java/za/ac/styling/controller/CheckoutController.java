@@ -43,7 +43,7 @@ public class CheckoutController {
 
             String promoCodeStr = (String) request.get("promoCode");
             Object pqObj = request.get("productQuantities");
-            // Safely parse productQuantities into a typed map (avoid unchecked casts)
+
             Map<Integer, Integer> productQtyMap = new java.util.HashMap<>();
             if (pqObj instanceof Map<?, ?>) {
                 Map<?, ?> rawMap = (Map<?, ?>) pqObj;
@@ -58,7 +58,7 @@ public class CheckoutController {
                         try {
                             productId = Integer.valueOf((String) rawKey);
                         } catch (NumberFormatException ex) {
-                            // skip invalid key
+
                             continue;
                         }
                     }
@@ -68,7 +68,7 @@ public class CheckoutController {
                         try {
                             qty = Integer.valueOf((String) rawVal);
                         } catch (NumberFormatException ex) {
-                            // skip invalid value
+
                             continue;
                         }
                     }
@@ -98,16 +98,14 @@ public class CheckoutController {
             Address shippingAddress = addressRepository.findById(shippingAddressId)
                     .orElseThrow(() -> new RuntimeException("Address not found"));
 
-            // Calculate subtotal from DB prices
             double subtotal = cart.getItems().stream()
                     .mapToDouble(item -> item.getQuantity() * item.getProduct().getBasePrice())
                     .sum();
             double shippingCost = shippingMethod.getCost();
-            double taxAmount = subtotal * 0.15; // 15% VAT
+            double taxAmount = subtotal * 0.15;
             double discountAmount = 0;
             String promoMessage = null;
 
-            // Promo code validation and discount calculation
             za.ac.styling.domain.PromoCode appliedPromo = null;
             if (promoCodeStr != null && !promoCodeStr.isEmpty()) {
                 var discountResult = promoService.applyPromoCode(
@@ -123,10 +121,8 @@ public class CheckoutController {
 
             double totalAmount = subtotal + shippingCost + taxAmount - discountAmount;
 
-            // Generate order number
             String orderNumber = "ORD-" + System.currentTimeMillis();
 
-            // Create order
             Order order = Order.builder()
                     .user(user)
                     .orderNumber(orderNumber)
@@ -141,7 +137,6 @@ public class CheckoutController {
                     .status(OrderStatus.PENDING)
                     .build();
 
-            // Create order items from cart items
             List<OrderItem> orderItems = cart.getItems().stream()
                     .map(cartItem -> {
                         double itemPrice = cartItem.getProduct().getBasePrice();
@@ -161,13 +156,12 @@ public class CheckoutController {
                     .toList();
             order.setItems(orderItems);
 
-            // Check stock availability before creating order
             if (!inventoryService.checkStockAvailability(orderItems)) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "error", "Some items in your cart are out of stock or have insufficient quantity",
                         "errorType", "INSUFFICIENT_STOCK"));
             }
-            // Reserve stock for the order
+
             try {
                 inventoryService.reserveStock(orderItems);
             } catch (za.ac.styling.service.InventoryService.InsufficientStockException e) {
@@ -176,18 +170,10 @@ public class CheckoutController {
                         "errorType", "INSUFFICIENT_STOCK"));
             }
 
-            // Save order and finalize promo usage atomically (orderService will validate
-            // promo and record usage)
             Order savedOrder = orderService.createOrderWithPromo(order, productQtyMap, promoCodeStr, userId);
 
-            // Commit stock (convert reserved to sold)
             inventoryService.commitStock(orderItems);
 
-            // Invoice email will be sent asynchronously via event listener
-            // (OrderPlacedEvent)
-            // No direct call here to avoid duplicate emails.
-
-            // Delete cart items and cart after successful order (defensive)
             try {
                 if (cart.getItems() != null && !cart.getItems().isEmpty()) {
                     cart.getItems().clear();
@@ -233,7 +219,6 @@ public class CheckoutController {
 
             address.setUser(user);
 
-            // If this is set as default, unset other defaults
             if (address.isDefault()) {
                 List<Address> userAddresses = addressRepository.findByUserUserId(user.getUserId());
                 userAddresses.forEach(addr -> {
@@ -271,7 +256,6 @@ public class CheckoutController {
             existing.setPostalCode(address.getPostalCode());
             existing.setCountry(address.getCountry());
 
-            // If setting as default, unset other defaults
             if (address.isDefault() && !existing.isDefault()) {
                 List<Address> userAddresses = addressRepository.findByUserUserId(existing.getUser().getUserId());
                 userAddresses.forEach(addr -> {
@@ -304,20 +288,19 @@ public class CheckoutController {
     @GetMapping("/cart/{userId}")
     public ResponseEntity<?> getCartWithItems(@PathVariable Integer userId) {
         try {
-            System.out.println("🛒 Checkout: Fetching cart for user ID: " + userId);
+            System.out.println("Checkout: Fetching cart for user ID: " + userId);
 
             Cart cart = cartService.findByUserId(userId).orElse(null);
             if (cart == null) {
-                System.out.println("⚠️ No cart found for user " + userId);
+                System.out.println("No cart found for user " + userId);
                 return ResponseEntity.badRequest().body(Map.of("error", "Cart not found"));
             }
 
-            // Build response with correct image for each cart item
             var cartItems = cart.getItems();
             var itemsWithImages = new java.util.ArrayList<>();
             for (var ci : cartItems) {
                 String imageUrl = null;
-                // Try to get image for selected colour
+
                 if (ci.getColour() != null && ci.getColour().getProduct() != null
                         && ci.getColour().getProduct().getImages() != null) {
                     var images = ci.getColour().getProduct().getImages();
@@ -329,11 +312,11 @@ public class CheckoutController {
                         imageUrl = match.get().getImageUrl();
                     }
                 }
-                // Fallback to product primary image
+
                 if (imageUrl == null && ci.getProduct() != null && ci.getProduct().getPrimaryImage() != null) {
                     imageUrl = ci.getProduct().getPrimaryImage().getImageUrl();
                 }
-                // Fallback to any image
+
                 if (imageUrl == null && ci.getProduct() != null && ci.getProduct().getImages() != null
                         && !ci.getProduct().getImages().isEmpty()) {
                     imageUrl = ci.getProduct().getImages().iterator().next().getImageUrl();

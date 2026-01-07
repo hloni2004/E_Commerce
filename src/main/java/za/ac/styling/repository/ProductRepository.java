@@ -10,95 +10,70 @@ import za.ac.styling.domain.Product;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repository interface for Product entity
- */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
-    /**
-     * Find product by ID with all relationships eagerly loaded
-     */
     @EntityGraph(attributePaths = {"category", "colours", "colours.sizes", "images", "primaryImage"})
-    @Query("SELECT p FROM Product p WHERE p.productId = :id")
+    @Query("SELECT p FROM Product p WHERE p.productId = :id AND p.deletedAt IS NULL")
     Optional<Product> findByIdWithRelations(Integer id);
 
-    /**
-     * Find all products with relationships eagerly loaded
-     */
     @EntityGraph(attributePaths = {"category", "colours", "colours.sizes", "images", "primaryImage"})
-    @Query("SELECT p FROM Product p")
+    @Query("SELECT p FROM Product p WHERE p.deletedAt IS NULL")
     List<Product> findAllWithRelations();
 
-    /**
-     * Find products by category ID with relationships eagerly loaded
-     */
+    Optional<Product> findByProductIdAndDeletedAtIsNull(Integer productId);
+
+    @EntityGraph(attributePaths = {"category", "colours", "colours.sizes", "images", "primaryImage"})
+    @Query("SELECT p FROM Product p WHERE p.productId = :id")
+    Optional<Product> findByIdWithRelationsIncludingDeleted(Integer id);
+
     @EntityGraph(attributePaths = {"category", "colours", "colours.sizes", "images", "primaryImage"})
     @Query("SELECT p FROM Product p WHERE p.category.categoryId = :categoryId")
     List<Product> findByCategoryCategoryIdWithRelations(Long categoryId);
 
-    /**
-     * Find product by SKU
-     */
     Optional<Product> findBySku(String sku);
 
-    /**
-     * Find products by category
-     */
     List<Product> findByCategory(Category category);
 
-    /**
-     * Find products by category ID
-     */
     List<Product> findByCategoryCategoryId(Long categoryId);
 
-    /**
-     * Find all active products
-     */
+    List<Product> findByIsActiveTrueAndDeletedAtIsNull();
+
+    List<Product> findByIsActiveFalseAndDeletedAtIsNull();
+
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.deletedAt IS NULL")
     List<Product> findByIsActiveTrue();
 
-    /**
-     * Find all inactive products
-     */
+    @Query("SELECT p FROM Product p WHERE p.isActive = false AND p.deletedAt IS NULL")
     List<Product> findByIsActiveFalse();
 
-    /**
-     * Find active products by category
-     */
+    List<Product> findByCategoryAndIsActiveTrueAndDeletedAtIsNull(Category category);
+
+    @Query("SELECT p FROM Product p WHERE p.category = :category AND p.isActive = true AND p.deletedAt IS NULL")
     List<Product> findByCategoryAndIsActiveTrue(Category category);
 
-    /**
-     * Search products by name
-     */
     List<Product> findByNameContainingIgnoreCase(String name);
 
-    /**
-     * Find products by price range
-     */
+    @Query("SELECT p FROM Product p WHERE p.basePrice BETWEEN :minPrice AND :maxPrice AND p.deletedAt IS NULL")
     List<Product> findByBasePriceBetween(double minPrice, double maxPrice);
 
-    /**
-     * Find active products by price range
-     */
+    @Query("SELECT p FROM Product p WHERE p.basePrice BETWEEN :minPrice AND :maxPrice AND p.isActive = true AND p.deletedAt IS NULL")
     List<Product> findByBasePriceBetweenAndIsActiveTrue(double minPrice, double maxPrice);
 
-    /**
-     * Check if SKU exists
-     */
     boolean existsBySku(String sku);
 
-    /**
-     * Find products ordered by price ascending
-     */
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.deletedAt IS NULL ORDER BY p.basePrice ASC")
     List<Product> findByIsActiveTrueOrderByBasePriceAsc();
 
-    /**
-     * Find products ordered by price descending
-     */
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.deletedAt IS NULL ORDER BY p.basePrice DESC")
     List<Product> findByIsActiveTrueOrderByBasePriceDesc();
 
-    /**
-     * Find latest products
-     */
+    @Query("SELECT p FROM Product p WHERE p.isActive = true AND p.deletedAt IS NULL ORDER BY p.createdAt DESC")
     List<Product> findTop10ByIsActiveTrueOrderByCreatedAtDesc();
+
+    @Query("SELECT p FROM Product p")
+    List<Product> findAllIncludingDeleted();
+
+    @Query("SELECT p FROM Product p WHERE p.deletedAt IS NULL")
+    List<Product> findAllNotDeleted();
 }

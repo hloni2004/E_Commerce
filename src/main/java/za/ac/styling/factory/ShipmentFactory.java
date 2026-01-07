@@ -9,18 +9,11 @@ import za.ac.styling.util.ValidationHelper;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Factory class responsible for creating Shipment objects
- */
 public class ShipmentFactory {
 
-    /**
-     * Creates a new Shipment with basic information
-     */
     public static Shipment createShipment(Order order, ShippingMethod shippingMethod,
             String carrier) {
 
-        // Validate input data
         if (order == null) {
             throw new IllegalArgumentException("Order is required");
         }
@@ -44,9 +37,6 @@ public class ShipmentFactory {
                 .build();
     }
 
-    /**
-     * Creates a new Shipment with tracking number
-     */
     public static Shipment createShipmentWithTracking(Order order, ShippingMethod shippingMethod,
             String carrier, String trackingNumber) {
 
@@ -75,9 +65,6 @@ public class ShipmentFactory {
                 .build();
     }
 
-    /**
-     * Creates a shipped shipment with shipped date
-     */
     public static Shipment createShippedShipment(Order order, ShippingMethod shippingMethod,
             String carrier, String trackingNumber,
             LocalDateTime shippedDate) {
@@ -94,9 +81,6 @@ public class ShipmentFactory {
         return shipment;
     }
 
-    /**
-     * Creates a shipment with estimated delivery date
-     */
     public static Shipment createShipmentWithEstimatedDelivery(Order order,
             ShippingMethod shippingMethod,
             String carrier,
@@ -117,9 +101,6 @@ public class ShipmentFactory {
         return shipment;
     }
 
-    /**
-     * Creates a delivered shipment with actual delivery date
-     */
     public static Shipment createDeliveredShipment(Order order, ShippingMethod shippingMethod,
             String carrier, String trackingNumber,
             LocalDateTime shippedDate,
@@ -138,9 +119,6 @@ public class ShipmentFactory {
         return shipment;
     }
 
-    /**
-     * Creates a shipment in transit
-     */
     public static Shipment createInTransitShipment(Order order, ShippingMethod shippingMethod,
             String carrier, String trackingNumber) {
 
@@ -151,9 +129,6 @@ public class ShipmentFactory {
         return shipment;
     }
 
-    /**
-     * Creates a failed shipment
-     */
     public static Shipment createFailedShipment(Order order, ShippingMethod shippingMethod,
             String carrier, String trackingNumber) {
 
@@ -163,9 +138,6 @@ public class ShipmentFactory {
         return shipment;
     }
 
-    /**
-     * Generates a unique tracking number
-     */
     private static String generateTrackingNumber() {
         return "TRK-" + System.currentTimeMillis() + "-" +
                 UUID.randomUUID().toString().substring(0, 8).toUpperCase();

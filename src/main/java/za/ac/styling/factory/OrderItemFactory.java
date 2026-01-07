@@ -6,19 +6,12 @@ import za.ac.styling.domain.Product;
 import za.ac.styling.domain.ProductColour;
 import za.ac.styling.domain.ProductColourSize;
 
-/**
- * Factory class responsible for creating OrderItem objects
- */
 public class OrderItemFactory {
 
-    /**
-     * Creates a new OrderItem with all required information
-     */
     public static OrderItem createOrderItem(Order order, Product product, ProductColour colour,
                                            ProductColourSize size, int quantity, 
                                            double unitPrice) {
 
-        // Validate input data
         if (order == null) {
             throw new IllegalArgumentException("Order is required");
         }
@@ -56,17 +49,11 @@ public class OrderItemFactory {
                 .build();
     }
 
-    /**
-     * Creates a new OrderItem using the current product base price
-     */
     public static OrderItem createOrderItem(Order order, Product product, ProductColour colour,
                                            ProductColourSize size, int quantity) {
         return createOrderItem(order, product, colour, size, quantity, product.getBasePrice());
     }
 
-    /**
-     * Creates OrderItem from CartItem with current product price
-     */
     public static OrderItem createFromCartItem(Order order, za.ac.styling.domain.CartItem cartItem) {
         if (cartItem == null) {
             throw new IllegalArgumentException("CartItem cannot be null");
@@ -82,9 +69,6 @@ public class OrderItemFactory {
         );
     }
 
-    /**
-     * Recalculates the total price for an OrderItem
-     */
     public static OrderItem recalculateTotal(OrderItem orderItem) {
         if (orderItem == null) {
             throw new IllegalArgumentException("OrderItem cannot be null");

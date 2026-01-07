@@ -7,18 +7,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * Factory class responsible for creating Order objects
- */
 public class OrderFactory {
 
-    /**
-     * Creates a new Order with basic information
-     */
     public static Order createOrder(User user, Address shippingAddress,
             ShippingMethod shippingMethod) {
 
-        // Validate input data
         if (user == null) {
             throw new IllegalArgumentException("User is required");
         }
@@ -36,7 +29,7 @@ public class OrderFactory {
         return Order.builder()
                 .user(user)
                 .shippingAddress(shippingAddress)
-                .billingAddress(shippingAddress) // Default billing to shipping
+                .billingAddress(shippingAddress)
                 .shippingMethod(shippingMethod)
                 .orderNumber(orderNumber)
                 .items(new ArrayList<>())
@@ -51,13 +44,9 @@ public class OrderFactory {
                 .build();
     }
 
-    /**
-     * Creates a new Order with separate billing address
-     */
     public static Order createOrder(User user, Address shippingAddress, Address billingAddress,
             ShippingMethod shippingMethod) {
 
-        // Validate input data
         if (user == null) {
             throw new IllegalArgumentException("User is required");
         }
@@ -94,9 +83,6 @@ public class OrderFactory {
                 .build();
     }
 
-    /**
-     * Creates a new Order with calculated amounts
-     */
     public static Order createOrderWithAmounts(User user, Address shippingAddress,
             ShippingMethod shippingMethod,
             double subtotal, double shippingCost,
@@ -104,7 +90,6 @@ public class OrderFactory {
 
         Order order = createOrder(user, shippingAddress, shippingMethod);
 
-        // Validate amounts
         if (!ValidationHelper.isValidPrice(subtotal) || !ValidationHelper.isValidPrice(shippingCost) ||
                 !ValidationHelper.isValidPrice(taxAmount) || !ValidationHelper.isValidPrice(discountAmount)) {
             throw new IllegalArgumentException("Invalid price amounts");
@@ -119,9 +104,6 @@ public class OrderFactory {
         return order;
     }
 
-    /**
-     * Creates an order with payment information
-     */
     public static Order createOrderWithPayment(User user, Address shippingAddress,
             ShippingMethod shippingMethod,
             Payment payment) {
@@ -138,9 +120,6 @@ public class OrderFactory {
         return order;
     }
 
-    /**
-     * Creates an order with notes
-     */
     public static Order createOrderWithNotes(User user, Address shippingAddress,
             ShippingMethod shippingMethod, String notes) {
 
@@ -150,16 +129,10 @@ public class OrderFactory {
         return order;
     }
 
-    /**
-     * Generates a unique order number
-     */
     private static String generateOrderNumber() {
         return "ORD-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    /**
-     * Calculates total amount from order components
-     */
     private static double calculateTotalAmount(double subtotal, double shippingCost,
             double taxAmount, double discountAmount) {
         return subtotal + shippingCost + taxAmount - discountAmount;

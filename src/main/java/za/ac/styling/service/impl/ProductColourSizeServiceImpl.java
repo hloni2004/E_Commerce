@@ -11,9 +11,6 @@ import za.ac.styling.service.ProductColourSizeService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for ProductColourSize entity
- */
 @Service
 public class ProductColourSizeServiceImpl implements ProductColourSizeService {
 

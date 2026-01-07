@@ -14,12 +14,8 @@ import za.ac.styling.service.CartService;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-/**
- * Initializes database with default admin user and roles on application startup
- */
 @Component
 public class DataInitializer implements CommandLineRunner {
-
 
     @Autowired
     private UserService userService;
@@ -37,30 +33,46 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         initializeRoles();
         cleanupOldCategories();
+        normalizeExistingEmails();
         initializeAdminUser();
     }
 
-    /**
-     * Creates default roles if they don't exist
-     */
     private void initializeRoles() {
         createRoleIfNotExists("ADMIN");
         createRoleIfNotExists("CUSTOMER");
         System.out.println("✓ Roles initialized successfully");
     }
 
-    /**
-     * Removes old categories that are no longer needed
-     */
     private void cleanupOldCategories() {
         try {
-            // Remove "Luxury" category if it exists
+
             categoryService.findByName("Luxury").ifPresent(category -> {
                 categoryService.delete(category.getCategoryId());
                 System.out.println("✓ Removed old category: Luxury");
             });
         } catch (Exception e) {
             System.out.println("  No old categories to clean up");
+        }
+    }
+
+    private void normalizeExistingEmails() {
+        try {
+            var users = userService.getAll();
+            int normalizedCount = 0;
+            for (User user : users) {
+                String originalEmail = user.getEmail();
+                String normalizedEmail = originalEmail.toLowerCase();
+                if (!originalEmail.equals(normalizedEmail)) {
+                    user.setEmail(normalizedEmail);
+                    userService.update(user);
+                    normalizedCount++;
+                }
+            }
+            if (normalizedCount > 0) {
+                System.out.println("✓ Normalized " + normalizedCount + " user email(s) to lowercase");
+            }
+        } catch (Exception e) {
+            System.out.println("  Could not normalize emails: " + e.getMessage());
         }
     }
 
@@ -75,21 +87,15 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-        // Category initialization removed. Categories will be inserted by the user.
-
-    /**
-     * Creates default admin user if no admin exists
-     */
     private void initializeAdminUser() {
-        // Check if any admin user exists
+
         Role adminRole = roleService.findByRoleName("ADMIN")
             .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
 
-        // Check if admin user already exists
         Optional<User> existingAdmin = userService.findByEmail("alexnhlanhla62@gmail.com");
 
         if (existingAdmin.isEmpty()) {
-            // Create default admin user using UserFactory to hash password
+
             User adminUser = za.ac.styling.factory.UserFactory.createAdminUser(
                     "admin",
                     "alexnhlanhla62@gmail.com",
@@ -99,7 +105,6 @@ public class DataInitializer implements CommandLineRunner {
                     adminRole
             );
 
-            // Ensure both sides of the relationship are set
             if (adminUser.getCart() != null) {
                 adminUser.getCart().setUser(adminUser);
             }

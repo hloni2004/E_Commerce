@@ -16,10 +16,8 @@ public class CardPayment extends PaymentMethod {
     private String expiryDate;
     private String cvv;
 
-
     @Enumerated(EnumType.STRING)
     private CardType cardType;
-
 
     @Override
     public boolean validate() { return cardNumber != null && cardNumber.length() >= 12; }

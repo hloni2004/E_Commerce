@@ -26,10 +26,13 @@ public class Product {
     private String name;
     private String description;
     private double basePrice;
-    private double comparePrice;
+
+    @Column(nullable = true)
+    private Double comparePrice;
+
     private String sku;
     private double weight;
-    private int reorderLevel; // Stock level that triggers low inventory notification
+    private int reorderLevel;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Category category;
@@ -47,4 +50,18 @@ public class Product {
     private boolean isActive;
     private LocalDateTime createdAt;
     private LocalDate updatedAt;
+    private LocalDateTime deletedAt;
+
+    public boolean isDeleted() {
+        return deletedAt != null;
+    }
+
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+        this.isActive = false;
+    }
+
+    public void restore() {
+        this.deletedAt = null;
+    }
 }

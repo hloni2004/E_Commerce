@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ProductSizeRequest {
-    private Integer sizeId;  // For updates
+    private Integer sizeId;
     private String sizeName;
     private int stockQuantity;
 }

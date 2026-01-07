@@ -14,7 +14,7 @@ public class ShippingMethodInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Only initialize if no shipping methods exist
+
         if (shippingMethodRepository.count() == 0) {
             initializeShippingMethods();
         }

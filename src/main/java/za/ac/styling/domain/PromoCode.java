@@ -22,43 +22,45 @@ public class PromoCode {
     private Integer promoId;
 
     @Column(unique = true, nullable = false)
-    private String code; // Unique promo code (e.g., "SUMMER20")
+    private String code;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private DiscountType discountType; // PERCENTAGE or FIXED
+    private DiscountType discountType;
 
     @Column(nullable = false)
-    private double discountValue; // Percentage (e.g., 20) or fixed amount (e.g., 100.00)
+    private double discountValue;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    private Integer usageLimit; // Max number of times the promo can be used (null = unlimited)
+    private Integer usageLimit;
 
     @Builder.Default
     @Column(nullable = false)
-    private Integer currentUsage = 0; // Track how many times it has been used
+    private Integer currentUsage = 0;
 
-    private Double minPurchaseAmount; // Minimum cart total required (null = no minimum)
-
-    @Builder.Default
-    @Column(nullable = false)
-    private boolean isActive = true; // Admin can enable/disable
+    private Double minPurchaseAmount;
 
     @Builder.Default
     @Column(nullable = false)
-    private boolean oneTimeUse = false; // If true, each user can only use once
+    private boolean isActive = true;
 
-    private String description; // Optional description for admin reference
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean oneTimeUse = false;
+
+    private Integer perUserUsageLimit;
+
+    private String description;
 
     @OneToMany(mappedBy = "promoCode", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<PromoProduct> promoProducts; // Products eligible for this promo
+    private List<PromoProduct> promoProducts;
 
     @OneToMany(mappedBy = "promoCode", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<PromoUsage> promoUsages; // Track user usage
+    private List<PromoUsage> promoUsages;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -74,7 +76,6 @@ public class PromoCode {
         updatedAt = LocalDateTime.now();
     }
 
-    // Helper method to check if promo is currently valid
     public boolean isValid() {
         LocalDateTime now = LocalDateTime.now();
         return isActive
@@ -83,7 +84,6 @@ public class PromoCode {
                 && (usageLimit == null || currentUsage < usageLimit);
     }
 
-    // Discount type enum
     public enum DiscountType {
         PERCENTAGE,
         FIXED

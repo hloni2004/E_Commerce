@@ -28,20 +28,19 @@ public class Review {
     @JsonIgnore
     private Product product;
 
-    private Integer productId; // For easier JSON serialization
+    private Integer productId;
 
-    private int rating; // 1-5 stars
+    private int rating;
 
     @Column(length = 1000)
     private String comment;
 
     private Date reviewDate;
 
-    private boolean verified; // True if user purchased the product
+    private boolean verified;
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewImage> images;
 
-    // Helpful votes
     private int helpfulCount;
 }

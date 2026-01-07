@@ -20,17 +20,17 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     private Bucket createBucketForLogin() {
-        Bandwidth limit = Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(1))); // 5 req/min
+        Bandwidth limit = Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(1)));
         return Bucket4j.builder().addLimit(limit).build();
     }
 
     private Bucket createBucketForUploads() {
-        Bandwidth limit = Bandwidth.classic(3, Refill.intervally(3, Duration.ofMinutes(1))); // 3 req/min
+        Bandwidth limit = Bandwidth.classic(3, Refill.intervally(3, Duration.ofMinutes(1)));
         return Bucket4j.builder().addLimit(limit).build();
     }
 
     private Bucket createDefaultBucket() {
-        Bandwidth limit = Bandwidth.classic(50, Refill.intervally(50, Duration.ofMinutes(1))); // default
+        Bandwidth limit = Bandwidth.classic(50, Refill.intervally(50, Duration.ofMinutes(1)));
         return Bucket4j.builder().addLimit(limit).build();
     }
 

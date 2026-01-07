@@ -35,15 +35,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtUtil jwtUtil) throws Exception {
         JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtUtil);
 
-        // Enable CORS support for preflight requests
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
-                // Stateless session management
+
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // No form login, no HTTP basic
+
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
-                // Authorization rules
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/auth/**",
@@ -56,12 +55,12 @@ public class SecurityConfig {
                                 "/api/users/validate-reset-token",
                                 "/api/users/resend-reset-email")
                         .permitAll()
-                        // Allow preflight CORS OPTIONS requests
+
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        // Allow public GET access to product and category listings and images
+
                         .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/categories/**").permitAll()
                         .anyRequest().authenticated())
-                // Add JWT filter before UsernamePasswordAuthenticationFilter
+
                 .addFilterBefore(jwtFilter,
                         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
@@ -71,9 +70,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Read allowed origins from environment/property `APP_CORS_ALLOWED_ORIGINS`
-        // (comma separated)
-        // Fall back to sensible defaults if not provided
+
         String env = System.getenv("APP_CORS_ALLOWED_ORIGINS");
         List<String> origins;
         if (env != null && !env.trim().isEmpty()) {
@@ -89,7 +86,7 @@ public class SecurityConfig {
                     "http://localhost:3000");
         }
         configuration.setAllowedOrigins(origins);
-        // Also allow origin patterns to be more flexible with subdomains and ports
+
         configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
@@ -120,7 +117,7 @@ public class SecurityConfig {
         FilterRegistrationBean<za.ac.styling.filter.NoCacheFilter> reg = new FilterRegistrationBean<>(
                 new za.ac.styling.filter.NoCacheFilter());
         reg.addUrlPatterns("/api/*");
-        reg.setOrder(3); // Run after RateLimitFilter
+        reg.setOrder(3);
         return reg;
     }
 
@@ -128,7 +125,7 @@ public class SecurityConfig {
     public FilterRegistrationBean<HttpsEnforcementFilter> httpsEnforcementFilter() {
         FilterRegistrationBean<HttpsEnforcementFilter> reg = new FilterRegistrationBean<>(new HttpsEnforcementFilter());
         reg.addUrlPatterns("/*");
-        reg.setOrder(0); // Run before other filters
+        reg.setOrder(0);
         return reg;
     }
 }

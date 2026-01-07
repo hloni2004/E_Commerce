@@ -38,19 +38,13 @@ public class ProductImageController {
         this.supabaseStorageService = supabaseStorageService;
     }
 
-    /**
-     * Upload product images to Supabase Storage
-     * Accepts multipart file upload
-     */
     @PostMapping("/upload/{productId}")
     public ResponseEntity<?> uploadProductImages(
             @PathVariable Integer productId,
             @RequestParam("files") List<MultipartFile> files) {
         try {
-            System.out.println("📤 Uploading " + files.size() + " images for product " + productId);
+            System.out.println("Uploading " + files.size() + " images for product " + productId);
 
-            // Use readWithRelations to eagerly load images and avoid
-            // LazyInitializationException
             Product product = productService.readWithRelations(productId);
             if (product == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -58,25 +52,22 @@ public class ProductImageController {
             }
 
             List<ProductImage> uploadedImages = new ArrayList<>();
-            // Determine if a primary image already exists.
+
             boolean primaryImageExists = product.getPrimaryImage() != null;
             int displayOrder = product.getImages() != null ? product.getImages().size() : 0;
 
             for (int i = 0; i < files.size(); i++) {
                 MultipartFile file = files.get(i);
-                // Upload to Supabase Storage
+
                 SupabaseStorageService.UploadResult result = supabaseStorageService.uploadProductImage(file, productId);
 
-                // The first image in the batch is primary only if no primary image already
-                // exists.
                 boolean isPrimary = !primaryImageExists && i == 0;
 
-                // Create ProductImage entity with correct Supabase URL and bucket path
                 ProductImage image = ProductImageFactory.createProductImage(
                         product,
-                        null, // legacy imageUrl (not used)
-                        result.getUrl(), // supabaseUrl
-                        result.getPath(), // bucketPath
+                        null,
+                        result.getUrl(),
+                        result.getPath(),
                         product.getName(),
                         displayOrder++,
                         isPrimary);
@@ -87,7 +78,6 @@ public class ProductImageController {
                 System.out.println("✅ Uploaded: " + result.getUrl());
             }
 
-            // Set first image as primary if it wasn't set before.
             if (!primaryImageExists && !uploadedImages.isEmpty()) {
                 product.setPrimaryImage(uploadedImages.get(0));
                 productService.update(product);

@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ProductCreateRequest {
-    private Integer productId;  // For updates
+    private Integer productId;
     private String name;
     private String description;
     private double basePrice;
@@ -21,7 +21,7 @@ public class ProductCreateRequest {
     private Double weight;
     private Long categoryId;
     private boolean isActive;
-    private List<String> imageBase64List;  // Base64 encoded images
-    private List<Long> existingImageIds;  // IDs of images to keep during update
+    private List<String> imageBase64List;
+    private List<Long> existingImageIds;
     private List<ProductColourRequest> colours;
 }

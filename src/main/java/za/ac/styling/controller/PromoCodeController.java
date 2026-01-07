@@ -20,9 +20,6 @@ public class PromoCodeController {
     @Autowired
     private ProductRepository productRepository;
 
-    /**
-     * Admin: Create a new promo code with eligible products
-     */
     @PostMapping("/create")
     public ResponseEntity<?> createPromo(@RequestBody PromoCreateRequest request) {
         Map<String, Object> response = new HashMap<>();
@@ -34,6 +31,7 @@ public class PromoCodeController {
                     .startDate(request.getStartDate())
                     .endDate(request.getEndDate())
                     .usageLimit(request.getUsageLimit())
+                    .perUserUsageLimit(request.getPerUserUsageLimit())
                     .currentUsage(0)
                     .minPurchaseAmount(request.getMinPurchaseAmount())
                     .isActive(request.isActive() != null ? request.isActive() : true)
@@ -57,15 +55,11 @@ public class PromoCodeController {
         }
     }
 
-    /**
-     * Admin: Get all promo codes
-     */
     @GetMapping("/getAll")
     public ResponseEntity<?> getAllPromos() {
         try {
             List<PromoCode> promos = promoCodeService.getAll();
 
-            // Include eligible product IDs for each promo
             List<Map<String, Object>> promosWithProducts = new ArrayList<>();
             for (PromoCode promo : promos) {
                 Map<String, Object> promoData = new HashMap<>();
@@ -83,9 +77,6 @@ public class PromoCodeController {
         }
     }
 
-    /**
-     * Admin: Get single promo code by ID
-     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getPromo(@PathVariable Integer id) {
         try {
@@ -109,9 +100,6 @@ public class PromoCodeController {
         }
     }
 
-    /**
-     * Admin: Update promo code
-     */
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updatePromo(@PathVariable Integer id, @RequestBody PromoCreateRequest request) {
         Map<String, Object> response = new HashMap<>();
@@ -145,9 +133,6 @@ public class PromoCodeController {
         }
     }
 
-    /**
-     * Admin: Delete promo code
-     */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deletePromo(@PathVariable Integer id) {
         Map<String, Object> response = new HashMap<>();
@@ -163,14 +148,10 @@ public class PromoCodeController {
         }
     }
 
-    /**
-     * Customer: Validate promo code
-     */
     @PostMapping("/validate")
     public ResponseEntity<?> validatePromo(@RequestBody PromoValidateRequest request) {
         try {
-            // Compute subtotal on server using product prices — frontend MUST NOT calculate
-            // money
+
             long subtotalCents = 0L;
             Map<Integer, Integer> qtyMap = request.getProductQuantities() != null ? request.getProductQuantities()
                     : new HashMap<>();
@@ -206,14 +187,10 @@ public class PromoCodeController {
         }
     }
 
-    /**
-     * Customer: Apply promo code and get discount
-     */
     @PostMapping("/apply")
     public ResponseEntity<?> applyPromo(@RequestBody PromoApplyRequest request) {
         try {
-            // Compute subtotal on server using product prices — frontend MUST NOT calculate
-            // money
+
             long subtotalCents = 0L;
             Map<Integer, Integer> qtyMap = request.getProductQuantities() != null ? request.getProductQuantities()
                     : new HashMap<>();
@@ -247,7 +224,6 @@ public class PromoCodeController {
         }
     }
 
-    // Request DTOs
     public static class PromoCreateRequest {
         private String code;
         private PromoCode.DiscountType discountType;
@@ -255,12 +231,12 @@ public class PromoCodeController {
         private java.time.LocalDateTime startDate;
         private java.time.LocalDateTime endDate;
         private Integer usageLimit;
+        private Integer perUserUsageLimit;
         private Double minPurchaseAmount;
         private Boolean isActive;
         private String description;
         private List<Integer> productIds;
 
-        // Getters and Setters
         public String getCode() {
             return code;
         }
@@ -309,6 +285,14 @@ public class PromoCodeController {
             this.usageLimit = usageLimit;
         }
 
+        public Integer getPerUserUsageLimit() {
+            return perUserUsageLimit;
+        }
+
+        public void setPerUserUsageLimit(Integer perUserUsageLimit) {
+            this.perUserUsageLimit = perUserUsageLimit;
+        }
+
         public Double getMinPurchaseAmount() {
             return minPurchaseAmount;
         }
@@ -347,7 +331,6 @@ public class PromoCodeController {
         private Integer userId;
         private Map<Integer, Integer> productQuantities;
 
-        // Getters and Setters
         public String getCode() {
             return code;
         }
@@ -378,7 +361,6 @@ public class PromoCodeController {
         private Integer userId;
         private Map<Integer, Integer> productQuantities;
 
-        // Getters and Setters
         public String getCode() {
             return code;
         }

@@ -12,9 +12,6 @@ import za.ac.styling.service.ProductService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Product entity
- */
 @Service
 public class ProductServiceImpl implements ProductService {
 
@@ -35,7 +32,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product read(Integer id) {
-        return productRepository.findById(id).orElse(null);
+        return readWithRelations(id);
     }
 
     @Override
@@ -50,12 +47,28 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getAll() {
-        return productRepository.findAll();
+
+        return productRepository.findAllNotDeleted();
     }
 
     @Override
     public List<Product> getAllWithRelations() {
         return productRepository.findAllWithRelations();
+    }
+
+    public List<Product> getAllIncludingDeleted() {
+        return productRepository.findAllIncludingDeleted();
+    }
+
+    public Product restoreProduct(Integer productId) {
+        Optional<Product> optionalProduct = productRepository.findByIdWithRelationsIncludingDeleted(productId);
+        if (optionalProduct.isPresent()) {
+            Product p = optionalProduct.get();
+            p.restore();
+            p.setActive(true);
+            return productRepository.save(p);
+        }
+        return null;
     }
 
     @Override
@@ -120,19 +133,18 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product activateProduct(Integer productId) {
-        Product product = read(productId);
-        if (product != null) {
-            product.setActive(true);
-            return update(product);
-        }
-        return null;
+        return toggleProductActive(productId, true);
     }
 
     @Override
     public Product deactivateProduct(Integer productId) {
+        return toggleProductActive(productId, false);
+    }
+
+    private Product toggleProductActive(Integer productId, boolean isActive) {
         Product product = read(productId);
         if (product != null) {
-            product.setActive(false);
+            product.setActive(isActive);
             return update(product);
         }
         return null;

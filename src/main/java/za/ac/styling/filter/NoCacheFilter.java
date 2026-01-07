@@ -8,10 +8,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * Filter to ensure API responses are not cached by browsers or intermediate caches.
- * Applies to paths starting with /api/.
- */
 public class NoCacheFilter extends OncePerRequestFilter {
 
     @Override
@@ -19,7 +15,7 @@ public class NoCacheFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getRequestURI();
         if (path != null && path.startsWith("/api/")) {
-            // Strong no-cache headers
+
             response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Expires", "0");

@@ -5,19 +5,12 @@ import za.ac.styling.domain.AddressType;
 import za.ac.styling.domain.User;
 import za.ac.styling.util.ValidationHelper;
 
-/**
- * Factory class responsible for creating Address objects
- */
 public class AddressFactory {
 
-    /**
-     * Creates a new Address with basic information
-     */
     public static Address createAddress(String street, String city, String state,
             String zipCode, String country, AddressType addressType,
             User user) {
 
-        // Validate input data
         if (ValidationHelper.isNullOrEmpty(street)) {
             throw new IllegalArgumentException("Street address cannot be empty");
         }
@@ -58,9 +51,6 @@ public class AddressFactory {
                 .build();
     }
 
-    /**
-     * Creates a new default Address
-     */
     public static Address createDefaultAddress(String street, String city, String state,
             String zipCode, String country,
             AddressType addressType, User user) {
@@ -71,36 +61,24 @@ public class AddressFactory {
         return address;
     }
 
-    /**
-     * Creates a shipping address
-     */
     public static Address createShippingAddress(String street, String city, String state,
             String zipCode, String country, User user) {
 
         return createAddress(street, city, state, zipCode, country, AddressType.SHIPPING, user);
     }
 
-    /**
-     * Creates a billing address
-     */
     public static Address createBillingAddress(String street, String city, String state,
             String zipCode, String country, User user) {
 
         return createAddress(street, city, state, zipCode, country, AddressType.BILLING, user);
     }
 
-    /**
-     * Creates an address that serves both as shipping and billing
-     */
     public static Address createBothAddress(String street, String city, String state,
             String zipCode, String country, User user) {
 
         return createAddress(street, city, state, zipCode, country, AddressType.BOTH, user);
     }
 
-    /**
-     * Creates a default shipping address
-     */
     public static Address createDefaultShippingAddress(String street, String city, String state,
             String zipCode, String country, User user) {
 

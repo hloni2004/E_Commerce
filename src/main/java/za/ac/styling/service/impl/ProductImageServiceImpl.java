@@ -11,9 +11,6 @@ import za.ac.styling.service.ProductImageService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for ProductImage entity
- */
 @Service
 public class ProductImageServiceImpl implements ProductImageService {
 
@@ -73,14 +70,13 @@ public class ProductImageServiceImpl implements ProductImageService {
     public ProductImage setAsPrimary(Long imageId) {
         ProductImage image = read(imageId);
         if (image != null) {
-            // First, unset any existing primary images for this product
+
             List<ProductImage> existingPrimary = productImageRepository.findByProductAndIsPrimaryTrue(image.getProduct()).stream().toList();
             for (ProductImage existing : existingPrimary) {
                 existing.setPrimary(false);
                 update(existing);
             }
 
-            // Set this image as primary
             ProductImage updated = ProductImageFactory.setAsPrimary(image);
             return update(updated);
         }
@@ -96,7 +92,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         }
         return null;
     }
-    
+
     @Override
     public int getMaxDisplayOrder(Integer productId) {
         List<ProductImage> images = findByProductId(productId);

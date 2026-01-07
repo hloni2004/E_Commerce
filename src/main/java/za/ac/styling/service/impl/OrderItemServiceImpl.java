@@ -10,9 +10,6 @@ import za.ac.styling.service.OrderItemService;
 
 import java.util.List;
 
-/**
- * Service implementation for OrderItem entity
- */
 @Service
 public class OrderItemServiceImpl implements OrderItemService {
 

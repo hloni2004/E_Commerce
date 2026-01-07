@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Role entity
- */
 @Service
 public class RoleServiceImpl implements RoleService {
 

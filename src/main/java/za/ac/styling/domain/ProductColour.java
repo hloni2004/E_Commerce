@@ -25,7 +25,7 @@ public class ProductColour {
     private String hexCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore // Prevent circular reference
+    @JsonIgnore
     private Product product;
 
     @OneToMany(mappedBy = "colour", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

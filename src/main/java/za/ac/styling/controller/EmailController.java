@@ -4,18 +4,41 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import za.ac.styling.service.EmailService;
+import za.ac.styling.service.MiljetEmailClient;
 
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/email")
 public class EmailController {
 
     private final EmailService emailService;
+    private final MiljetEmailClient miljetClient;
 
     @Autowired
-    public EmailController(EmailService emailService) {
+    public EmailController(EmailService emailService, MiljetEmailClient miljetClient) {
         this.emailService = emailService;
+        this.miljetClient = miljetClient;
+    }
+
+    @GetMapping("/config-check")
+    public ResponseEntity<?> checkEmailConfiguration() {
+        Map<String, Object> status = new HashMap<>();
+
+        boolean mailjetConfigured = miljetClient.isConfigured();
+        status.put("mailjetRestApiConfigured", mailjetConfigured);
+        status.put("mailjetEnabled", mailjetConfigured ? "✅ Enabled" : "❌ Disabled or Missing Credentials");
+
+        if (mailjetConfigured) {
+            status.put("message", "Mailjet REST API is properly configured and ready to use.");
+            status.put("recommendation", "Use POST /api/email/test with {\"email\":\"your@email.com\"} to send a test email.");
+        } else {
+            status.put("message", "Mailjet REST API is NOT configured. Check application.properties.");
+            status.put("requiredProperties", "mailjet.api.key, mailjet.api.secret, mailjet.enabled=true");
+        }
+
+        return ResponseEntity.ok(status);
     }
 
     @PostMapping("/test")

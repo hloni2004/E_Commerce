@@ -27,7 +27,7 @@ public class PromoUsage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    private Order order; // Track which order used this promo
+    private Order order;
 
     private LocalDateTime usedAt;
 

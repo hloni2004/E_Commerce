@@ -17,25 +17,19 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // Use the same property name as defined in application.properties (jwt.secret).
-    // The default value here is deliberately long enough (>= 256 bits) to satisfy
-    // JJWT's HMAC requirements
-    // but in real deployments this should be overridden via environment-specific
-    // configuration.
     @Value("${jwt.secret:change_this_in_prod_change_this_in_prod_change_this_in_prod_change_this_in_prod}")
     private String jwtSecret;
 
-    @Value("${security.jwt.expirationMillis:900000}") // default 15 minutes
+    @Value("${security.jwt.expirationMillis:900000}")
     private long jwtExpirationMillis;
 
-    @Value("${security.jwt.refreshExpirationMillis:604800000}") // default 7 days
+    @Value("${security.jwt.refreshExpirationMillis:604800000}")
     private long refreshExpirationMillis;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    // Overload to support custom claims (e.g., roles)
     public String generateAccessToken(String subject, java.util.Map<String, Object> claims) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + jwtExpirationMillis);
@@ -72,8 +66,6 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody().getSubject();
     }
 
-    // Extract roles from JWT claims (assumes roles are stored as a claim named
-    // "roles" as a comma-separated string or list)
     public List<String> getRoles(String token) {
         Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
         Object rolesObj = claims.get("roles");

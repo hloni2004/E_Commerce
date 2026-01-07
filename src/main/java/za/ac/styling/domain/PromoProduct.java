@@ -23,8 +23,4 @@ public class PromoProduct {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    // Optional: Could add category-based promos in the future
-    // @ManyToOne
-    // @JoinColumn(name = "category_id")
-    // private Category category;
 }

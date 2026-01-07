@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ProductColourRequest {
-    private Integer colourId;  // For updates
+    private Integer colourId;
     private String name;
     private String hexCode;
     private List<ProductSizeRequest> sizes;

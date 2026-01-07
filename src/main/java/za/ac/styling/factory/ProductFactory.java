@@ -9,18 +9,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 
-/**
- * Factory class responsible for creating Product objects
- */
 public class ProductFactory {
 
-    /**
-     * Creates a new Product with basic information
-     */
     public static Product createProduct(String name, String description, double basePrice,
             String sku, Category category) {
 
-        // Validate input data
         if (ValidationHelper.isNullOrEmpty(name)) {
             throw new IllegalArgumentException("Product name cannot be empty");
         }
@@ -41,7 +34,7 @@ public class ProductFactory {
                 .name(name)
                 .description(description)
                 .basePrice(basePrice)
-                .comparePrice(0.0)
+                .comparePrice(null)
                 .sku(sku.toUpperCase())
                 .category(category)
                 .colours(new HashSet<>())
@@ -52,15 +45,10 @@ public class ProductFactory {
                 .build();
     }
 
-    /**
-     * Creates a new Product with complete information including compare price and
-     * weight
-     */
     public static Product createProduct(String name, String description, double basePrice,
             double comparePrice, String sku, double weight,
             Category category) {
 
-        // Validate input data
         if (ValidationHelper.isNullOrEmpty(name)) {
             throw new IllegalArgumentException("Product name cannot be empty");
         }
@@ -101,9 +89,6 @@ public class ProductFactory {
                 .build();
     }
 
-    /**
-     * Creates a new Product with primary image
-     */
     public static Product createProductWithImage(String name, String description, double basePrice,
             String sku, Category category, ProductImage primaryImage) {
 
@@ -116,9 +101,6 @@ public class ProductFactory {
         return product;
     }
 
-    /**
-     * Creates an inactive product (for draft/archived products)
-     */
     public static Product createInactiveProduct(String name, String description, double basePrice,
             String sku, Category category) {
 

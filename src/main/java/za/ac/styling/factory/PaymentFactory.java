@@ -7,17 +7,10 @@ import za.ac.styling.util.ValidationHelper;
 
 import java.time.LocalDate;
 
-/**
- * Factory class responsible for creating Payment objects
- */
 public class PaymentFactory {
 
-    /**
-     * Creates a new Payment with basic information
-     */
     public static Payment createPayment(double amount, String currency, PaymentMethod paymentMethod) {
 
-        // Validate input data
         if (!ValidationHelper.isValidPrice(amount)) {
             throw new IllegalArgumentException("Invalid payment amount");
         }
@@ -39,9 +32,6 @@ public class PaymentFactory {
                 .build();
     }
 
-    /**
-     * Creates a new Payment with transaction ID
-     */
     public static Payment createPaymentWithTransaction(double amount, String currency,
             PaymentMethod paymentMethod,
             String transactionId) {
@@ -56,9 +46,6 @@ public class PaymentFactory {
         return payment;
     }
 
-    /**
-     * Creates a successful payment
-     */
     public static Payment createSuccessfulPayment(double amount, String currency,
             PaymentMethod paymentMethod,
             String transactionId) {
@@ -69,9 +56,6 @@ public class PaymentFactory {
         return payment;
     }
 
-    /**
-     * Creates a failed payment with reason
-     */
     public static Payment createFailedPayment(double amount, String currency,
             PaymentMethod paymentMethod,
             String failureReason) {
@@ -87,9 +71,6 @@ public class PaymentFactory {
         return payment;
     }
 
-    /**
-     * Creates a refunded payment
-     */
     public static Payment createRefundedPayment(double amount, String currency,
             PaymentMethod paymentMethod,
             String transactionId) {
@@ -100,9 +81,6 @@ public class PaymentFactory {
         return payment;
     }
 
-    /**
-     * Creates a pending payment (authorization only)
-     */
     public static Payment createPendingPayment(double amount, String currency,
             PaymentMethod paymentMethod) {
 

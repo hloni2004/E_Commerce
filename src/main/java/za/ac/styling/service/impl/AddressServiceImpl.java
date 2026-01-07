@@ -11,9 +11,6 @@ import za.ac.styling.service.AddressService;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service implementation for Address entity
- */
 @Service
 public class AddressServiceImpl implements AddressService {
 

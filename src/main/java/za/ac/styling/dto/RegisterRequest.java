@@ -16,8 +16,7 @@ public class RegisterRequest {
     private String lastName;
     private String username;
     private String phone;
-    
-    // Address fields
+
     private String addressLine1;
     private String addressLine2;
     private String city;

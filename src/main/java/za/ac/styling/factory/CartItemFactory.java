@@ -6,18 +6,11 @@ import za.ac.styling.domain.Product;
 import za.ac.styling.domain.ProductColour;
 import za.ac.styling.domain.ProductColourSize;
 
-/**
- * Factory class responsible for creating CartItem objects
- */
 public class CartItemFactory {
 
-    /**
-     * Creates a new CartItem with all required information
-     */
     public static CartItem createCartItem(Cart cart, Product product, ProductColour colour,
                                          ProductColourSize size, int quantity) {
 
-        // Validate input data
         if (cart == null) {
             throw new IllegalArgumentException("Cart is required");
         }
@@ -51,17 +44,11 @@ public class CartItemFactory {
                 .build();
     }
 
-    /**
-     * Creates a new CartItem with default quantity of 1
-     */
     public static CartItem createCartItem(Cart cart, Product product, ProductColour colour,
                                          ProductColourSize size) {
         return createCartItem(cart, product, colour, size, 1);
     }
 
-    /**
-     * Updates the quantity of an existing CartItem
-     */
     public static CartItem updateQuantity(CartItem cartItem, int newQuantity) {
         if (cartItem == null) {
             throw new IllegalArgumentException("CartItem cannot be null");

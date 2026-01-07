@@ -15,7 +15,6 @@ public class BankTransferPayment extends PaymentMethod {
     private String accountNumber;
     private String routingNumber;
 
-
     @Override
     public boolean validate() { return accountNumber != null; }
 }

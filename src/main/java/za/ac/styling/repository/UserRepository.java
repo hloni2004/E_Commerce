@@ -8,45 +8,21 @@ import za.ac.styling.domain.User;
 
 import java.util.Optional;
 
-/**
- * Repository interface for User entity
- */
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    /**
-     * Find user by username
-     */
     Optional<User> findByUsername(String username);
 
-    /**
-     * Find user by email
-     */
     Optional<User> findByEmail(String email);
 
-    /**
-     * Find user by email with Role eagerly fetched (for login)
-     */
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.role WHERE u.email = :email")
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.role WHERE LOWER(u.email) = LOWER(:email)")
     Optional<User> findByEmailWithRole(@Param("email") String email);
 
-    /**
-     * Check if username exists
-     */
     boolean existsByUsername(String username);
 
-    /**
-     * Check if email exists
-     */
     boolean existsByEmail(String email);
 
-    /**
-     * Find all active users
-     */
     Iterable<User> findByIsActiveTrue();
 
-    /**
-     * Find all inactive users
-     */
     Iterable<User> findByIsActiveFalse();
 }

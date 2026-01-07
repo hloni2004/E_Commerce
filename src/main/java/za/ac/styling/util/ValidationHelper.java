@@ -2,12 +2,8 @@ package za.ac.styling.util;
 
 import java.util.regex.Pattern;
 
-/**
- * Generic helper class for data validation used across all domain classes
- */
 public class ValidationHelper {
 
-    // Regular expression patterns for validation
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
     );
@@ -36,11 +32,6 @@ public class ValidationHelper {
             "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
     );
 
-    // ==================== STRING VALIDATIONS ====================
-
-    /**
-     * Validates email format
-     */
     public static boolean isValidEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             return false;
@@ -48,10 +39,6 @@ public class ValidationHelper {
         return EMAIL_PATTERN.matcher(email.trim()).matches();
     }
 
-    /**
-     * Validates username format
-     * Username must be 3-20 characters, alphanumeric and underscores only
-     */
     public static boolean isValidUsername(String username) {
         if (username == null || username.trim().isEmpty()) {
             return false;
@@ -59,10 +46,6 @@ public class ValidationHelper {
         return USERNAME_PATTERN.matcher(username.trim()).matches();
     }
 
-    /**
-     * Validates password strength
-     * Password must be at least 8 characters
-     */
     public static boolean isValidPassword(String password) {
         if (password == null || password.isEmpty()) {
             return false;
@@ -70,10 +53,6 @@ public class ValidationHelper {
         return password.length() >= 8;
     }
 
-    /**
-     * Validates password with strong requirements
-     * Must contain at least 8 characters, one uppercase, one lowercase, one digit, and one special character
-     */
     public static boolean isValidStrongPassword(String password) {
         if (password == null || password.length() < 8) {
             return false;
@@ -94,10 +73,6 @@ public class ValidationHelper {
         return hasUpper && hasLower && hasDigit && hasSpecial;
     }
 
-    /**
-     * Validates name format (first name or last name)
-     * Name must be 2-50 characters, letters, spaces, hyphens, and apostrophes only
-     */
     public static boolean isValidName(String name) {
         if (name == null || name.trim().isEmpty()) {
             return false;
@@ -105,10 +80,6 @@ public class ValidationHelper {
         return NAME_PATTERN.matcher(name.trim()).matches();
     }
 
-    /**
-     * Validates phone number format
-     * Accepts various international formats
-     */
     public static boolean isValidPhone(String phone) {
         if (phone == null || phone.trim().isEmpty()) {
             return false;
@@ -116,9 +87,6 @@ public class ValidationHelper {
         return PHONE_PATTERN.matcher(phone.trim()).matches();
     }
 
-    /**
-     * Validates SKU format for products
-     */
     public static boolean isValidSKU(String sku) {
         if (sku == null || sku.trim().isEmpty()) {
             return false;
@@ -126,9 +94,6 @@ public class ValidationHelper {
         return SKU_PATTERN.matcher(sku.trim()).matches();
     }
 
-    /**
-     * Validates hex color code format
-     */
     public static boolean isValidHexColor(String hexCode) {
         if (hexCode == null || hexCode.trim().isEmpty()) {
             return false;
@@ -136,9 +101,6 @@ public class ValidationHelper {
         return HEX_COLOR_PATTERN.matcher(hexCode.trim()).matches();
     }
 
-    /**
-     * Validates zip/postal code
-     */
     public static boolean isValidZipCode(String zipCode) {
         if (zipCode == null || zipCode.trim().isEmpty()) {
             return false;
@@ -146,71 +108,40 @@ public class ValidationHelper {
         return ZIP_CODE_PATTERN.matcher(zipCode.trim()).matches();
     }
 
-    /**
-     * Checks if a string is null or empty
-     */
     public static boolean isNullOrEmpty(String str) {
         return str == null || str.trim().isEmpty();
     }
 
-    /**
-     * Validates string length is within range
-     */
     public static boolean isValidLength(String str, int minLength, int maxLength) {
         if (str == null) return false;
         int length = str.trim().length();
         return length >= minLength && length <= maxLength;
     }
 
-    // ==================== NUMERIC VALIDATIONS ====================
-
-    /**
-     * Validates that a price is positive
-     */
     public static boolean isValidPrice(double price) {
         return price >= 0;
     }
 
-    /**
-     * Validates that a quantity is positive
-     */
     public static boolean isValidQuantity(int quantity) {
         return quantity >= 0;
     }
 
-    /**
-     * Validates that a rating is within range (1-5)
-     */
     public static boolean isValidRating(int rating) {
         return rating >= 1 && rating <= 5;
     }
 
-    /**
-     * Validates that a percentage is within range (0-100)
-     */
     public static boolean isValidPercentage(double percentage) {
         return percentage >= 0 && percentage <= 100;
     }
 
-    /**
-     * Validates that a weight is positive
-     */
     public static boolean isValidWeight(double weight) {
         return weight > 0;
     }
 
-    // ==================== UTILITY METHODS ====================
-
-    /**
-     * Sanitizes input by trimming whitespace
-     */
     public static String sanitizeInput(String input) {
         return input == null ? null : input.trim();
     }
 
-    /**
-     * Formats a full name from first and last name
-     */
     public static String formatFullName(String firstName, String lastName) {
         if (isNullOrEmpty(firstName) && isNullOrEmpty(lastName)) {
             return "";
@@ -225,23 +156,17 @@ public class ValidationHelper {
         return first + " " + last;
     }
 
-    /**
-     * Validates card number using Luhn algorithm
-     */
     public static boolean isValidCardNumber(String cardNumber) {
         if (cardNumber == null || cardNumber.isEmpty()) {
             return false;
         }
 
-        // Remove spaces and dashes
         cardNumber = cardNumber.replaceAll("[\\s-]", "");
 
-        // Check if only digits
         if (!cardNumber.matches("\\d+")) {
             return false;
         }
 
-        // Luhn algorithm
         int sum = 0;
         boolean alternate = false;
         for (int i = cardNumber.length() - 1; i >= 0; i--) {
@@ -258,9 +183,6 @@ public class ValidationHelper {
         return (sum % 10 == 0);
     }
 
-    /**
-     * Validates CVV format (3-4 digits)
-     */
     public static boolean isValidCVV(String cvv) {
         if (cvv == null || cvv.isEmpty()) {
             return false;
@@ -268,9 +190,6 @@ public class ValidationHelper {
         return cvv.matches("^[0-9]{3,4}$");
     }
 
-    /**
-     * Validates expiry date format (MM/YY or MM/YYYY)
-     */
     public static boolean isValidExpiryDate(String expiryDate) {
         if (expiryDate == null || expiryDate.isEmpty()) {
             return false;
@@ -278,9 +197,6 @@ public class ValidationHelper {
         return expiryDate.matches("^(0[1-9]|1[0-2])/([0-9]{2}|[0-9]{4})$");
     }
 
-    /**
-     * Validates URL format
-     */
     public static boolean isValidUrl(String url) {
         if (url == null || url.trim().isEmpty()) {
             return false;
@@ -293,11 +209,6 @@ public class ValidationHelper {
         }
     }
 
-    // ==================== VALIDATION RESULT CLASS ====================
-
-    /**
-     * Inner class to hold validation results
-     */
     public static class ValidationResult {
         private final java.util.List<String> errors = new java.util.ArrayList<>();
 

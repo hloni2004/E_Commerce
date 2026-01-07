@@ -7,19 +7,10 @@ import za.ac.styling.domain.ReviewImage;
 
 import java.util.List;
 
-/**
- * Repository interface for ReviewImage entity
- */
 @Repository
 public interface ReviewImageRepository extends JpaRepository<ReviewImage, Long> {
 
-    /**
-     * Find all images for a review
-     */
     List<ReviewImage> findByReview(Review review);
 
-    /**
-     * Find all images for a review by review ID
-     */
     List<ReviewImage> findByReviewReviewId(Long reviewId);
 }

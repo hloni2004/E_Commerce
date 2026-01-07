@@ -46,7 +46,7 @@ public class PasswordResetToken {
     private LocalDateTime createdAt;
 
     public boolean isExpired() {
-        // Compare using UTC to avoid timezone mismatches
+
         return java.time.LocalDateTime.now(java.time.ZoneOffset.UTC).isAfter(expiryDate);
     }
 }

@@ -8,62 +8,26 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Service interface for Order entity
- */
 public interface OrderService extends IService<Order, Integer> {
 
-    /**
-     * Find order by order number
-     */
     Optional<Order> findByOrderNumber(String orderNumber);
 
-    /**
-     * Find all orders for a user
-     */
     List<Order> findByUser(User user);
 
-    /**
-     * Find all orders for a user by user ID
-     */
     List<Order> findByUserId(Integer userId);
 
-    /**
-     * Find orders by status
-     */
     List<Order> findByStatus(OrderStatus status);
 
-    /**
-     * Find orders by user and status
-     */
     List<Order> findByUserAndStatus(User user, OrderStatus status);
 
-    /**
-     * Find orders by date range
-     */
     List<Order> findByDateRange(Date startDate, Date endDate);
 
-    /**
-     * Find recent orders for a user
-     */
     List<Order> findRecentOrdersByUser(User user);
 
-    /**
-     * Update order status
-     */
     Order updateOrderStatus(Integer orderId, OrderStatus status);
 
-    /**
-     * Calculate order total
-     */
     double calculateOrderTotal(Integer orderId);
 
-    /**
-     * Create an order and, if a promo code is provided, validate and atomically
-     * record promo usage.
-     * This method will throw an exception if the promo is invalid or the usage
-     * cannot be recorded (to ensure rollback).
-     */
     Order createOrderWithPromo(Order order, java.util.Map<Integer, Integer> productQuantities, String promoCode,
             Integer userId);
 }

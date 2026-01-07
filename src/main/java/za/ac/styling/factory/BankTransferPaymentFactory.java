@@ -4,20 +4,13 @@ import za.ac.styling.domain.BankTransferPayment;
 import za.ac.styling.domain.User;
 import za.ac.styling.util.ValidationHelper;
 
-/**
- * Factory class responsible for creating BankTransferPayment objects
- */
 public class BankTransferPaymentFactory {
 
-    /**
-     * Creates a new BankTransferPayment with all information
-     */
     public static BankTransferPayment createBankTransferPayment(String bankName, 
                                                                 String accountNumber,
                                                                 String routingNumber, 
                                                                 User user) {
 
-        // Validate input data
         if (ValidationHelper.isNullOrEmpty(bankName)) {
             throw new IllegalArgumentException("Bank name cannot be empty");
         }
@@ -42,11 +35,6 @@ public class BankTransferPaymentFactory {
                 .build();
     }
 
-
-
-    /**
-     * Validates a BankTransferPayment
-     */
     public static boolean validateBankTransferPayment(BankTransferPayment payment) {
         if (payment == null) {
             return false;
@@ -54,9 +42,6 @@ public class BankTransferPaymentFactory {
         return payment.validate();
     }
 
-    /**
-     * Creates a masked version of account number for display
-     */
     public static String maskAccountNumber(String accountNumber) {
         if (ValidationHelper.isNullOrEmpty(accountNumber) || accountNumber.length() < 4) {
             return "****";
@@ -65,9 +50,6 @@ public class BankTransferPaymentFactory {
         return "****" + lastFour;
     }
 
-    /**
-     * Updates bank information
-     */
     public static BankTransferPayment updateBankInfo(BankTransferPayment payment, 
                                                      String bankName) {
         if (payment == null) {

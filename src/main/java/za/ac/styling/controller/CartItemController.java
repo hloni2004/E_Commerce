@@ -92,6 +92,9 @@ public class CartItemController {
                     .body(Map.of("success", false, "message", "Cart item not found"));
             }
             return ResponseEntity.ok(Map.of("success", true, "data", updated));
+        } catch (IllegalArgumentException iae) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("success", false, "message", iae.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("success", false, "message", "Error updating quantity: " + e.getMessage()));

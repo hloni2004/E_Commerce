@@ -22,19 +22,19 @@ import java.util.*;
 public class ReviewController {
 
     private ReviewService reviewService;
-    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024;
     private static final int MAX_IMAGES = 5;
     private static final List<String> ALLOWED_CONTENT_TYPES = List.of("image/jpeg", "image/png", "image/webp");
-    
+
     @Autowired
     private OrderRepository orderRepository;
-    
+
     @Autowired
     private ProductRepository productRepository;
-    
+
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     private SupabaseStorageService supabaseStorageService;
 
@@ -51,37 +51,33 @@ public class ReviewController {
             @RequestParam("comment") String comment,
             @RequestParam(value = "images", required = false) MultipartFile[] images) {
         try {
-            // Validate rating
+
             if (rating < 1 || rating > 5) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("success", false, "message", "Rating must be between 1 and 5"));
             }
-            
-            // Fetch user and product
+
             User user = userRepository.findById(userId).orElse(null);
             Product product = productRepository.findById(productId).orElse(null);
-            
+
             if (user == null || product == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("success", false, "message", "Invalid user or product"));
             }
-            
-            // Validate that user has purchased the product
+
             boolean hasPurchased = orderRepository.hasUserPurchasedProduct(userId, productId);
-            
+
             if (!hasPurchased) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("success", false, "message", "You can only review products you have purchased"));
             }
-            
-            // Check if user already reviewed this product
+
             List<Review> existingReviews = reviewService.findByUserIdAndProductId(userId, productId);
             if (!existingReviews.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("success", false, "message", "You have already reviewed this product"));
             }
-            
-            // Create review
+
             Review review = Review.builder()
                 .user(user)
                 .product(product)
@@ -92,13 +88,11 @@ public class ReviewController {
                 .verified(true)
                 .helpfulCount(0)
                 .build();
-            
-            // Save review first to get the ID
+
             Review created = reviewService.create(review);
-            
-            // Add images if provided (upload to Supabase)
+
             if (images != null && images.length > 0) {
-                // Basic validation
+
                 if (images.length > MAX_IMAGES) {
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("success", false, "message", "Maximum " + MAX_IMAGES + " images allowed"));
@@ -108,13 +102,11 @@ public class ReviewController {
                 for (MultipartFile file : images) {
                     if (file.isEmpty()) continue;
 
-                    // Check size
                     if (file.getSize() > MAX_IMAGE_SIZE) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                             .body(Map.of("success", false, "message", "Image size must be <= 5 MB"));
                     }
 
-                    // Check content type
                     String ct = file.getContentType();
                     if (ct == null || !ALLOWED_CONTENT_TYPES.contains(ct.toLowerCase())) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -122,12 +114,12 @@ public class ReviewController {
                     }
 
                     try {
-                        // Upload to Supabase
+
                         Integer reviewIdInt = created.getReviewId();
                         Long reviewId = reviewIdInt != null ? reviewIdInt.longValue() : 0L;
                         SupabaseStorageService.UploadResult uploadResult = 
                             supabaseStorageService.uploadReviewImage(file, reviewId);
-                        
+
                         ReviewImage reviewImage = ReviewImage.builder()
                             .review(created)
                             .supabaseUrl(uploadResult.getUrl())
@@ -137,16 +129,16 @@ public class ReviewController {
                         reviewImages.add(reviewImage);
                     } catch (Exception e) {
                         System.err.println("Failed to upload review image: " + e.getMessage());
-                        // Continue with other images even if one fails
+
                     }
                 }
                 if (!reviewImages.isEmpty()) {
                     created.setImages(reviewImages);
-                    // Update review with images
+
                     created = reviewService.update(created);
                 }
             }
-            
+
             return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("success", true, "data", created, "message", "Review submitted successfully"));
         } catch (Exception e) {
@@ -155,7 +147,7 @@ public class ReviewController {
                 .body(Map.of("success", false, "message", "Error creating review: " + e.getMessage()));
         }
     }
-    
+
     @GetMapping("/can-review/{userId}/{productId}")
     public ResponseEntity<?> canUserReview(@PathVariable Integer userId, @PathVariable Integer productId) {
         try {
