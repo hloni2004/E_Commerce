@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="direct connection">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/config/HttpsEnforcementFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/config/HttpsEnforcementFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties.template" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -261,7 +261,7 @@
       <workItem from="1767722635196" duration="6528000" />
       <workItem from="1767770818946" duration="30000" />
       <workItem from="1767770989662" duration="14778000" />
-      <workItem from="1767856298989" duration="13134000" />
+      <workItem from="1767856298989" duration="14507000" />
     </task>
     <task id="LOCAL-00015" summary="issue images are similiar">
       <option name="closed" value="true" />
