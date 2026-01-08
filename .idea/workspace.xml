@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="fixed backend">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="direct connection">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
@@ -261,23 +261,7 @@
       <workItem from="1767722635196" duration="6528000" />
       <workItem from="1767770818946" duration="30000" />
       <workItem from="1767770989662" duration="14778000" />
-      <workItem from="1767856298989" duration="847000" />
-    </task>
-    <task id="LOCAL-00010" summary="controller">
-      <option name="closed" value="true" />
-      <created>1765534056441</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1765534056442</updated>
-    </task>
-    <task id="LOCAL-00011" summary="cart">
-      <option name="closed" value="true" />
-      <created>1765639849899</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1765639849900</updated>
+      <workItem from="1767856298989" duration="1547000" />
     </task>
     <task id="LOCAL-00012" summary="order">
       <option name="closed" value="true" />
@@ -655,7 +639,23 @@
       <option name="project" value="LOCAL" />
       <updated>1767792592936</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="direct connection">
+      <option name="closed" value="true" />
+      <created>1767857471064</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1767857471064</updated>
+    </task>
+    <task id="LOCAL-00060" summary="direct connection">
+      <option name="closed" value="true" />
+      <created>1767857558810</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1767857558810</updated>
+    </task>
+    <option name="localTasksCounter" value="61" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -673,7 +673,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="order" />
     <MESSAGE value="forget password" />
     <MESSAGE value="superbase" />
     <MESSAGE value="issue images are similiar" />
@@ -698,7 +697,8 @@
     <MESSAGE value="EMAIL MAL JETS5" />
     <MESSAGE value="EMAIL MAL JETS6" />
     <MESSAGE value="fixed backend" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed backend" />
+    <MESSAGE value="direct connection" />
+    <option name="LAST_COMMIT_MESSAGE" value="direct connection" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
