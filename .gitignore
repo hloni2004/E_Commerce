@@ -36,3 +36,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Sensitive Files ###
+src/main/resources/application.properties
+render.yaml
+aws.env
+aws-eb.config
+render.env
+*.env
