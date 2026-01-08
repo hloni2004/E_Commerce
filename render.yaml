@@ -1,0 +1,58 @@
+services:
+  - type: web
+    name: maison-luxe-backend
+    runtime: java
+    buildCommand: mvn clean package -DskipTests
+    startCommand: java -jar target/E-Commerce-1.0-SNAPSHOT.jar
+    plan: free
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:postgresql://aws-1-eu-west-1.pooler.supabase.com:6543/postgres?user=postgres.widewqtjdgbphbksxpco&password=Dankoplz52123&sslmode=require&prepareThreshold=0
+      - key: SPRING_DATASOURCE_USERNAME
+        value: postgres.widewqtjdgbphbksxpco
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: Dankoplz52123
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: SPRING_JPA_SHOW_SQL
+        value: false
+      - key: SERVER_PORT
+        value: 5000
+      - key: MAILJET_API_KEY
+        value: b462d5d225bc8f04b04b3af06c46eaa7
+      - key: MAILJET_API_SECRET
+        value: b41cc88bf077647a7d4ba4da7a54b875
+      - key: MAILJET_API_URL
+        value: https://api.mailjet.com/v3.1/send
+      - key: MAILJET_ENABLED
+        value: true
+      - key: MAIL_SENDER_EMAIL
+        value: hloniyacho@gmail.com
+      - key: MAIL_SENDER_NAME
+        value: MAISON LUXE
+      - key: SPRING_MAIL_HOST
+        value: in-v3.mailjet.com
+      - key: SPRING_MAIL_PORT
+        value: 587
+      - key: SPRING_MAIL_USERNAME
+        value: b462d5d225bc8f04b04b3af06c46eaa7
+      - key: SPRING_MAIL_PASSWORD
+        value: b41cc88bf077647a7d4ba4da7a54b875
+      - key: SPRING_MAIL_FROM
+        value: hloniyacho@gmail.com
+      - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH
+        value: true
+      - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE
+        value: true
+      - key: SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED
+        value: true
+      - key: JWT_SECRET
+        value: Qk1vQ2h5d1JwQ2J6d2d2d1l6Q2J4d1JwQ2h5d1JwQ2J6d2d2d1l6Q2J4d1JwQmtNdkNoWXdScENiendn
+      - key: SUPABASE_URL
+        value: https://widewqtjdgbphbksxpco.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpZGV3cXRqZGdicGhia3N4cGNvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5NjA2MjMsImV4cCI6MjA4MTUzNjYyM30.vQcBshwTXPhXVf2YvT0fyQCg93NO4mt1A9jBCi48XD0
+      - key: SUPABASE_SERVICE_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpZGV3cXRqZGdicGhia3N4cGNvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTk2MDYyMywiZXhwIjoyMDgxNTM2NjIzfQ.pcO_qVrVuD--NZaJhjmWwiq6ZOzU1qCAiJZIttEaF64
+      - key: APP_CORS_ALLOWED_ORIGINS
+        value: https://client-hub-portal.vercel.app,http://localhost:5173,http://localhost:3000
