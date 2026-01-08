@@ -12,16 +12,7 @@ public class HttpsEnforcementFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String proto = request.getHeader("X-Forwarded-Proto");
-        boolean isProd = "production".equals(System.getenv("SPRING_PROFILES_ACTIVE"));
-        if (isProd && proto != null && proto.equalsIgnoreCase("http")) {
-            String url = "https://" + request.getServerName() + request.getRequestURI();
-            if (request.getQueryString() != null) {
-                url += "?" + request.getQueryString();
-            }
-            response.sendRedirect(url);
-            return;
-        }
+        // HTTPS enforcement disabled for AWS deployment (AWS handles SSL at load balancer)
         filterChain.doFilter(request, response);
     }
 }
