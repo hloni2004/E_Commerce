@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="DEPLOYING with password">
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="DEPLOYING with password with changes s3 reference">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/SupabaseStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/styling/service/SupabaseStorageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -263,15 +263,7 @@
       <workItem from="1767770989662" duration="14778000" />
       <workItem from="1767856298989" duration="16852000" />
       <workItem from="1767880004079" duration="597000" />
-      <workItem from="1767949013148" duration="6609000" />
-    </task>
-    <task id="LOCAL-00026" summary="tokoen still">
-      <option name="closed" value="true" />
-      <created>1766676523615</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1766676523615</updated>
+      <workItem from="1767949013148" duration="9808000" />
     </task>
     <task id="LOCAL-00027" summary="tokoen still">
       <option name="closed" value="true" />
@@ -657,7 +649,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767956806753</updated>
     </task>
-    <option name="localTasksCounter" value="75" />
+    <task id="LOCAL-00075" summary="DEPLOYING with password with changes s3 reference">
+      <option name="closed" value="true" />
+      <created>1767958010600</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1767958010601</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -675,7 +675,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Docker" />
     <MESSAGE value="live url cancel local host" />
     <MESSAGE value="tokon" />
     <MESSAGE value="tt" />
@@ -700,7 +699,8 @@
     <MESSAGE value="cleaning" />
     <MESSAGE value="DEPLOYING" />
     <MESSAGE value="DEPLOYING with password" />
-    <option name="LAST_COMMIT_MESSAGE" value="DEPLOYING with password" />
+    <MESSAGE value="DEPLOYING with password with changes s3 reference" />
+    <option name="LAST_COMMIT_MESSAGE" value="DEPLOYING with password with changes s3 reference" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
