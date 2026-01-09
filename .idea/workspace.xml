@@ -4,34 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="direct connection">
-      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" />
+    <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="DEPLOYING">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ARCHITECTURE_DIAGRAM.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/AWS_DEPLOYMENT_GUIDE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CACHING.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGES_APPLIED.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DEPLOYMENT_FIX_SUMMARY.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DEPLOY_ACTION_PLAN.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DEPLOY_AWS_UPDATED.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DEPLOY_NOW.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FIXES_COMPLETE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FRONTEND_REQUIREMENTS.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/OTP_EMAIL_FLOW.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/POSTMAN_TESTS.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PRODUCT_500_ERROR_FIX.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PROMO_CODE_PER_USER_LIMITS.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/QUICK_START_FULL_SUPABASE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/QUICK_START_SUPABASE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README_SUPABASE_MIGRATION.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/RENDER_DEPLOYMENT.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SUPABASE_ARCHITECTURE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SUPABASE_FULL_MIGRATION_GUIDE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/SUPABASE_MIGRATION_GUIDE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/render.env.example" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application-render.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/db/migration/V1_7__add_account_lockout_columns.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/db/migration/V1_8__add_product_soft_delete.sql" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -287,31 +261,8 @@
       <workItem from="1767770818946" duration="30000" />
       <workItem from="1767770989662" duration="14778000" />
       <workItem from="1767856298989" duration="16852000" />
-      <workItem from="1767880004079" duration="282000" />
-    </task>
-    <task id="LOCAL-00017" summary="issue images are similiar">
-      <option name="closed" value="true" />
-      <created>1766592853162</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1766592853162</updated>
-    </task>
-    <task id="LOCAL-00018" summary="Docker">
-      <option name="closed" value="true" />
-      <created>1766594024728</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1766594024730</updated>
-    </task>
-    <task id="LOCAL-00019" summary="Docker">
-      <option name="closed" value="true" />
-      <created>1766610371394</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1766610371394</updated>
+      <workItem from="1767880004079" duration="597000" />
+      <workItem from="1767949013148" duration="1828000" />
     </task>
     <task id="LOCAL-00020" summary="Docker">
       <option name="closed" value="true" />
@@ -681,7 +632,31 @@
       <option name="project" value="LOCAL" />
       <updated>1767878440844</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="cleaning">
+      <option name="closed" value="true" />
+      <created>1767880299952</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1767880299952</updated>
+    </task>
+    <task id="LOCAL-00067" summary="DEPLOYING">
+      <option name="closed" value="true" />
+      <created>1767950001367</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1767950001367</updated>
+    </task>
+    <task id="LOCAL-00068" summary="DEPLOYING">
+      <option name="closed" value="true" />
+      <created>1767950262695</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1767950262696</updated>
+    </task>
+    <option name="localTasksCounter" value="69" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -699,8 +674,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="forget password" />
-    <MESSAGE value="superbase" />
     <MESSAGE value="issue images are similiar" />
     <MESSAGE value="Docker" />
     <MESSAGE value="live url cancel local host" />
@@ -724,7 +697,9 @@
     <MESSAGE value="EMAIL MAL JETS6" />
     <MESSAGE value="fixed backend" />
     <MESSAGE value="direct connection" />
-    <option name="LAST_COMMIT_MESSAGE" value="direct connection" />
+    <MESSAGE value="cleaning" />
+    <MESSAGE value="DEPLOYING" />
+    <option name="LAST_COMMIT_MESSAGE" value="DEPLOYING" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
