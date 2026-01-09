@@ -53,7 +53,7 @@ public class MiljetEmailClient {
 
         logger.info("Mailjet configuration - URL: {}, From: {} <{}>, To: {} <{}>", url, fromName, fromEmail, toName != null ? toName : "User", to);
 
-        String credentials = apiKey + "" + apiSecret;
+        String credentials = apiKey + ":" + apiSecret;
         String encodedAuth = Base64.getEncoder().encodeToString(credentials.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
         HttpHeaders headers = new HttpHeaders();
