@@ -14,36 +14,20 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class SupabaseStorageService {
 
-    @Value("${supabase.url}")
+    @Value("${SUPABASE_URL}")
     private String supabaseUrl;
 
-    @Value("${supabase.service.key}")
+    @Value("${SUPABASE_SERVICE_KEY}")
     private String serviceRoleKey;
 
-    @Value("${supabase.bucket.product.images:product-images}")
+    @Value("${SUPABASE_BUCKET_PRODUCT_IMAGES:product-images}")
     private String productImagesBucket;
 
-    @Value("${supabase.bucket.review.images:review-images}")
+    @Value("${SUPABASE_BUCKET_REVIEW_IMAGES:review-images}")
     private String reviewImagesBucket;
 
-    @Value("${supabase.bucket.category.images:category-images}")
+    @Value("${SUPABASE_BUCKET_CATEGORY_IMAGES:category-images}")
     private String categoryImagesBucket;
-
-    public UploadResult uploadCategoryImage(MultipartFile file, Long categoryId) throws IOException {
-        String folder = "categories/" + categoryId;
-        try {
-            return uploadFile(file, categoryImagesBucket, folder);
-        } catch (IOException e) {
-
-            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
-            if (msg.contains("bucket not found") || msg.contains("bucket") || msg.contains("not found")) {
-                log.warn("Category bucket '{}' not found. Falling back to product bucket '{}'. Error: {}",
-                        categoryImagesBucket, productImagesBucket, e.getMessage());
-                return uploadFile(file, productImagesBucket, "categories/" + categoryId);
-            }
-            throw e;
-        }
-    }
 
     private final OkHttpClient httpClient;
 
@@ -53,6 +37,31 @@ public class SupabaseStorageService {
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .build();
+    }
+
+    public UploadResult uploadCategoryImage(MultipartFile file, Long categoryId) throws IOException {
+        String folder = "categories/" + categoryId;
+        try {
+            return uploadFile(file, categoryImagesBucket, folder);
+        } catch (IOException e) {
+            String msg = e.getMessage() != null ? e.getMessage().toLowerCase() : "";
+            if (msg.contains("bucket not found") || msg.contains("bucket") || msg.contains("not found")) {
+                log.warn("Category bucket '{}' not found. Falling back to product bucket '{}'. Error: {}",
+                        categoryImagesBucket, productImagesBucket, e.getMessage());
+                return uploadFile(file, productImagesBucket, folder);
+            }
+            throw e;
+        }
+    }
+
+    public UploadResult uploadProductImage(MultipartFile file, Integer productId) throws IOException {
+        String folder = "products/" + productId;
+        return uploadFile(file, productImagesBucket, folder);
+    }
+
+    public UploadResult uploadReviewImage(MultipartFile file, Long reviewId) throws IOException {
+        String folder = "reviews/" + reviewId;
+        return uploadFile(file, reviewImagesBucket, folder);
     }
 
     public UploadResult uploadFile(MultipartFile file, String bucket, String folder) throws IOException {
@@ -79,9 +88,7 @@ public class SupabaseStorageService {
         String uploadUrl = String.format("%s/storage/v1/object/%s/%s",
                 supabaseUrl, bucket, path);
 
-        RequestBody requestBody = RequestBody.create(
-                file.getBytes(),
-                MediaType.parse(contentType));
+        RequestBody requestBody = RequestBody.create(file.getBytes(), MediaType.parse(contentType));
 
         Request request = new Request.Builder()
                 .url(uploadUrl)
@@ -109,16 +116,6 @@ public class SupabaseStorageService {
         }
     }
 
-    public UploadResult uploadProductImage(MultipartFile file, Integer productId) throws IOException {
-        String folder = "products/" + productId;
-        return uploadFile(file, productImagesBucket, folder);
-    }
-
-    public UploadResult uploadReviewImage(MultipartFile file, Long reviewId) throws IOException {
-        String folder = "reviews/" + reviewId;
-        return uploadFile(file, reviewImagesBucket, folder);
-    }
-
     public void deleteFile(String bucket, String path) throws IOException {
         String deleteUrl = String.format("%s/storage/v1/object/%s/%s",
                 supabaseUrl, bucket, path);
@@ -131,7 +128,6 @@ public class SupabaseStorageService {
 
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful() && response.code() != 404) {
-
                 String errorBody = response.body() != null ? response.body().string() : "Unknown error";
                 throw new IOException("Delete failed: " + response.code() + " - " + errorBody);
             }
@@ -151,9 +147,7 @@ public class SupabaseStorageService {
                 supabaseUrl, bucket, path);
 
         String jsonBody = "{\"expiresIn\": 3600}";
-        RequestBody requestBody = RequestBody.create(
-                jsonBody,
-                MediaType.parse("application/json"));
+        RequestBody requestBody = RequestBody.create(jsonBody, MediaType.parse("application/json"));
 
         Request request = new Request.Builder()
                 .url(signedUrl)
@@ -168,7 +162,6 @@ public class SupabaseStorageService {
             }
 
             String responseBody = response.body().string();
-
             String signedUrlPath = responseBody.split("\"signedURL\":\"")[1].split("\"")[0];
             return supabaseUrl + signedUrlPath;
         }
