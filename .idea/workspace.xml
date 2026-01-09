@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9b4db4d9-e584-45f1-a0fb-5fd98d5aae4a" name="Changes" comment="DEPLOYING">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -262,15 +263,7 @@
       <workItem from="1767770989662" duration="14778000" />
       <workItem from="1767856298989" duration="16852000" />
       <workItem from="1767880004079" duration="597000" />
-      <workItem from="1767949013148" duration="1828000" />
-    </task>
-    <task id="LOCAL-00020" summary="Docker">
-      <option name="closed" value="true" />
-      <created>1766612185289</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1766612185291</updated>
+      <workItem from="1767949013148" duration="2770000" />
     </task>
     <task id="LOCAL-00021" summary="Docker">
       <option name="closed" value="true" />
@@ -656,7 +649,15 @@
       <option name="project" value="LOCAL" />
       <updated>1767950262696</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="DEPLOYING">
+      <option name="closed" value="true" />
+      <created>1767951141572</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1767951141572</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
