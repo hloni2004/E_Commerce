@@ -82,14 +82,17 @@ public class CheckoutController {
                     .orElseThrow(() -> new RuntimeException("User not found"));
             Cart cart = cartService.findByUserId(userId)
                     .orElseThrow(() -> new RuntimeException("Cart not found"));
-            if (cart.getItems() != null) {
-                cart.setItems(
-                        cart.getItems().stream()
-                                .filter(item -> item.getProduct() != null && item.getColour() != null
-                                        && item.getSize() != null)
-                                .toList());
-            }
-            if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            
+            // Filter valid items without replacing the managed collection 
+            // (orphanRemoval = true requires we don't replace the collection)
+            List<za.ac.styling.domain.CartItem> validCartItems = cart.getItems() != null
+                    ? cart.getItems().stream()
+                            .filter(item -> item.getProduct() != null && item.getColour() != null
+                                    && item.getSize() != null)
+                            .toList()
+                    : new java.util.ArrayList<>();
+                    
+            if (validCartItems.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Cart is empty"));
             }
 
@@ -98,7 +101,7 @@ public class CheckoutController {
             Address shippingAddress = addressRepository.findById(shippingAddressId)
                     .orElseThrow(() -> new RuntimeException("Address not found"));
 
-            double subtotal = cart.getItems().stream()
+            double subtotal = validCartItems.stream()
                     .mapToDouble(item -> item.getQuantity() * item.getProduct().getBasePrice())
                     .sum();
             double shippingCost = shippingMethod.getCost();
@@ -137,7 +140,7 @@ public class CheckoutController {
                     .status(OrderStatus.PENDING)
                     .build();
 
-            List<OrderItem> orderItems = cart.getItems().stream()
+            List<OrderItem> orderItems = validCartItems.stream()
                     .map(cartItem -> {
                         double itemPrice = cartItem.getProduct().getBasePrice();
                         int itemQuantity = cartItem.getQuantity();

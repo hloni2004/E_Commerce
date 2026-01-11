@@ -117,17 +117,27 @@ public class CartController {
                                 "totalItems", 0)));
             }
 
-            if (cart.getItems() != null) {
-                cart.setItems(
-                        cart.getItems().stream()
-                                .filter(item -> item.getProduct() != null && item.getColour() != null
-                                        && item.getSize() != null)
-                                .toList());
-            }
+            // Filter items for response without modifying the managed collection
+            // (orphanRemoval = true requires we don't replace the collection)
+            List<za.ac.styling.domain.CartItem> validItems = cart.getItems() != null
+                    ? cart.getItems().stream()
+                            .filter(item -> item.getProduct() != null && item.getColour() != null
+                                    && item.getSize() != null)
+                            .toList()
+                    : new ArrayList<>();
 
             System.out.println(
-                    "✅ Cart found with " + (cart.getItems() != null ? cart.getItems().size() : 0) + " valid items");
-            return ResponseEntity.ok(Map.of("success", true, "data", cart));
+                    "✅ Cart found with " + validItems.size() + " valid items");
+            
+            // Return a response map with filtered items instead of modifying the entity
+            return ResponseEntity.ok(Map.of(
+                    "success", true, 
+                    "data", Map.of(
+                            "cartId", cart.getCartId(),
+                            "items", validItems,
+                            "createdAt", cart.getCreatedAt() != null ? cart.getCreatedAt().toString() : "",
+                            "updatedAt", cart.getUpdatedAt() != null ? cart.getUpdatedAt().toString() : ""
+                    )));
         } catch (Exception e) {
             System.err.println("❌ Error retrieving cart: " + e.getMessage());
             e.printStackTrace();
