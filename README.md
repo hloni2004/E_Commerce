@@ -59,15 +59,14 @@ No screenshots are currently included in the repository.
    - `SUPABASE_SERVICE_KEY`
    - `APP_CORS_ALLOWED_ORIGINS`
    - `PORT` (optional)
-4. Configure the database and external services.
-5. Run the application with Maven.
+4. Run the application with Maven.
 
 ## How to Run It
 ```bash
 mvn clean spring-boot:run
 ```
 
-The application starts on port `8080` by default, or the value provided in `PORT`.
+The application starts on port `8080` by default, or uses the port specified in the `PORT` environment variable if provided.
 
 ## API Documentation
 ### Public endpoints
