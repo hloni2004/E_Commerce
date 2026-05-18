@@ -37,7 +37,7 @@ This project provides the server-side foundation for an online store, handling a
 - Spring Mail
 
 ## Screenshots
-No screenshots are currently included in the repository. Add embedded screenshots of the storefront, admin dashboard, checkout flow, and API responses when available.
+No screenshots are currently included in the repository.
 
 ## Installation Steps
 1. Clone the repository.
@@ -103,7 +103,7 @@ Most resources expose standard create, read, update, and delete operations, whil
 
 ## Folder Structure
 ```text
-src/main/java/za/ac/styling/
+src/main/java/za/ac/styling/   # Root application package
 ├── config/          # Application, security, cache, CORS, and startup configuration
 ├── controller/      # REST controllers
 ├── domain/          # JPA entities and enums
