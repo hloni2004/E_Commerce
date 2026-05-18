@@ -11,7 +11,7 @@ This project provides the server-side foundation for an online store, handling a
 
 ## Features
 - JWT-based authentication and role-based authorization
-- Product, category, colour, size, and image management
+- Product, category, color, size, and image management
 - Cart and checkout workflow
 - Orders, order items, payments, and shipments
 - Promo code handling
@@ -89,8 +89,8 @@ The API is organized under `/api/*` and includes the following resources:
 - `/api/promos`
 - `/api/addresses`
 - `/api/shipping-methods`
-- `/api/product-colours`
-- `/api/product-colour-sizes`
+- `/api/product-colors`
+- `/api/product-color-sizes`
 - `/api/product-images`
 - `/api/inventory`
 - `/api/email`
