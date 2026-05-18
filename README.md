@@ -37,7 +37,7 @@ This project provides the server-side foundation for an online store, handling a
 - Spring Mail
 
 ## Screenshots
-Add embedded screenshots of the storefront, admin dashboard, checkout flow, and API responses here.
+No screenshots are currently included in the repository. Add embedded screenshots of the storefront, admin dashboard, checkout flow, and API responses when available.
 
 ## Installation Steps
 1. Clone the repository.
@@ -132,4 +132,4 @@ docs/
 - Add screenshots for the UI and API flows
 
 ## Author / Contact Info
-Maintained by: [Your Name] | Contact: [your.email@example.com] | GitHub: [your-github-handle]
+Maintained by: hloni2004 | GitHub: https://github.com/hloni2004
